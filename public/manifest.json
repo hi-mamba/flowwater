@@ -1,0 +1,23 @@
+{
+  "name": "悦泉修仙",
+  "short_name": "悦泉修仙",
+  "description": "一款专注“不打扰的温柔提醒”的智能饮水助手，通过高度定制的间隔提醒和修仙等级系统，帮助用户养成健康饮水习惯。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/water/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/water/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+
+  
+}
