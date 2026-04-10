@@ -46,6 +46,7 @@ export default function ReminderManager() {
   }, []);
 
   const [lastTriggeredTime, setLastTriggeredTime] = useState<number | null>(null);
+  const [currentReminderPlan, setCurrentReminderPlan] = useState<any>(null);
 
   useEffect(() => {
     const checkReminder = () => {
@@ -54,8 +55,9 @@ export default function ReminderManager() {
         const now = Date.now();
         // Trigger if we are past the next reminder time, within a 1-minute window,
         // and we haven't already triggered for this specific reminder time.
-        if (now >= next && now - next < 60000 && lastTriggeredTime !== next) {
-          setLastTriggeredTime(next);
+        if (now >= next.time && now - next.time < 60000 && lastTriggeredTime !== next.time) {
+          setLastTriggeredTime(next.time);
+          setCurrentReminderPlan(next.plan);
           triggerReminder();
         }
       }
@@ -137,7 +139,17 @@ export default function ReminderManager() {
   };
 
   const handleDrink = () => {
-    addLog(250);
+    if (currentReminderPlan?.type === 'cultivation') {
+      addLog(500, 'cultivation');
+      useStore.setState((state) => ({
+        spiritStones: state.spiritStones + 50
+      }));
+    } else {
+      addLog(250, 'water');
+      useStore.setState((state) => ({
+        spiritStones: state.spiritStones + 10
+      }));
+    }
     closeReminder();
   };
 
@@ -178,19 +190,31 @@ export default function ReminderManager() {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="w-48 h-48 rounded-full bg-gradient-to-tr from-sky-400 to-emerald-400 flex items-center justify-center shadow-[0_0_60px_rgba(56,189,248,0.4)] mb-12"
+              className={`w-48 h-48 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(56,189,248,0.4)] mb-12 ${
+                currentReminderPlan?.type === 'cultivation' 
+                  ? 'bg-gradient-to-tr from-purple-500 to-indigo-500 shadow-[0_0_60px_rgba(168,85,247,0.4)]'
+                  : 'bg-gradient-to-tr from-sky-400 to-emerald-400 shadow-[0_0_60px_rgba(56,189,248,0.4)]'
+              }`}
             >
               <Droplets size={64} className="text-white" />
             </motion.div>
 
-            <h2 className="text-3xl font-light text-white mb-4">该喝水啦</h2>
-            <p className="text-slate-400 mb-12">补充水分，保持活力</p>
+            <h2 className="text-3xl font-light text-white mb-4">
+              {currentReminderPlan?.type === 'cultivation' ? '该修炼啦' : '该喝水啦'}
+            </h2>
+            <p className="text-slate-400 mb-12">
+              {currentReminderPlan?.type === 'cultivation' ? '凝神静气，运转周天' : '补充水分，保持活力'}
+            </p>
 
             <button
               onClick={handleDrink}
-              className="bg-emerald-500 hover:bg-emerald-400 text-white rounded-full py-4 px-16 text-xl font-medium shadow-lg shadow-emerald-500/20 transition-colors mb-8"
+              className={`text-white rounded-full py-4 px-16 text-xl font-medium shadow-lg transition-colors mb-8 ${
+                currentReminderPlan?.type === 'cultivation'
+                  ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-500/20'
+                  : 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20'
+              }`}
             >
-              我刚喝了
+              {currentReminderPlan?.type === 'cultivation' ? '开始修炼' : '我刚喝了'}
             </button>
 
             {settings.voiceCommandEnabled && (

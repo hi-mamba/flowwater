@@ -11,6 +11,7 @@ export default function CavePage() {
   const [showCrafting, setShowCrafting] = useState(false);
   const [showPlantModal, setShowPlantModal] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
@@ -23,7 +24,10 @@ export default function CavePage() {
   return (
     <div className="flex flex-col min-h-full bg-slate-900 p-6 relative overflow-y-auto pb-24">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-emerald-400">洞府</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-emerald-400">洞府</h1>
+          <div className="text-xs text-slate-400 mt-1">洞府评分: {Math.floor((cave.springQi * 10) + (cave.herbs.length * 50) + (artifacts.length * 100) + ((useStore.getState().puppets || 0) * 100))}</div>
+        </div>
         <div className="flex space-x-3">
           <div className="flex items-center text-sm font-medium px-3 py-1.5 rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-700/50">
             <Gem size={14} className="mr-1.5" /> {spiritStones || 0}
@@ -259,6 +263,34 @@ export default function CavePage() {
         )}
       </div>
 
+      {/* Puppet Room */}
+      <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 mt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold text-purple-400 flex items-center">
+            <Swords size={18} className="mr-2" /> 傀儡室
+          </h2>
+          <span className="text-xs text-slate-400">当前拥有: {useStore.getState().puppets || 0} 具</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-slate-400">
+            <p>傀儡可自动采集资源，增加洞府评分。</p>
+            <p className="mt-1">每具傀儡增加 100 评分。</p>
+          </div>
+          <button 
+            onClick={() => {
+              const result = useStore.getState().craftPuppet?.();
+              if (result) {
+                setToastMessage(result.message);
+                setTimeout(() => setToastMessage(null), 3000);
+              }
+            }}
+            className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors"
+          >
+            炼制傀儡 (500灵石)
+          </button>
+        </div>
+      </div>
+
       {/* Crafting Table */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
@@ -487,6 +519,20 @@ export default function CavePage() {
                 </div>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl border border-slate-700 flex items-center space-x-2"
+          >
+            <Sparkles size={16} className="text-emerald-400" />
+            <span className="text-sm font-medium">{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>

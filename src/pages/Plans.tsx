@@ -316,13 +316,23 @@ export default function PlansPage() {
                   <button onClick={() => applyTemplate({ name: '下午半天', startTime: '14:00', endTime: '18:00', intervalMinutes: 30 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">下午半天</button>
                   <button onClick={() => applyTemplate({ name: '全天补水', startTime: '08:00', endTime: '22:00', intervalMinutes: 90 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">全天补水</button>
                 </div>
-                <input
-                  type="text"
-                  value={editForm.name || ''}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-                  placeholder="计划名称"
-                />
+                <div className="flex space-x-3">
+                  <select
+                    value={editForm.type || 'water'}
+                    onChange={(e) => setEditForm({ ...editForm, type: e.target.value as any })}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="water">饮水</option>
+                    <option value="cultivation">修炼</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                    placeholder="计划名称"
+                  />
+                </div>
                 <div className="flex space-x-4">
                   <div className="flex-1">
                     <label className="text-xs text-slate-400 mb-1 block">开始时间</label>

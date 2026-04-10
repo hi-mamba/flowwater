@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, CULTIVATION_LEVELS, SHOP_ITEMS, SPIRITUAL_ROOTS, DAO_COMPANIONS, REGIONS, SECTS, GAME_SKILLS, PRESET_CHARACTERS } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
-import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book } from 'lucide-react';
+import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book, ShieldAlert } from 'lucide-react';
 import { formatDistanceToNowStrict, format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { io } from 'socket.io-client';
@@ -14,7 +14,10 @@ import CharacterSelectionModal from '../components/CharacterSelectionModal';
 import DeathModal from '../components/DeathModal';
 import ConsultHeavens from '../components/ConsultHeavens';
 import { EncyclopediaModal } from '../components/EncyclopediaModal';
-
+import { NarrativeHeader } from '../components/NarrativeHeader';
+import { PalmBottleModal } from '../components/PalmBottleModal';
+import { CombatAnimation } from '../components/CombatAnimation';
+import { BreakthroughAnimation } from '../components/BreakthroughAnimation';
 import { getUniqueEmotionalMessage } from '../data/emotionalMessages';
 
 const EMOTIONAL_MESSAGES: Record<string, string[]> = {
@@ -81,11 +84,13 @@ export const getItemInfo = (id: string) => {
   };
 };
 
+import { LIFE_STAGES } from '../store';
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { 
-    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff,
-    characterId, characterPreset, isDead, deathReason, rebirthCount, storyProgress, selectCharacter, die, rebirth, completeStoryNode, consultHeavens
+    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff, cultivationMode, foundationDamaged,
+    characterId, characterPreset, isDead, deathReason, rebirthCount, storyProgress, selectCharacter, die, rebirth, completeStoryNode, consultHeavens, companionDailyEvent
   } = useStore();
   
   const [showConsultHeavens, setShowConsultHeavens] = useState(false);
@@ -114,9 +119,10 @@ export default function HomePage() {
     };
   }, []);
   const [timeLeft, setTimeLeft] = useState<string>('');
-  const [nextTime, setNextTime] = useState<number | null>(null);
+  const [nextTime, setNextTime] = useState<{ time: number, plan: any } | null>(null);
   const [todayAmount, setTodayAmount] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [combatState, setCombatState] = useState<{ isOpen: boolean; attackerName: string; defenderName: string; isVictory: boolean; message: string; loot?: { spiritStones?: number } } | null>(null);
   const [cityName, setCityName] = useState<string>('定位中...');
   
   const [showDetails, setShowDetails] = useState(false);
@@ -125,13 +131,15 @@ export default function HomePage() {
   const [showCompanionModal, setShowCompanionModal] = useState(false);
   const [showCompanionInteractModal, setShowCompanionInteractModal] = useState(false);
   const [selectedInteractCompanionId, setSelectedInteractCompanionId] = useState<string | null>(null);
-  const [activeQuestTab, setActiveQuestTab] = useState<'quests' | 'ranking' | 'competition' | 'sectWar' | 'hall'>('quests');
+  const [activeQuestTab, setActiveQuestTab] = useState<'quests' | 'ranking' | 'competition' | 'sectWar' | 'hall' | 'members' | 'factions'>('quests');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [shopTab, setShopTab] = useState<'buy' | 'sell'>('buy');
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [showSectInvitation, setShowSectInvitation] = useState(false);
   const [showSectSelection, setShowSectSelection] = useState(false);
+  const [showCreateSectModal, setShowCreateSectModal] = useState(false);
+  const [newSectName, setNewSectName] = useState('');
   const [showNoviceGuide, setShowNoviceGuide] = useState(false);
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [showFateModal, setShowFateModal] = useState(false);
@@ -144,6 +152,7 @@ export default function HomePage() {
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [useQingxinPill, setUseQingxinPill] = useState(false);
   const [showProductionModal, setShowProductionModal] = useState(false);
+  const [showBottleModal, setShowBottleModal] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [showNpcModal, setShowNpcModal] = useState(false);
   const [showDailyRewardModal, setShowDailyRewardModal] = useState(false);
@@ -324,6 +333,43 @@ export default function HomePage() {
   const totalAmount = logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount) * safePassiveMultiplier, 0) + safeBonusPoints;
   
   // Backward compatibility: if levelIndex is 0 but totalAmount is high, set it
+  useEffect(() => {
+    const playIntro = () => {
+      const audio = document.getElementById('bgm-audio') as HTMLAudioElement;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().then(() => {
+          // Play for 12 seconds then fade out
+          setTimeout(() => {
+            let vol = 1;
+            const fadeOut = setInterval(() => {
+              if (vol > 0.1) {
+                vol -= 0.1;
+                audio.volume = vol;
+              } else {
+                clearInterval(fadeOut);
+                audio.pause();
+                audio.volume = 1;
+              }
+            }, 200);
+          }, 12000);
+        }).catch(e => console.log('Autoplay prevented:', e));
+      }
+    };
+    
+    // Try to play immediately
+    playIntro();
+    
+    // Also play on first interaction if autoplay was blocked
+    const onInteract = () => {
+      playIntro();
+      document.removeEventListener('click', onInteract);
+    };
+    document.addEventListener('click', onInteract);
+    
+    return () => document.removeEventListener('click', onInteract);
+  }, []);
+
   useEffect(() => {
     if (levelIndex === 0 && totalAmount > 0) {
       let calculatedIndex = CULTIVATION_LEVELS.findIndex(l => totalAmount < l.min) - 1;
@@ -569,10 +615,10 @@ export default function HomePage() {
       const next = getNextReminder();
       setNextTime(next);
       if (next) {
-        if (next <= Date.now()) {
+        if (next.time <= Date.now()) {
            setTimeLeft('就是现在');
         } else {
-           setTimeLeft(formatDistanceToNowStrict(next, { locale: zhCN, addSuffix: true }));
+           setTimeLeft(formatDistanceToNowStrict(next.time, { locale: zhCN, addSuffix: true }));
         }
       } else {
         setTimeLeft('今天没有提醒了');
@@ -745,6 +791,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full p-6 relative">
+      <NarrativeHeader />
       {/* Leave Sect Confirm Modal */}
       {showLeaveConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6">
@@ -920,6 +967,13 @@ export default function HomePage() {
               <span className="text-[10px] text-amber-400 font-bold tracking-widest">{currentLevel.name} {subLevel}阶</span>
             </div>
           </div>
+
+          {foundationDamaged && (
+            <div className="mb-4 flex items-center space-x-2 bg-red-900/40 border border-red-500/50 px-4 py-2 rounded-xl text-red-300 animate-pulse">
+              <ShieldAlert size={16} />
+              <span className="text-xs font-bold">根基受损！修为停滞，请使用掌天瓶修复。</span>
+            </div>
+          )}
 
           <div className="flex items-center space-x-2 mb-3 mt-2">
             <span className="flex items-center text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-700/50">
@@ -1223,6 +1277,26 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Companion Daily Event */}
+        {companionDailyEvent && (
+          <div className="w-full mb-6 bg-pink-900/20 rounded-2xl p-4 border border-pink-500/30 flex justify-between items-center z-20">
+            <div className="flex items-center text-pink-300">
+              <Heart size={16} className="mr-2" />
+              <span className="text-sm font-bold">道侣传音</span>
+            </div>
+            <button
+              onClick={() => {
+                const res = useStore.getState().claimCompanionEvent?.();
+                if (res && res.message) setToastMessage(res.message);
+                setTimeout(() => setToastMessage(null), 3000);
+              }}
+              className="px-3 py-1 bg-pink-600/30 hover:bg-pink-600/50 text-pink-200 text-xs font-bold rounded-lg transition-colors border border-pink-500/50"
+            >
+              查看
+            </button>
+          </div>
+        )}
+
         {/* Cultivation Lore Records */}
         {dailyEncyclopediaItems && dailyEncyclopediaItems.length > 0 && (
           <div className="w-full mb-6 bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50 flex flex-col gap-2 z-20">
@@ -1326,6 +1400,55 @@ export default function HomePage() {
           )}
         </div>
 
+        {/* Cultivation Mode Selector */}
+        <div className="w-full mt-6 bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50 flex flex-col gap-3 z-20">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center text-amber-400">
+              <Compass size={16} className="mr-2" />
+              <span className="text-sm font-bold">修炼模式</span>
+            </div>
+            <span className="text-[10px] text-slate-500">影响收益与风险</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => useStore.setState({ cultivationMode: 'safe' })}
+              className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
+                cultivationMode === 'safe' || !cultivationMode
+                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
+                  : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50'
+              }`}
+            >
+              <Home size={14} />
+              <span>洞府闭关</span>
+              <span className="text-[9px] opacity-70 font-normal">100%安全</span>
+            </button>
+            <button
+              onClick={() => useStore.setState({ cultivationMode: 'normal' })}
+              className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
+                cultivationMode === 'normal'
+                  ? 'bg-sky-500/20 text-sky-400 border-sky-500/50'
+                  : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50'
+              }`}
+            >
+              <Footprints size={14} />
+              <span>外出历练</span>
+              <span className="text-[9px] opacity-70 font-normal">1.5倍收益</span>
+            </button>
+            <button
+              onClick={() => useStore.setState({ cultivationMode: 'risky' })}
+              className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
+                cultivationMode === 'risky'
+                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/50'
+                  : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50'
+              }`}
+            >
+              <Skull size={14} />
+              <span>秘境探险</span>
+              <span className="text-[9px] opacity-70 font-normal">高风险高回报</span>
+            </button>
+          </div>
+        </div>
+
         {/* Cave Section */}
         <div className="w-full mt-6 bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50 flex flex-col gap-3 z-20">
           <div className="flex items-center justify-between">
@@ -1335,7 +1458,7 @@ export default function HomePage() {
             </div>
             <span className="text-[10px] text-slate-500">等级: {Math.floor((alchemyLevel || 1) + (craftingLevel || 1))}</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button 
               onClick={() => {
                 gatherMaterials();
@@ -1351,6 +1474,13 @@ export default function HomePage() {
               className="py-3 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold flex items-center justify-center hover:bg-rose-500/20 transition-colors"
             >
               <Flame size={14} className="mr-1" /> 洞府炼制
+            </button>
+            <button 
+              onClick={() => setShowBottleModal(true)}
+              className="py-3 bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 rounded-xl text-xs font-bold flex items-center justify-center hover:bg-emerald-500/30 transition-colors relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
+              <Droplets size={14} className="mr-1" /> 掌天瓶
             </button>
           </div>
         </div>
@@ -1430,19 +1560,26 @@ export default function HomePage() {
 
             <div className="flex-1 overflow-y-auto space-y-3">
               {todayLogs.length > 0 ? todayLogs.map(log => (
-                <div key={log.id} className="flex items-center justify-between bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-slate-900 rounded-lg">
-                      {getTypeIcon(log.type)}
+                <div key={log.id} className="flex flex-col bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-slate-900 rounded-lg">
+                        {getTypeIcon(log.type)}
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-200">{getTypeLabel(log.type)} {log.amount}ml</p>
+                        <p className="text-xs text-slate-500">{format(new Date(log.timestamp), 'HH:mm')}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-200">{getTypeLabel(log.type)} {log.amount}ml</p>
-                      <p className="text-xs text-slate-500">{format(new Date(log.timestamp), 'HH:mm')}</p>
-                    </div>
+                    <button onClick={() => removeLog(log.timestamp)} className="text-rose-400/70 hover:text-rose-400 p-2 transition-colors">
+                      <Trash2 size={18} />
+                    </button>
                   </div>
-                  <button onClick={() => removeLog(log.timestamp)} className="text-rose-400/70 hover:text-rose-400 p-2 transition-colors">
-                    <Trash2 size={18} />
-                  </button>
+                  {log.message && (
+                    <div className="mt-2 text-xs text-amber-400 bg-amber-900/20 p-2 rounded border border-amber-500/20">
+                      {log.message}
+                    </div>
+                  )}
                 </div>
               )) : (
                 <p className="text-center text-slate-500 text-sm py-8">今天还没有喝水哦，快去补充水分吧！</p>
@@ -2433,24 +2570,27 @@ export default function HomePage() {
       </AnimatePresence>
 
       {/* Breakthrough Effect */}
-      <AnimatePresence>
-        {showBreakthroughEffect && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1.5 }}
-            exit={{ opacity: 0, scale: 2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none bg-black/50 backdrop-blur-sm"
-          >
-            <div className="text-6xl font-bold text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] animate-pulse p-8 bg-slate-900/80 rounded-3xl border border-amber-500/30">
-              突破成功！
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <BreakthroughAnimation 
+        isOpen={showBreakthroughEffect} 
+        levelIndex={levelIndex} 
+        levelName={currentLevelName}
+        onComplete={() => setShowBreakthroughEffect(false)} 
+      />
+      <audio id="bgm-audio" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=epic-chinese-orchestra-103292.mp3" preload="auto" />
       
       {/* Quests Modal */}
       <AnimatePresence>
-        {showQuests && (
+        {combatState && combatState.isOpen && (
+        <CombatAnimation
+          attackerName={combatState.attackerName}
+          defenderName={combatState.defenderName}
+          isVictory={combatState.isVictory}
+          message={combatState.message}
+          loot={combatState.loot}
+          onClose={() => setCombatState(null)}
+        />
+      )}
+      {showQuests && (
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2485,8 +2625,20 @@ export default function HomePage() {
                     >
                       <Shield size={16} className="mr-1" /> 宗门战
                     </button>
+                    <button 
+                      onClick={() => setActiveQuestTab('members')}
+                      className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'members' ? 'text-blue-400' : 'text-slate-500 hover:text-slate-300'}`}
+                    >
+                      <Users size={16} className="mr-1" /> 宗门同门
+                    </button>
                   </>
                 )}
+                <button 
+                  onClick={() => setActiveQuestTab('factions')}
+                  className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'factions' ? 'text-rose-400' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                  <Skull size={16} className="mr-1" /> 天下势力
+                </button>
                 <button 
                   onClick={() => setActiveQuestTab('ranking')}
                   className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'ranking' ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}`}
@@ -2890,6 +3042,207 @@ export default function HomePage() {
                     })}
                   </div>
                 </div>
+              
+              ) : activeQuestTab === 'factions' ? (
+                <div className="space-y-4">
+                  <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 text-center mb-4">
+                    <h3 className="text-rose-400 font-bold mb-1">天下势力</h3>
+                    <p className="text-[10px] text-slate-400">修仙界弱肉强食，实力为尊。若实力足够，可覆灭宗门夺取底蕴。</p>
+                  </div>
+                  
+                  {useStore.getState().mySect ? (
+                    <div className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-4 mb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-purple-300 font-bold text-lg">{useStore.getState().mySect?.name}</h3>
+                        <span className="text-xs bg-purple-800/50 text-purple-200 px-2 py-1 rounded">我的宗门</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs text-slate-300 mb-3">
+                        <div>弟子数量: <span className="text-purple-400">{useStore.getState().mySect?.disciples}</span></div>
+                        <div>宗门底蕴: <span className="text-purple-400">{useStore.getState().mySect?.power}</span></div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const result = useStore.getState().recruitDisciples?.();
+                          if (result) {
+                            setToastMessage(result.message);
+                            setTimeout(() => setToastMessage(null), 3000);
+                          }
+                        }}
+                        className="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 text-white text-xs font-bold rounded-lg transition-colors"
+                      >
+                        招收弟子 (消耗1000灵石)
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-4 text-center">
+                      <p className="text-sm text-slate-400 mb-3">你尚未开宗立派</p>
+                      <button
+                        onClick={() => setShowCreateSectModal(true)}
+                        className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors"
+                      >
+                        创立宗门 (消耗10000灵石)
+                      </button>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-3">
+                    {SECTS.filter(s => !useStore.getState().destroyedSects?.includes(s.id) && !useStore.getState().conqueredSects?.includes(s.id)).map(s => (
+                      <div key={s.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <div className="flex items-center">
+                              <span className="text-sm font-bold text-rose-300 mr-2">{s.name}</span>
+                              <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">宗门</span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1">
+                              {s.desc}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2 mt-3">
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().annihilateSect?.(s.id);
+                              if (result) {
+                                setCombatState({
+                                  isOpen: true,
+                                  attackerName: playerName,
+                                  defenderName: s.name,
+                                  isVictory: result.success || false,
+                                  message: result.message,
+                                  loot: result.loot
+                                });
+                              }
+                            }}
+                            className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors flex items-center justify-center"
+                          >
+                            <Skull size={14} className="mr-1" /> 覆灭宗门
+                          </button>
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().conquerSect?.(s.id);
+                              if (result) {
+                                setCombatState({
+                                  isOpen: true,
+                                  attackerName: playerName,
+                                  defenderName: s.name,
+                                  isVictory: result.success || false,
+                                  message: result.message,
+                                  loot: result.loot
+                                });
+                              }
+                            }}
+                            className="w-full py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors flex items-center justify-center mt-2"
+                          >
+                            <Shield size={14} className="mr-1" /> 收服宗门
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+) : activeQuestTab === 'members' ? (
+                <div className="space-y-4">
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-center mb-4">
+                    <h3 className="text-blue-400 font-bold mb-1">宗门同门</h3>
+                    <p className="text-[10px] text-slate-400">结交同门，共探仙途</p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {sectNpcs.filter(n => n.sectId === sect).map(npc => (
+                      <div key={npc.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <div>
+                            <div className="flex items-center">
+                              <span className="text-sm font-bold text-blue-300 mr-2">{npc.name}</span>
+                              <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">{npc.level}</span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-1">
+                              好感度: <span className="text-pink-400">{npc.favorability || 0}</span> ({
+                                npc.relationship === 'close_friend' ? '生死之交' :
+                                npc.relationship === 'friend' ? '至交好友' :
+                                npc.relationship === 'acquaintance' ? '泛泛之交' : '素昧平生'
+                              })
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2 mt-3">
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().interactWithNpc?.(npc.id, 'chat');
+                              if (result && result.message) setToastMessage(result.message);
+                              setTimeout(() => setToastMessage(null), 3000);
+                            }}
+                            className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition-colors"
+                          >
+                            论道
+                          </button>
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().interactWithNpc?.(npc.id, 'gift');
+                              if (result && result.message) setToastMessage(result.message);
+                              setTimeout(() => setToastMessage(null), 3000);
+                            }}
+                            className="flex-1 py-1.5 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 text-xs font-bold rounded-lg transition-colors"
+                          >
+                            赠礼 (100灵石)
+                          </button>
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().interactWithNpc?.(npc.id, 'spar');
+                              if (result && result.message) setToastMessage(result.message);
+                              setTimeout(() => setToastMessage(null), 3000);
+                            }}
+                            className="flex-1 py-1.5 bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/30 text-xs font-bold rounded-lg transition-colors"
+                          >
+                            切磋
+                          </button>
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().interactWithNpc?.(npc.id, 'rob');
+                              if (result) {
+                                setCombatState({
+                                  isOpen: true,
+                                  attackerName: playerName,
+                                  defenderName: npc.name,
+                                  isVictory: result.success || false,
+                                  message: result.message,
+                                  loot: result.loot
+                                });
+                              }
+                            }}
+                            className="flex-1 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors"
+                          >
+                            杀人夺宝
+                          </button>
+                          <button
+                            onClick={() => {
+                              const result = useStore.getState().interactWithNpc?.(npc.id, 'snatch');
+                              if (result) {
+                                setCombatState({
+                                  isOpen: true,
+                                  attackerName: playerName,
+                                  defenderName: npc.name,
+                                  isVictory: result.success || false,
+                                  message: result.message,
+                                  loot: result.loot
+                                });
+                              }
+                            }}
+                            className="flex-1 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors"
+                          >
+                            夺取机缘
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {sectNpcs.filter(n => n.sectId === sect).length === 0 && (
+                      <div className="text-center text-slate-500 text-sm py-8">
+                        宗门内暂无其他知名修士。
+                      </div>
+                    )}
+                  </div>
+                </div>
               ) : activeQuestTab === 'competition' ? (
                 <div className="space-y-4">
                   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center mb-4">
@@ -3112,7 +3465,7 @@ export default function HomePage() {
                 {exploreResult ? (
                   <div className="bg-slate-900/50 p-6 rounded-2xl border border-purple-500/50 text-center animate-in fade-in zoom-in duration-300">
                     <div className="w-16 h-16 bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-purple-500/30">
-                      {exploreResult.type === 'monster' ? <Swords size={32} className="text-rose-400" /> : <Sparkles size={32} className="text-amber-400" />}
+                      {exploreResult.type === 'monster' || exploreResult.type === 'combat' ? <Swords size={32} className="text-rose-400" /> : <Sparkles size={32} className="text-amber-400" />}
                     </div>
                     <h3 className={`text-lg font-bold mb-2 ${exploreResult.type === 'monster' ? 'text-rose-400' : 'text-amber-400'}`}>
                       {exploreResult.type === 'monster' ? '遭遇妖兽！' : exploreResult.type === 'hidden_cave' ? '奇遇！' : '探索收获'}
@@ -3140,6 +3493,16 @@ export default function HomePage() {
                       onClick={() => {
                         const res = exploreRealm('low');
                         setExploreResult(res);
+                        if (res.type === 'combat') {
+                          setCombatState({
+                            isOpen: true,
+                            attackerName: playerName,
+                            defenderName: res.enemyName,
+                            isVictory: res.isVictory,
+                            message: res.message,
+                            loot: res.loot
+                          });
+                        }
                       }}
                       disabled={useStore.getState().realmExplorationsToday >= 3}
                       className={`w-full p-4 rounded-2xl border transition-colors flex items-center justify-between ${useStore.getState().realmExplorationsToday >= 3 ? 'bg-slate-800 border-slate-700 opacity-50 cursor-not-allowed' : 'bg-emerald-900/20 border-emerald-500/30 hover:bg-emerald-900/40'}`}
@@ -3155,6 +3518,16 @@ export default function HomePage() {
                       onClick={() => {
                         const res = exploreRealm('mid');
                         setExploreResult(res);
+                        if (res.type === 'combat') {
+                          setCombatState({
+                            isOpen: true,
+                            attackerName: playerName,
+                            defenderName: res.enemyName,
+                            isVictory: res.isVictory,
+                            message: res.message,
+                            loot: res.loot
+                          });
+                        }
                       }}
                       disabled={useStore.getState().realmExplorationsToday >= 3}
                       className={`w-full p-4 rounded-2xl border transition-colors flex items-center justify-between ${useStore.getState().realmExplorationsToday >= 3 ? 'bg-slate-800 border-slate-700 opacity-50 cursor-not-allowed' : 'bg-blue-900/20 border-blue-500/30 hover:bg-blue-900/40'}`}
@@ -3170,6 +3543,16 @@ export default function HomePage() {
                       onClick={() => {
                         const res = exploreRealm('high');
                         setExploreResult(res);
+                        if (res.type === 'combat') {
+                          setCombatState({
+                            isOpen: true,
+                            attackerName: playerName,
+                            defenderName: res.enemyName,
+                            isVictory: res.isVictory,
+                            message: res.message,
+                            loot: res.loot
+                          });
+                        }
                       }}
                       disabled={useStore.getState().realmExplorationsToday >= 3}
                       className={`w-full p-4 rounded-2xl border transition-colors flex items-center justify-between ${useStore.getState().realmExplorationsToday >= 3 ? 'bg-slate-800 border-slate-700 opacity-50 cursor-not-allowed' : 'bg-rose-900/20 border-rose-500/30 hover:bg-rose-900/40'}`}
@@ -3375,12 +3758,29 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                <button 
-                  onClick={advanceStory}
-                  className="w-full py-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition-colors"
-                >
-                  继续历练
-                </button>
+                {STORY_CONTENT.find(c => c.id === storyChapter)?.nodes.find(n => n.id === storyNode)?.options ? (
+                  <div className="space-y-3">
+                    {STORY_CONTENT.find(c => c.id === storyChapter)?.nodes.find(n => n.id === storyNode)?.options?.map((opt, idx) => (
+                      <button 
+                        key={idx}
+                        onClick={() => {
+                          opt.action();
+                          advanceStory();
+                        }}
+                        className="w-full py-3 bg-slate-800/80 text-slate-300 border border-slate-700 rounded-xl font-bold text-sm hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+                      >
+                        {opt.text}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <button 
+                    onClick={advanceStory}
+                    className="w-full py-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition-colors"
+                  >
+                    继续历练
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -3931,6 +4331,14 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Palm Bottle Modal */}
+      <AnimatePresence>
+        {showBottleModal && (
+          <PalmBottleModal onClose={() => setShowBottleModal(false)} />
+        )}
+      </AnimatePresence>
+
       {/* Production Modal */}
       <AnimatePresence>
         {showProductionModal && (
@@ -4290,6 +4698,60 @@ export default function HomePage() {
         isOpen={showEncyclopedia}
         onClose={() => setShowEncyclopedia(false)}
       />
+
+      {/* Create Sect Modal */}
+      <AnimatePresence>
+        {showCreateSectModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-sm flex flex-col overflow-hidden shadow-2xl p-6"
+            >
+              <h2 className="text-xl font-bold text-white mb-4">创立宗门</h2>
+              <p className="text-sm text-slate-400 mb-4">开宗立派需要消耗 10000 灵石。请输入宗门名称：</p>
+              <input 
+                type="text" 
+                value={newSectName} 
+                onChange={(e) => setNewSectName(e.target.value)}
+                placeholder="例如：青云门"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white mb-6 focus:outline-none focus:border-purple-500"
+              />
+              <div className="flex space-x-3">
+                <button 
+                  onClick={() => setShowCreateSectModal(false)}
+                  className="flex-1 py-3 rounded-xl bg-slate-700 text-white font-medium"
+                >
+                  取消
+                </button>
+                <button 
+                  onClick={() => {
+                    if (newSectName.trim()) {
+                      const result = useStore.getState().createMySect?.(newSectName.trim());
+                      if (result) {
+                        setToastMessage(result.message);
+                        setTimeout(() => setToastMessage(null), 3000);
+                        if (result.success) {
+                          setShowCreateSectModal(false);
+                          setNewSectName('');
+                        }
+                      }
+                    }
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors"
+                >
+                  确认创立
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

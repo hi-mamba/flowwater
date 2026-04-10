@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { addMinutes, isAfter, isBefore, parse, format, startOfDay, endOfDay } from 'date-fns';
 
 export const PRESET_CHARACTERS = [
+
   {
     id: 'hanli',
     name: '韩立',
@@ -16,6 +17,42 @@ export const PRESET_CHARACTERS = [
     bonusValue: 0.1
   },
   {
+    id: 'lifeiyu',
+    name: '厉飞雨',
+    background: '七玄门弟子，韩立至交好友，服用抽髓丸换取短暂巅峰。',
+    talent: '杀伐果断：战斗胜率提升20%，但寿命消耗加快。',
+    growthPath: '武道流：前期战斗力极强。',
+    spiritualRoot: 'none', // 无灵根
+    initialSpiritStones: 50,
+    initialArtifacts: ['artifact_sword'],
+    bonusType: 'combat_win_rate',
+    bonusValue: 0.2
+  },
+  {
+    id: 'nangongwan',
+    name: '南宫婉',
+    background: '掩月宗长老，修炼素女轮回功，与韩立有不解之缘。',
+    talent: '轮回之体：每次突破失败返还部分修为，双修收益提升30%。',
+    growthPath: '宗门流：初始地位高，资源丰富。',
+    spiritualRoot: 'heaven', // 天灵根
+    initialSpiritStones: 5000,
+    initialArtifacts: ['artifact_qingjiao'],
+    bonusType: 'companion_bonus',
+    bonusValue: 1.3
+  },
+  {
+    id: 'ziling',
+    name: '紫灵',
+    background: '乱星海妙音门门主之女，绝世容颜，精通魅术。',
+    talent: '魅惑众生：购买物品价格降低20%，结识道侣概率提升50%。',
+    growthPath: '商道流：擅长经营与人际交往。',
+    spiritualRoot: 'earth', // 地灵根
+    initialSpiritStones: 10000,
+    initialArtifacts: ['artifact_2'],
+    bonusType: 'shop_discount',
+    bonusValue: 0.8
+  },
+  {
     id: 'lizongzhu',
     name: '李宗主',
     background: '名门之后，天生异象，宗门未来的希望。',
@@ -24,33 +61,33 @@ export const PRESET_CHARACTERS = [
     spiritualRoot: 'heaven', // 天灵根
     initialSpiritStones: 1000,
     initialArtifacts: [],
-    bonusType: 'prestige_bonus',
-    bonusValue: 1.5
-  },
-  {
-    id: 'ziling',
-    name: '紫灵',
-    background: '乱星海妙音门之后，绝色倾城，精通魅术。',
-    talent: '倾城之姿：道侣互动效果提升100%，购买物品价格降低20%。',
-    growthPath: '辅助流：擅长利用资源与人脉。',
-    spiritualRoot: 'mutated', // 变异灵根
-    initialSpiritStones: 500,
-    initialArtifacts: [],
-    bonusType: 'shop_discount',
-    bonusValue: 0.8
+    bonusType: 'daily_salary',
+    bonusValue: 2.0
   }
+
 ];
 
 export const REGIONS = [
-  { id: '凡人界', name: '凡人界', minLevel: 0, description: '凡人居住之地，灵气稀薄。', cost: 0, multiplier: 1.0 },
-  { id: '天南', name: '天南', minLevel: 2000, description: '修仙界偏僻之地，资源匮乏。', cost: 100, multiplier: 1.2 },
-  { id: '乱星海', name: '乱星海', minLevel: 10000, description: '海外修仙界，妖兽众多，资源丰富。需通过古传送阵前往。', cost: 1000, multiplier: 1.5 },
-  { id: '阴冥之地', name: '阴冥之地', minLevel: 50000, description: '阴气极重之地，传闻有鬼修出没。', cost: 5000, multiplier: 1.8 },
-  { id: '大晋', name: '大晋', minLevel: 100000, description: '人界修炼圣地，宗门林立，资源极度丰富。', cost: 10000, multiplier: 2.2 },
-  { id: '灵界', name: '灵界', minLevel: 10000000, description: '更高层次的世界，灵气浓郁，强者如云。', cost: 100000, multiplier: 3.0 },
+  { id: '凡人界', name: '凡人界', minLevel: 0, maxPower: 600000, description: '凡人居住之地，灵气稀薄。', cost: 0, multiplier: 1.0 },
+  { id: '天南', name: '天南', minLevel: 2000, maxPower: 600000, description: '修仙界偏僻之地，资源匮乏。', cost: 100, multiplier: 1.2 },
+  { id: '乱星海', name: '乱星海', minLevel: 10000, maxPower: 600000, description: '海外修仙界，妖兽众多，资源丰富。需通过古传送阵前往。', cost: 1000, multiplier: 1.5 },
+  { id: '阴冥之地', name: '阴冥之地', minLevel: 50000, maxPower: 600000, description: '阴气极重之地，传闻有鬼修出没。', cost: 5000, multiplier: 1.8 },
+  { id: '大晋', name: '大晋', minLevel: 100000, maxPower: 600000, description: '人界修炼圣地，宗门林立，资源极度丰富。', cost: 10000, multiplier: 2.2 },
+  { id: '灵界', name: '灵界', minLevel: 300000, maxPower: 80000000, description: '更高层次的世界，灵气浓郁，强者如云。', cost: 100000, multiplier: 3.0 },
+  { id: '仙界', name: '仙界', minLevel: 80000000, maxPower: Infinity, description: '真仙界，长生久视。', cost: 10000000, multiplier: 5.0 },
+];
+
+export const LIFE_STAGES = [
+  { id: 'mortal', name: '凡人界', description: '初入江湖，凡人求仙。' },
+  { id: 'tiannan', name: '天南', description: '修仙界初露锋芒。' },
+  { id: 'luanxinghai', name: '乱星海', description: '海外修真，危机四伏。' },
+  { id: 'dajin', name: '大晋', description: '修仙圣地，强者如云。' },
+  { id: 'lingjie', name: '灵界', description: '飞升灵界，万族林立。' },
+  { id: 'xianjie', name: '仙界', description: '登临仙界，追求大道。' }
 ];
 
 export const CULTIVATION_LEVELS = [
+
   { name: '凡人', min: 0, bg: 'from-slate-900 to-slate-800', color: 'text-slate-400' },
   { name: '炼气一层', min: 2000, bg: 'from-slate-900 to-blue-900/10', color: 'text-blue-200' },
   { name: '炼气二层', min: 2500, bg: 'from-slate-900 to-blue-900/20', color: 'text-blue-200' },
@@ -81,28 +118,54 @@ export const CULTIVATION_LEVELS = [
   { name: '化神中期', min: 400000, bg: 'from-slate-900 to-rose-900/50', color: 'text-rose-400' },
   { name: '化神后期', min: 500000, bg: 'from-slate-900 to-rose-900/60', color: 'text-rose-500' },
   { name: '化神巅峰', min: 600000, bg: 'from-slate-900 to-rose-900/70', color: 'text-rose-600' },
-  { name: '炼虚初期', min: 700000, bg: 'from-slate-900 to-cyan-900/40', color: 'text-cyan-300' },
-  { name: '炼虚中期', min: 850000, bg: 'from-slate-900 to-cyan-900/50', color: 'text-cyan-400' },
-  { name: '炼虚后期', min: 1000000, bg: 'from-slate-900 to-cyan-900/60', color: 'text-cyan-500' },
-  { name: '炼虚巅峰', min: 1200000, bg: 'from-slate-900 to-cyan-900/70', color: 'text-cyan-600' },
-  { name: '合体初期', min: 1500000, bg: 'from-slate-900 to-indigo-900/40', color: 'text-indigo-300' },
-  { name: '合体中期', min: 2000000, bg: 'from-slate-900 to-indigo-900/50', color: 'text-indigo-400' },
-  { name: '合体后期', min: 2500000, bg: 'from-slate-900 to-indigo-900/60', color: 'text-indigo-500' },
-  { name: '合体巅峰', min: 3000000, bg: 'from-slate-900 to-indigo-900/70', color: 'text-indigo-600' },
-  { name: '大乘初期', min: 4000000, bg: 'from-slate-900 to-fuchsia-900/40', color: 'text-fuchsia-300' },
-  { name: '大乘中期', min: 5000000, bg: 'from-slate-900 to-fuchsia-900/50', color: 'text-fuchsia-400' },
-  { name: '大乘后期', min: 6000000, bg: 'from-slate-900 to-fuchsia-900/60', color: 'text-fuchsia-500' },
-  { name: '大乘巅峰', min: 8000000, bg: 'from-slate-900 to-fuchsia-900/70', color: 'text-fuchsia-600' },
-  { name: '渡劫期', min: 10000000, bg: 'from-slate-900 to-red-900/40', color: 'text-red-300' },
+  { name: '炼虚初期', min: 800000, bg: 'from-slate-900 to-cyan-900/40', color: 'text-cyan-300' },
+  { name: '炼虚中期', min: 1200000, bg: 'from-slate-900 to-cyan-900/50', color: 'text-cyan-400' },
+  { name: '炼虚后期', min: 1800000, bg: 'from-slate-900 to-cyan-900/60', color: 'text-cyan-500' },
+  { name: '炼虚巅峰', min: 2500000, bg: 'from-slate-900 to-cyan-900/70', color: 'text-cyan-600' },
+  { name: '合体初期', min: 4000000, bg: 'from-slate-900 to-indigo-900/40', color: 'text-indigo-300' },
+  { name: '合体中期', min: 6000000, bg: 'from-slate-900 to-indigo-900/50', color: 'text-indigo-400' },
+  { name: '合体后期', min: 9000000, bg: 'from-slate-900 to-indigo-900/60', color: 'text-indigo-500' },
+  { name: '合体巅峰', min: 14000000, bg: 'from-slate-900 to-indigo-900/70', color: 'text-indigo-600' },
+  { name: '大乘初期', min: 20000000, bg: 'from-slate-900 to-fuchsia-900/40', color: 'text-fuchsia-300' },
+  { name: '大乘中期', min: 30000000, bg: 'from-slate-900 to-fuchsia-900/50', color: 'text-fuchsia-400' },
+  { name: '大乘后期', min: 45000000, bg: 'from-slate-900 to-fuchsia-900/60', color: 'text-fuchsia-500' },
+  { name: '大乘巅峰', min: 60000000, bg: 'from-slate-900 to-fuchsia-900/70', color: 'text-fuchsia-600' },
+  { name: '渡劫期', min: 80000000, bg: 'from-slate-900 to-red-900/60', color: 'text-red-500' },
+  { name: '真仙初期', min: 100000000, bg: 'from-slate-900 to-amber-900/40', color: 'text-amber-300' },
+  { name: '真仙中期', min: 150000000, bg: 'from-slate-900 to-amber-900/50', color: 'text-amber-400' },
+  { name: '真仙后期', min: 250000000, bg: 'from-slate-900 to-amber-900/60', color: 'text-amber-500' },
+  { name: '真仙巅峰', min: 400000000, bg: 'from-slate-900 to-amber-900/70', color: 'text-amber-600' },
+  { name: '金仙初期', min: 600000000, bg: 'from-slate-900 to-orange-900/40', color: 'text-orange-300' },
+  { name: '金仙中期', min: 900000000, bg: 'from-slate-900 to-orange-900/50', color: 'text-orange-400' },
+  { name: '金仙后期', min: 1500000000, bg: 'from-slate-900 to-orange-900/60', color: 'text-orange-500' },
+  { name: '金仙巅峰', min: 2500000000, bg: 'from-slate-900 to-orange-900/70', color: 'text-orange-600' },
+  { name: '太乙初期', min: 4000000000, bg: 'from-slate-900 to-lime-900/40', color: 'text-lime-300' },
+  { name: '太乙中期', min: 6000000000, bg: 'from-slate-900 to-lime-900/50', color: 'text-lime-400' },
+  { name: '太乙后期', min: 9000000000, bg: 'from-slate-900 to-lime-900/60', color: 'text-lime-500' },
+  { name: '太乙巅峰', min: 15000000000, bg: 'from-slate-900 to-lime-900/70', color: 'text-lime-600' },
+  { name: '大罗初期', min: 25000000000, bg: 'from-slate-900 to-teal-900/40', color: 'text-teal-300' },
+  { name: '大罗中期', min: 40000000000, bg: 'from-slate-900 to-teal-900/50', color: 'text-teal-400' },
+  { name: '大罗后期', min: 70000000000, bg: 'from-slate-900 to-teal-900/60', color: 'text-teal-500' },
+  { name: '大罗巅峰', min: 120000000000, bg: 'from-slate-900 to-teal-900/70', color: 'text-teal-600' },
+  { name: '道祖', min: 200000000000, bg: 'from-slate-900 to-zinc-100/20', color: 'text-zinc-100' }
+
 ];
 
 export const DAO_COMPANIONS = [
-  { id: 'nangongwan', name: '南宫婉', sect: '掩月宗', reqLevel: '结丹初期', effect: 2.0, desc: '掩月宗长老，修炼素女轮回功。双修可大幅提升修为。', strategy: '需加入掩月宗或修为达到结丹期方可结为道侣。' },
-  { id: 'ziling', name: '紫灵仙子', sect: '妙音门', reqLevel: '筑基后期', effect: 1.5, desc: '乱星海第一美女，精通魅术与阵法。', strategy: '需赠送稀有驻颜丹或灵石打动其心。' },
-  { id: 'yinyue', name: '银月', sect: '无', reqLevel: '元婴初期', effect: 1.8, desc: '妖族皇族，精通各种秘术，可辅助战斗与修炼。', strategy: '需在秘境中解救其神魂。' },
-  { id: 'yuanyao', name: '元瑶', sect: '无', reqLevel: '筑基中期', effect: 1.3, desc: '重情重义，修炼鬼道功法。', strategy: '需在阴冥之地相遇并协助其脱困。' },
-  { id: 'dongxuaner', name: '董萱儿', sect: '黄枫谷', reqLevel: '炼气十层', effect: 1.1, desc: '红拂仙子之徒，修炼化春诀。', strategy: '需同属黄枫谷且在宗门大比中展露头角(胜场≥5)。' },
-  { id: 'chenqiaoqian', name: '陈巧倩', sect: '黄枫谷', reqLevel: '炼气九层', effect: 1.1, desc: '陈家大小姐，性格刚烈。', strategy: '需在太南小会或门派任务中结识并相救。' },
+
+  { id: 'nangongwan', name: '南宫婉', sect: 'yanyue', reqLevel: '结丹初期', effect: 2.0, desc: '掩月宗长老，修炼素女轮回功。双修可大幅提升修为。', strategy: '需加入掩月宗或修为达到结丹期方可结为道侣。' },
+  { id: 'ziling', name: '紫灵仙子', sect: 'miaoyin', reqLevel: '筑基后期', effect: 1.5, desc: '乱星海第一美女，精通魅术与阵法。', strategy: '需赠送稀有驻颜丹或灵石打动其心。' },
+  { id: 'yinyue', name: '银月', sect: 'none', reqLevel: '元婴初期', effect: 1.8, desc: '妖族皇族，精通各种秘术，可辅助战斗与修炼。', strategy: '需在秘境中解救其神魂。' },
+  { id: 'yuanyao', name: '元瑶', sect: 'none', reqLevel: '筑基中期', effect: 1.3, desc: '重情重义，修炼鬼道功法。', strategy: '需在阴冥之地相遇并协助其脱困。' },
+  { id: 'dongxuaner', name: '董萱儿', sect: 'huangfeng', reqLevel: '炼气十层', effect: 1.1, desc: '红拂仙子之徒，修炼化春诀。', strategy: '需同属黄枫谷且在宗门大比中展露头角(胜场≥5)。' },
+  { id: 'chenqiaoqian', name: '陈巧倩', sect: 'huangfeng', reqLevel: '炼气九层', effect: 1.1, desc: '陈家大小姐，性格刚烈。', strategy: '需在太南小会或门派任务中结识并相救。' },
+  { id: 'yanruyan', name: '燕如嫣', sect: 'guiling', reqLevel: '筑基初期', effect: 1.2, desc: '燕家堡天骄，天灵根资质。', strategy: '需在燕家堡大会上展露实力。' },
+  { id: 'lingyuling', name: '凌玉灵', sect: 'xinggong', reqLevel: '结丹后期', effect: 1.6, desc: '星宫双圣之女，聪慧过人。', strategy: '需加入星宫并立下大功。' },
+  { id: 'mupeiling', name: '慕沛灵', sect: 'luoyun', reqLevel: '结丹初期', effect: 1.2, desc: '落云宗女修，温婉可人。', strategy: '需加入落云宗并多次指点其修炼。' },
+  { id: 'baohua', name: '宝花', sect: 'none', reqLevel: '大乘期', effect: 3.0, desc: '魔界始祖之一，风华绝代。', strategy: '需在魔界之战中相助。' },
+  { id: 'baisuyuan', name: '白素媛', sect: 'zhulong', reqLevel: '金仙后期', effect: 2.5, desc: '烛龙道真传弟子，天赋异禀。', strategy: '需在仙界烛龙道中结识。' },
+  { id: 'ganjiuzhen', name: '甘九真', sect: 'lunhui', reqLevel: '大罗初期', effect: 2.8, desc: '轮回殿核心成员，神秘莫测。', strategy: '需加入轮回殿并共同执行任务。' }
+
 ];
 
 export const SPIRITUAL_ROOTS = [
@@ -116,41 +179,40 @@ export const SPIRITUAL_ROOTS = [
 ];
 
 export const SECTS = [
+
   // 凡人界
   { id: 'qixuan', name: '七玄门', desc: '凡俗武林大派，每日步数修为提升20%', bonusType: 'step_cultivation', bonusValue: 1.2 },
   { id: 'siping', name: '四平帮', desc: '凡俗帮派，每日俸禄增加20%', bonusType: 'daily_salary', bonusValue: 1.2 },
   { id: 'yelang', name: '野狼帮', desc: '凶悍帮派，战斗胜率提升5%', bonusType: 'combat_win_rate', bonusValue: 0.05 },
   { id: 'jingjiao', name: '惊蛟会', desc: '墨大夫创立，毒术暗器防不胜防', bonusType: 'combat_win_rate', bonusValue: 0.05 },
-  // 天南七派
+  // 天南
   { id: 'huangfeng', name: '黄枫谷', desc: '擅长炼丹，每次饮水额外获得1点炼丹经验', bonusType: 'alchemy_exp', bonusValue: 1 },
   { id: 'yanyue', name: '掩月宗', desc: '双修大宗，道侣互动效果提升50%', bonusType: 'companion_bonus', bonusValue: 1.5 },
   { id: 'lingshou', name: '灵兽山', desc: '御兽宗门，秘境探索获得材料概率提升20%', bonusType: 'explore_material', bonusValue: 1.2 },
-  { id: 'qingxu', name: '清虚门', desc: '道家正统，早晨(5点-9点)饮水修为翻倍', bonusType: 'morning_double', bonusValue: 2 },
+  { id: 'qingxu', name: '清虚门', desc: '道家正统，早晨饮水修为翻倍', bonusType: 'morning_double', bonusValue: 2 },
   { id: 'huadao', name: '化刀坞', desc: '刀修门派，突破成功率额外提升5%', bonusType: 'breakthrough_rate', bonusValue: 0.05 },
   { id: 'tianque', name: '天阙堡', desc: '擅长阵法，聚灵阵效果提升30%', bonusType: 'formation_bonus', bonusValue: 1.3 },
   { id: 'jujian', name: '巨剑门', desc: '剑修门派，每次饮水固定额外增加5点修为', bonusType: 'flat_cultivation', bonusValue: 5 },
-  // 天南魔道六宗
   { id: 'guiling', name: '鬼灵门', desc: '魔道六宗之一，擅长驱鬼，战斗胜率提升15%', bonusType: 'combat_win_rate', bonusValue: 0.15 },
   { id: 'hehuan', name: '合欢宗', desc: '魔道第一大宗，双修收益提升100%', bonusType: 'companion_bonus', bonusValue: 2.0 },
   { id: 'yuling', name: '御灵宗', desc: '魔道六宗之一，灵兽培养速度提升30%', bonusType: 'pet_growth', bonusValue: 1.3 },
   { id: 'moyan', name: '魔焰门', desc: '魔道六宗之一，擅长魔火，炼器成功率提升15%', bonusType: 'crafting_rate', bonusValue: 0.15 },
   { id: 'tiansha', name: '天煞宗', desc: '魔道六宗之一，煞气极重，战斗胜率提升10%', bonusType: 'combat_win_rate', bonusValue: 0.1 },
   { id: 'qianhuan', name: '千幻宗', desc: '魔道六宗之一，擅长幻术，探索秘境免伤概率提升', bonusType: 'explore_material', bonusValue: 1.1 },
-  // 天南正道盟
   { id: 'taizhen', name: '太真门', desc: '正道盟首领，突破心魔概率降低10%', bonusType: 'reduce_demon_heart', bonusValue: 0.1 },
   { id: 'haoran', name: '浩然阁', desc: '正道大宗，浩然正气，每日俸禄增加30%', bonusType: 'daily_salary', bonusValue: 1.3 },
-  // 天南其他
   { id: 'luoyun', name: '落云宗', desc: '擅长灵药培育，每日灵草生长速度提升20%', bonusType: 'herb_growth', bonusValue: 1.2 },
   { id: 'baiqiao', name: '百巧院', desc: '擅长炼器，炼制法宝成功率提升10%', bonusType: 'crafting_rate', bonusValue: 0.1 },
-  { id: 'gujian', name: '古剑门', desc: '上古剑修传承，战斗力极强，大比胜率提升10%', bonusType: 'combat_win_rate', bonusValue: 0.1 },
+  { id: 'gujian', name: '古剑门', desc: '上古剑修传承，大比胜率提升10%', bonusType: 'combat_win_rate', bonusValue: 0.1 },
   // 乱星海
-  { id: 'xinggong', name: '星宫', desc: '乱星海霸主，每日俸禄(灵石)增加50%', bonusType: 'daily_salary', bonusValue: 1.5 },
+  { id: 'xinggong', name: '星宫', desc: '乱星海霸主，每日俸禄增加50%', bonusType: 'daily_salary', bonusValue: 1.5 },
   { id: 'nixing', name: '逆星盟', desc: '反抗星宫的联盟，击败敌人获得战利品增加20%', bonusType: 'loot_bonus', bonusValue: 1.2 },
   { id: 'miaoyin', name: '妙音门', desc: '擅长音律与双修，结识道侣概率提升', bonusType: 'companion_chance', bonusValue: 1.5 },
   { id: 'jiyin', name: '极阴岛', desc: '魔道宗门，修炼魔功速度提升20%', bonusType: 'demon_skill_exp', bonusValue: 1.2 },
   { id: 'xingchen', name: '星辰阁', desc: '乱星海商盟，购买物品价格降低10%', bonusType: 'shop_discount', bonusValue: 0.9 },
   { id: 'kuixing', name: '魁星岛', desc: '乱星海外岛，海产丰富，水属性功法修炼提升', bonusType: 'water_skill_exp', bonusValue: 1.2 },
   { id: 'qingyang', name: '青阳门', desc: '魔道宗门，青阳魔火威力巨大', bonusType: 'combat_win_rate', bonusValue: 0.1 },
+  { id: 'liulian', name: '六连殿', desc: '乱星海商会联盟，交易收益提升15%', bonusType: 'shop_discount', bonusValue: 0.85 },
   // 大晋
   { id: 'yinluo', name: '阴罗宗', desc: '大晋魔道十宗之一，击败敌人可吸取少量修为', bonusType: 'lifesteal_cultivation', bonusValue: 10 },
   { id: 'taiyi', name: '太一门', desc: '大晋正道大宗，突破心魔概率降低20%', bonusType: 'reduce_demon_heart', bonusValue: 0.2 },
@@ -158,11 +220,17 @@ export const SECTS = [
   { id: 'wanyao', name: '万妖谷', desc: '妖修圣地，妖兽材料掉落率提升30%', bonusType: 'monster_material_drop', bonusValue: 1.3 },
   { id: 'tianmo', name: '天魔宗', desc: '大晋魔道第一宗，呼老魔坐镇', bonusType: 'demon_skill_exp', bonusValue: 1.5 },
   { id: 'huaxian', name: '化仙宗', desc: '大晋神秘宗门，擅长符箓，制符成功率提升20%', bonusType: 'crafting_rate', bonusValue: 0.2 },
+  { id: 'jingang', name: '金刚宗', desc: '佛宗门派，肉身强悍，免伤提升', bonusType: 'body_cultivation', bonusValue: 1.2 },
+  { id: 'shuiying', name: '水影宗', desc: '大晋宗门，水属性功法修炼提升', bonusType: 'water_skill_exp', bonusValue: 1.2 },
   // 灵界
   { id: 'tianyuan', name: '天渊城', desc: '人妖两族圣地，所有基础收益提升10%', bonusType: 'all_stats_bonus', bonusValue: 1.1 },
   { id: 'longjia', name: '真龙世家', desc: '身负真龙血脉，肉身强悍，突破失败不掉落修为', bonusType: 'safe_breakthrough', bonusValue: 1 },
   { id: 'feiling', name: '飞灵族', desc: '灵界大族，身负真灵血脉，风属性功法修炼提升', bonusType: 'wind_skill_exp', bonusValue: 1.3 },
   { id: 'jiaochi', name: '角蚩族', desc: '灵界超级大族，底蕴深厚，宗门威望获取提升', bonusType: 'prestige_bonus', bonusValue: 1.5 },
+  { id: 'tianpeng', name: '天鹏族', desc: '飞灵族分支，速度极快，探索秘境消耗减少', bonusType: 'explore_cost', bonusValue: 0.8 },
+  { id: 'yecha', name: '夜叉族', desc: '灵界大族，擅长暗杀，战斗暴击率提升', bonusType: 'combat_crit', bonusValue: 1.2 },
+  { id: 'muzu', name: '木族', desc: '灵界大族，木属性功法修炼极快', bonusType: 'wood_skill_exp', bonusValue: 1.5 },
+  { id: 'yingzu', name: '影族', desc: '灵界大族，行踪诡秘，闪避率提升', bonusType: 'combat_dodge', bonusValue: 1.2 },
   // 仙界
   { id: 'jiuyuan', name: '九元观', desc: '仙界大派，底蕴深不可测', bonusType: 'all_stats_bonus', bonusValue: 1.2 },
   { id: 'lunhui', name: '轮回殿', desc: '仙界神秘势力，对抗天庭，死亡损失减少50%', bonusType: 'death_penalty_reduce', bonusValue: 0.5 },
@@ -170,6 +238,9 @@ export const SECTS = [
   { id: 'cangliu', name: '苍流宫', desc: '北寒仙域大宗，水属性功法修炼极快', bonusType: 'water_skill_exp', bonusValue: 1.5 },
   { id: 'fuling', name: '伏凌宗', desc: '北寒仙域大宗，体修圣地，肉身强度提升', bonusType: 'body_cultivation', bonusValue: 1.4 },
   { id: 'tianting', name: '天庭', desc: '仙界正统，掌控法则，每日俸禄极高', bonusType: 'daily_salary', bonusValue: 3.0 },
+  { id: 'zhenyan', name: '真言化门', desc: '仙界古宗，时间法则发源地', bonusType: 'offline_bonus', bonusValue: 2.0 },
+  { id: 'baizao', name: '百造山', desc: '仙界炼器圣地，炼器成功率极高', bonusType: 'crafting_rate', bonusValue: 0.5 }
+
 ];
 
 export interface Plan {
@@ -179,6 +250,7 @@ export interface Plan {
   endTime: string; // "18:00"
   intervalMinutes: number;
   active: boolean;
+  type?: 'water' | 'cultivation' | 'alchemy';
 }
 
 export interface SectNpc {
@@ -187,6 +259,8 @@ export interface SectNpc {
   level: string;
   cultivation: number;
   sectId?: string;
+  favorability?: number;
+  relationship?: 'stranger' | 'acquaintance' | 'friend' | 'close' | 'enemy' | 'close_friend';
 }
 
 export interface Fate {
@@ -219,6 +293,7 @@ export interface Log {
   timestamp: number;
   amount: number; // ml
   type?: 'water' | 'coffee' | 'tea' | 'milktea';
+  message?: string;
 }
 
 export interface GlobalEvent {
@@ -309,6 +384,23 @@ export interface CaveState {
 }
 
 interface AppState {
+  currentStageId?: string;
+  palmBottleLiquid?: number;
+  bottleSpiritUnlocked?: boolean;
+  usePalmBottleLiquid?: (type: 'herb' | 'cultivation' | 'foundation') => { success: boolean; message: string };
+  cultivationMode?: 'normal' | 'closed' | 'breakthrough' | 'safe' | 'risky';
+  foundationDamaged?: boolean;
+  companionDailyEvent?: any;
+  claimCompanionEvent?: () => { message: string } | void;
+  interactWithNpc?: (npcId: string, action: 'chat' | 'gift' | 'spar' | 'rob' | 'kill' | 'snatch') => { message: string, success?: boolean, loot?: any } | void;
+  annihilateSect?: (sectId: string) => { success: boolean; message: string; loot?: { spiritStones: number } };
+  deadNpcs: string[];
+  destroyedSects: string[];
+  conqueredSects: string[];
+  mySect: { name: string; disciples: number; level: number; power: number } | null;
+  conquerSect?: (sectId: string) => { success: boolean; message: string; loot?: any };
+  createMySect?: (name: string) => { success: boolean; message: string };
+  recruitDisciples?: () => { success: boolean; message: string };
   plans: Plan[];
   logs: Log[];
   settings: Settings;
@@ -343,6 +435,7 @@ interface AppState {
   learnedKnowledge: string[];
   dailyEncyclopediaItems: string[];
   achievements: string[];
+  puppets: number; // Number of puppets owned
   
   // V2.1 Additions
   createdAt: number;
@@ -382,6 +475,7 @@ interface AppState {
   startAlchemy: (recipeId: string) => void;
   collectPill: () => void;
   speedUpAlchemy: () => void;
+  craftPuppet: () => { success: boolean; message: string };
   realmExplorationsToday: number;
   realmExplorationTotal: number;
   lastRealmExplorationDate: string | null;
@@ -438,6 +532,7 @@ interface AppState {
   participateImmortalAssembly: () => { success: boolean; message: string };
   ascend: () => { success: boolean; message: string };
   upgradeSect: () => { success: boolean; message: string };
+  
   activateSectFormation: () => { success: boolean; message: string };
   sectBuff: { type: string; expiresAt: number } | null;
   
@@ -472,50 +567,51 @@ interface AppState {
   addPlan: (plan: Omit<Plan, 'id'>) => void;
   updatePlan: (id: string, plan: Partial<Plan>) => void;
   deletePlan: (id: string) => void;
-  togglePlan: (id: string) => void;
-  addLog: (amount: number, type?: 'water' | 'coffee' | 'tea' | 'milktea') => number;
-  removeLog: (timestamp: number) => void;
-  updateSettings: (settings: Partial<Settings>) => void;
-  setHealthData: (steps: number, temp: number | null) => void;
-  getNextReminder: () => number | null;
+  getNextReminder: (...args: any[]) => any;
+  addLog: (...args: any[]) => any;
+  removeLog: (...args: any[]) => any;
+  setHealthData: (...args: any[]) => any;
+  checkIn: (...args: any[]) => any;
   pendingStreakRescue: number | null;
-  checkIn: () => void;
-  claimDailyReward: () => void;
-  claimOfflineGains: () => { time: number; exp: number; items: { id: string, amount: number }[] } | null;
-  rescueStreak: (usePill: boolean) => boolean;
-  updateQuestProgress: (type: 'drink' | 'game' | 'step', amount: number) => void;
-  claimQuestReward: (questId: string) => void;
-  claimSectMissionReward: (missionId: string) => { success: boolean; message: string };
-  addSpiritStones: (amount: number) => void;
-  buyItem: (id: string, cost: number, isConsumable: boolean, effect: number) => boolean;
-  sellItem: (id: string, type: 'material' | 'inventory', amount: number, price: number) => boolean;
-  
-  // Lore Actions
-  testSpiritualRoot: () => string;
-  joinSect: (sectId?: string) => void;
-  leaveSect: () => void;
-  rejoinSect: (sectId?: string) => void;
-  winSectCompetition: () => void;
-  addSectContribution: (amount: number) => void;
-  donateToSect: (itemId: string) => { success: boolean; message: string };
-  promoteSectPosition: () => { success: boolean; message: string };
-  addLuck: (amount: number) => void;
-  washMarrow: (amount: number) => void;
-  setHighestLevelReached: (levelName: string) => void;
-  attemptBreakthrough: (useQingxinPill: boolean, forceSuccess?: boolean) => { success: boolean; message: string };
-  setLevelIndex: (index: number) => void;
-  resetCultivation: () => void;
-  markKnowledgeLearned: (id: string) => void;
-  unlockAchievement: (id: string) => void;
+  rescueStreak: (...args: any[]) => any;
+  claimQuestReward: (...args: any[]) => any;
+  claimSectMissionReward: (...args: any[]) => any;
+  buyItem: (...args: any[]) => any;
+  sellItem: (...args: any[]) => any;
+  promoteSectPosition: (...args: any[]) => any;
+  testSpiritualRoot: (...args: any[]) => any;
+  joinSect: (...args: any[]) => any;
+  leaveSect: (...args: any[]) => any;
+  addSectContribution: (...args: any[]) => any;
+  donateToSect: (...args: any[]) => any;
+  setHighestLevelReached: (...args: any[]) => any;
+  unlockAchievement: (...args: any[]) => any;
+  attemptBreakthrough: (...args: any[]) => any;
+  setLevelIndex: (...args: any[]) => any;
+  addSpiritStones: (...args: any[]) => any;
+  winSectCompetition: (...args: any[]) => any;
+  togglePlan: (...args: any[]) => any;
+  markKnowledgeLearned: (...args: any[]) => any;
+  rejoinSect: (...args: any[]) => any;
+  updateSettings: (...args: any[]) => any;
+  resetCultivation: (...args: any[]) => any;
+  updateQuestProgress: (...args: any[]) => any;
+  washMarrow: (...args: any[]) => any;
+  claimDailyReward: (...args: any[]) => any;
+  claimOfflineGains: (...args: any[]) => any;
 }
 
-const generateDailyQuests = (): Quest[] => [
-  { id: 'q1', title: '吸收灵气 (喝水)', desc: '今日请于灵泉处吸纳三次清泉', target: 3, progress: 0, reward: 50, completed: false, type: 'drink', category: 'main' },
+export const DAILY_QUESTS: Quest[] = [
+  { id: 'q1', title: '每日吐纳 (1000步)', desc: '吸收天地灵气，稳固根基', target: 1000, progress: 0, reward: 50, completed: false, type: 'step', category: 'main' },
   { id: 'q2', title: '外出历练 (4000步)', desc: '巡视宗门领地，强健体魄', target: 4000, progress: 0, reward: 30, completed: false, type: 'step', category: 'optional' },
   { id: 'q3', title: '闭关冥想 (10分钟)', desc: '聆听大道之音，稳固道心', target: 10, progress: 0, reward: 30, completed: false, type: 'meditate', category: 'optional' },
   { id: 'q4', title: '探索秘境', desc: '前往秘境寻宝1次', target: 1, progress: 0, reward: 15, completed: false, type: 'game', category: 'side' },
   { id: 'q5', title: '传音天下', desc: '分享一次修仙海报', target: 1, progress: 0, reward: 15, completed: false, type: 'share', category: 'side' },
 ];
+const generateDailyQuests = (): Quest[] => {
+  return DAILY_QUESTS.map(q => ({ ...q }));
+};
+
 
 const generateSectMissions = (levelIndex: number): SectMission[] => {
   const missions: SectMission[] = [];
@@ -544,6 +640,7 @@ const generateSectMissions = (levelIndex: number): SectMission[] => {
 };
 
 export const SHOP_ITEMS = [
+
   // 通用
   { id: 'humai_pill', name: '护脉丹', type: 'consumable', effect: 0, cost: 300, desc: '护住心脉，可用于挽救断掉的连续签到', region: 'all' },
   
@@ -614,6 +711,16 @@ export const SHOP_ITEMS = [
   { id: 'skill_lianshen', name: '炼神术', type: 'skill', effect: 1.8, cost: 100000, desc: '仙界禁术，极难修炼，突破成功率 +50%', region: '仙界' },
   { id: 'skill_niepan', name: '涅槃圣体', type: 'skill', effect: 1.7, cost: 80000, desc: '魔界圣祖功法，饮水修为 +70%', region: '灵界' },
   { id: 'skill_wuxing', name: '大五行幻世诀', type: 'skill', effect: 2.5, cost: 500000, desc: '时间法则顶级功法，饮水修为 +150%', region: '仙界' },
+  { id: 'skill_zhenyan', name: '真言化轮经', type: 'skill', effect: 2.2, cost: 400000, desc: '时间法则基础功法，饮水修为 +120%', region: '仙界' },
+  { id: 'skill_shuiyan', name: '水衍四时诀', type: 'skill', effect: 2.0, cost: 300000, desc: '水属性仙界功法，饮水修为 +100%', region: '仙界' },
+  { id: 'skill_mantian', name: '漫天星诀', type: 'skill', effect: 1.9, cost: 250000, desc: '星辰法则功法，饮水修为 +90%', region: '仙界' },
+  
+  // 更多法宝
+  { id: 'artifact_jinlei', name: '金雷竹', type: 'material', effect: 0, cost: 15000, desc: '辟邪神雷载体，绝顶炼器材料', region: '大晋' },
+  { id: 'artifact_qingzhu', name: '青竹蜂云剑', type: 'passive', effect: 2.5, cost: 80000, desc: '韩立本命法宝，威力无穷，饮水修为 +150%', region: '灵界' },
+  { id: 'artifact_poxu', name: '破虚剑', type: 'passive', effect: 2.2, cost: 60000, desc: '空间法则之剑，饮水修为 +120%', region: '仙界' },
+  { id: 'artifact_suiyue', name: '岁月神灯', type: 'passive', effect: 2.8, cost: 150000, desc: '时间法则至宝，饮水修为 +180%', region: '仙界' }
+
 ];
 
 export const TALISMANS: Talisman[] = [
@@ -644,7 +751,10 @@ export const GAME_SKILLS: SkillDef[] = SHOP_ITEMS.filter(item => item.type === '
   value: item.effect
 }));
 
+export const GAME_ARTIFACTS = SHOP_ITEMS.filter(item => item.type === 'passive');
+
 export const sectNpcs = [
+
   // 凡人界
   { id: 'npc_hanli', name: '韩立', level: '凡人', cultivation: 500, sectId: 'huangfeng' },
   { id: 'npc_lifeiyu', name: '厉飞雨', level: '凡人', cultivation: 800, sectId: 'qixuan' },
@@ -653,7 +763,7 @@ export const sectNpcs = [
   { id: 'npc_zhangtie', name: '张铁', level: '凡人', cultivation: 600, sectId: 'qixuan' },
   { id: 'npc_sunergou', name: '孙二狗', level: '凡人', cultivation: 200, sectId: 'siping' },
   { id: 'npc_jiaming', name: '贾天龙', level: '凡人', cultivation: 900, sectId: 'yelang' },
-  // 天南七派
+  // 天南
   { id: 'npc_nangongwan', name: '南宫婉', level: '结丹初期', cultivation: 30000, sectId: 'yanyue' },
   { id: 'npc_lushi', name: '陆师兄', level: '炼气十层', cultivation: 6500, sectId: 'huangfeng' },
   { id: 'npc_dongxuaner', name: '董萱儿', level: '筑基初期', cultivation: 12000, sectId: 'huangfeng' },
@@ -673,7 +783,6 @@ export const sectNpcs = [
   { id: 'npc_zhongwu', name: '钟吾', level: '炼气十三层', cultivation: 9500, sectId: 'lingshou' },
   { id: 'npc_hanzong', name: '涵云芝', level: '炼气十层', cultivation: 6500, sectId: 'lingshou' },
   { id: 'npc_dayan', name: '大衍神君', level: '化神初期', cultivation: 1200000, sectId: 'none' },
-  // 天南魔道六宗
   { id: 'npc_yanruyan', name: '燕如嫣', level: '筑基初期', cultivation: 18000, sectId: 'guiling' },
   { id: 'npc_wangchan', name: '王蝉', level: '筑基中期', cultivation: 22000, sectId: 'guiling' },
   { id: 'npc_kuangren', name: '狂人', level: '结丹后期', cultivation: 85000, sectId: 'yuling' },
@@ -681,6 +790,7 @@ export const sectNpcs = [
   { id: 'npc_wangtiansheng', name: '王天胜', level: '元婴初期', cultivation: 150000, sectId: 'guiling' },
   { id: 'npc_hehuanshou', name: '合欢老魔', level: '元婴后期', cultivation: 300000, sectId: 'hehuan' },
   { id: 'npc_dongmen', name: '东门图', level: '元婴初期', cultivation: 160000, sectId: 'yuling' },
+  { id: 'npc_yankuang', name: '燕狂', level: '结丹初期', cultivation: 35000, sectId: 'guiling' },
   // 乱星海
   { id: 'npc_ziling', name: '紫灵', level: '结丹初期', cultivation: 32000, sectId: 'miaoyin' },
   { id: 'npc_yinyue', name: '银月', level: '元婴初期', cultivation: 150000, sectId: 'none' },
@@ -700,6 +810,10 @@ export const sectNpcs = [
   { id: 'npc_wuchou', name: '乌丑', level: '结丹初期', cultivation: 38000, sectId: 'jiyin' },
   { id: 'npc_xuanbone', name: '玄骨老魔', level: '元婴初期', cultivation: 170000, sectId: 'none' },
   { id: 'npc_xutian', name: '虚天殿使者', level: '元婴初期', cultivation: 150000, sectId: 'none' },
+  { id: 'npc_fengxi', name: '风希', level: '元婴后期', cultivation: 200000, sectId: 'none' },
+  { id: 'npc_jin_yan', name: '金蛟王', level: '元婴巅峰', cultivation: 240000, sectId: 'none' },
+  { id: 'npc_wan_tian_ming', name: '万天明', level: '元婴中期', cultivation: 230000, sectId: 'none' },
+  { id: 'npc_yi_tian_du', name: '易天都', level: '元婴中期', cultivation: 210000, sectId: 'none' },
   // 大晋
   { id: 'npc_mubei', name: '慕沛灵', level: '结丹初期', cultivation: 35000, sectId: 'luoyun' },
   { id: 'npc_cheng', name: '程师兄', level: '元婴初期', cultivation: 150000, sectId: 'luoyun' },
@@ -714,6 +828,8 @@ export const sectNpcs = [
   { id: 'npc_hulaomo', name: '呼老魔', level: '化神初期', cultivation: 990000, sectId: 'none' },
   { id: 'npc_huqinglei', name: '呼庆雷', level: '化神初期', cultivation: 850000, sectId: 'none' },
   { id: 'npc_xianzi', name: '木夫人', level: '元婴后期', cultivation: 250000, sectId: 'none' },
+  { id: 'npc_tian_mo_zong_zhu', name: '天魔宗主', level: '元婴后期', cultivation: 320000, sectId: 'tianmo' },
+  { id: 'npc_qi_ling_xian_zi', name: '七灵仙子', level: '元婴初期', cultivation: 140000, sectId: 'none' },
   // 灵界
   { id: 'npc_baohua', name: '宝花', level: '大乘期', cultivation: 50000000, sectId: 'none' },
   { id: 'npc_liujin', name: '六极', level: '大乘期', cultivation: 45000000, sectId: 'none' },
@@ -731,11 +847,13 @@ export const sectNpcs = [
   { id: 'npc_qingyuanzi', name: '青元子', level: '大乘期', cultivation: 45000000, sectId: 'none' },
   { id: 'npc_xinyan', name: '辛如音(转世)', level: '元婴初期', cultivation: 150000, sectId: 'none' },
   { id: 'npc_bingpo', name: '冰魄仙子', level: '大乘期', cultivation: 41000000, sectId: 'none' },
+  { id: 'npc_jinyue', name: '金悦', level: '合体后期', cultivation: 20000000, sectId: 'tianpeng' },
+  { id: 'npc_leiyunzi', name: '雷云子', level: '合体中期', cultivation: 12000000, sectId: 'none' },
   // 仙界
   { id: 'npc_ma', name: '马良', level: '真仙', cultivation: 100000000, sectId: 'jiuyuan' },
   { id: 'npc_guhu', name: '古或今', level: '道祖', cultivation: 999999999, sectId: 'tianting' },
   { id: 'npc_lunhui', name: '轮回殿主', level: '道祖', cultivation: 999999999, sectId: 'lunhui' },
-  { id: 'npc_mizhu', name: '弥罗老祖', level: '大罗后期', cultivation: 500000000, sectId: 'zhulong' },
+  { id: 'npc_mizhu', name: '弥罗老祖', level: '大罗后期', cultivation: 500000000, sectId: 'zhenyan' },
   { id: 'npc_qiling', name: '奇摩子', level: '大罗中期', cultivation: 300000000, sectId: 'tianting' },
   { id: 'npc_jiaosan', name: '蛟三', level: '太乙后期', cultivation: 80000000, sectId: 'lunhui' },
   { id: 'npc_ganjiu', name: '甘九真', level: '大罗初期', cultivation: 150000000, sectId: 'lunhui' },
@@ -751,19 +869,11 @@ export const sectNpcs = [
   { id: 'npc_luo', name: '洛星辰', level: '大罗初期', cultivation: 180000000, sectId: 'cangliu' },
   { id: 'npc_fenglin', name: '封林', level: '大罗中期', cultivation: 220000000, sectId: 'fuling' },
   { id: 'npc_chenl', name: '陈林', level: '太乙初期', cultivation: 70000000, sectId: 'jiuyuan' },
-  { id: 'npc_wuyang', name: '武阳', level: '大罗初期', cultivation: 160000000, sectId: 'jiuyuan' },
-  // 更多人物
-  { id: 'npc_zhong', name: '仲姓仙师', level: '元婴后期', cultivation: 280000, sectId: 'none' },
-  { id: 'npc_le', name: '乐姓女子', level: '元婴中期', cultivation: 190000, sectId: 'none' },
-  { id: 'npc_fengxi', name: '风希', level: '九级妖修', cultivation: 200000, sectId: 'none' },
-  { id: 'npc_jin_yan', name: '金蛟王', level: '十级妖修', cultivation: 400000, sectId: 'none' },
-  { id: 'npc_wan_tian_ming', name: '万天明', level: '元婴中期', cultivation: 230000, sectId: 'none' },
-  { id: 'npc_yi_tian_du', name: '易天都', level: '元婴中期', cultivation: 210000, sectId: 'none' },
-  { id: 'npc_tian_mo_zong_zhu', name: '天魔宗主', level: '元婴后期', cultivation: 320000, sectId: 'tianmo' },
-  { id: 'npc_qi_ling_xian_zi', name: '七灵仙子', level: '元婴初期', cultivation: 140000, sectId: 'none' },
+  { id: 'npc_wuyang', name: '武阳', level: '大罗初期', cultivation: 160000000, sectId: 'jiuyuan' }
+
 ];
 
-const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress'>> = {
+const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress' | 'deadNpcs' | 'destroyedSects' | 'conqueredSects' | 'mySect'>> = {
   plans: [],
   logs: [],
   settings: {
@@ -803,6 +913,7 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   learnedKnowledge: [],
   dailyEncyclopediaItems: [],
   achievements: [],
+  puppets: 0,
   
   createdAt: Date.now(),
   showMarrowWashEvent: false,
@@ -869,6 +980,10 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   dailySalaryClaimed: false,
   sectBuff: null,
   pendingStreakRescue: null,
+  deadNpcs: [],
+  destroyedSects: [],
+  conqueredSects: [],
+  mySect: null,
 };
 
 export const useStore = create<AppState>()(
@@ -876,6 +991,216 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       ...initialState,
 
+
+      annihilateSect: (sectId) => {
+        const state = get();
+        const sect = SECTS.find(s => s.id === sectId);
+        if (!sect) return { success: false, message: '宗门不存在' };
+        
+        let sectPower = 50000;
+        if (sect.id.includes('qixuan') || sect.id.includes('yelang')) sectPower = 10000;
+        else if (sect.id.includes('huangfeng') || sect.id.includes('yanyue')) sectPower = 100000;
+        else if (sect.id.includes('xinggong') || sect.id.includes('nixing')) sectPower = 500000;
+        else if (sect.id.includes('yinluo') || sect.id.includes('xiaoji')) sectPower = 2000000;
+        else if (sect.id.includes('tianyuan') || sect.id.includes('jiuyuan')) sectPower = 10000000;
+        else sectPower = 500000;
+
+        const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+        const region = REGIONS.find(r => r.id === state.currentRegion);
+        const maxPower = region?.maxPower || Infinity;
+        const playerPower = Math.min(basePower, maxPower);
+        
+        if (playerPower > sectPower * 1.2) {
+          const lootStones = Math.floor(sectPower * 0.1);
+          // Randomly drop a skill or artifact
+          const dropType = Math.random() > 0.5 ? 'skill' : 'artifact';
+          let droppedItem = null;
+          if (dropType === 'skill') {
+            const availableSkills = GAME_SKILLS.filter(s => !(state.skills || []).includes(s.id));
+            if (availableSkills.length > 0) droppedItem = availableSkills[Math.floor(Math.random() * availableSkills.length)];
+          } else {
+            const availableArtifacts = GAME_ARTIFACTS.filter(a => !(state.artifacts || []).includes(a.id));
+            if (availableArtifacts.length > 0) droppedItem = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
+          }
+          
+          let lootMessage = '';
+          if (droppedItem) {
+            lootMessage = '，并意外获得了【' + droppedItem.name + '】！';
+            if (dropType === 'skill') {
+              set({ skills: [...(state.skills || []), droppedItem.id] });
+            } else {
+              set({ artifacts: [...(state.artifacts || []), droppedItem.id] });
+            }
+          }
+          set({
+            destroyedSects: [...(state.destroyedSects || []), sectId],
+            spiritStones: state.spiritStones + lootStones,
+            experience: state.experience + Math.floor(sectPower * 0.05)
+          });
+          return { success: true, message: `你以绝对实力覆灭了${sect.name}，搜刮了宗门宝库${lootMessage}(你的战力:${Math.floor(playerPower)} vs 宗门底蕴:${sectPower})`, loot: { spiritStones: lootStones, item: droppedItem } };
+        } else {
+          set({
+            experience: Math.max(0, state.experience - Math.floor(state.experience * 0.1))
+          });
+          return { success: false, message: `你试图覆灭${sect.name}，却被其护宗大阵和底蕴重创，修为大损！(你的战力被界面法则压制在:${Math.floor(playerPower)} vs 宗门底蕴:${sectPower})` };
+        }
+      },
+      conquerSect: (sectId) => {
+        const state = get();
+        const sect = SECTS.find(s => s.id === sectId);
+        if (!sect) return { success: false, message: '宗门不存在' };
+        if (state.conqueredSects?.includes(sectId)) return { success: false, message: '该宗门已被你收服' };
+        
+        let sectPower = 50000;
+        if (sect.id.includes('qixuan') || sect.id.includes('yelang')) sectPower = 10000;
+        else if (sect.id.includes('huangfeng') || sect.id.includes('yanyue')) sectPower = 100000;
+        else if (sect.id.includes('xinggong') || sect.id.includes('nixing')) sectPower = 500000;
+        else if (sect.id.includes('yinluo') || sect.id.includes('xiaoji')) sectPower = 2000000;
+        else if (sect.id.includes('tianyuan') || sect.id.includes('jiuyuan')) sectPower = 10000000;
+        else sectPower = 500000;
+
+        const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+        const region = REGIONS.find(r => r.id === state.currentRegion);
+        const maxPower = region?.maxPower || Infinity;
+        const playerPower = Math.min(basePower, maxPower);
+        
+        if (playerPower > sectPower * 1.5) { // Requires more power to conquer than annihilate
+          const lootStones = Math.floor(sectPower * 0.05); // Less immediate loot, but long term benefits
+          
+          // Randomly drop a skill or artifact
+          const dropType = Math.random() > 0.5 ? 'skill' : 'artifact';
+          let droppedItem = null;
+          if (dropType === 'skill') {
+            const availableSkills = GAME_SKILLS.filter(s => !(state.skills || []).includes(s.id));
+            if (availableSkills.length > 0) droppedItem = availableSkills[Math.floor(Math.random() * availableSkills.length)];
+          } else {
+            const availableArtifacts = GAME_ARTIFACTS.filter(a => !(state.artifacts || []).includes(a.id));
+            if (availableArtifacts.length > 0) droppedItem = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
+          }
+          
+          let lootMessage = '';
+          if (droppedItem) {
+            lootMessage = '，宗主献上镇派之宝【' + droppedItem.name + '】以表忠心！';
+            if (dropType === 'skill') {
+              set({ skills: [...(state.skills || []), droppedItem.id] });
+            } else {
+              set({ artifacts: [...(state.artifacts || []), droppedItem.id] });
+            }
+          }
+
+          set({
+            conqueredSects: [...(state.conqueredSects || []), sectId],
+            spiritStones: state.spiritStones + lootStones,
+            experience: state.experience + Math.floor(sectPower * 0.08)
+          });
+          return { success: true, message: `你以无上法力震慑了${sect.name}，将其收为附属宗门${lootMessage}(你的战力:${Math.floor(playerPower)} vs 宗门底蕴:${sectPower})`, loot: { spiritStones: lootStones, item: droppedItem } };
+        } else {
+          set({ experience: Math.max(0, state.experience - Math.floor(sectPower * 0.05)) });
+          return { success: false, message: `你试图收服${sect.name}，但对方宁死不屈，你受了些轻伤。(你的战力:${Math.floor(playerPower)} vs 宗门底蕴:${sectPower})` };
+        }
+      },
+      createMySect: (name) => {
+        const state = get();
+        if (state.mySect) return { success: false, message: '你已经建立过宗门了' };
+        if (state.spiritStones < 10000) return { success: false, message: '开宗立派需要10000灵石' };
+        
+        set({
+          spiritStones: state.spiritStones - 10000,
+          mySect: { name, disciples: 0, level: 1, power: 1000 }
+        });
+        return { success: true, message: `恭喜！你成功创立了【${name}】，正式开宗立派！` };
+      },
+      recruitDisciples: () => {
+        const state = get();
+        if (!state.mySect) return { success: false, message: '你还没有宗门' };
+        if (state.spiritStones < 1000) return { success: false, message: '招收弟子需要1000灵石作为安家费' };
+        
+        const newDisciples = Math.floor(Math.random() * 10) + 5;
+        const powerGain = newDisciples * 10;
+        
+        set({
+          spiritStones: state.spiritStones - 1000,
+          mySect: {
+            ...state.mySect,
+            disciples: state.mySect.disciples + newDisciples,
+            power: state.mySect.power + powerGain
+          }
+        });
+        return { success: true, message: `你花费1000灵石，成功招收了${newDisciples}名弟子，宗门底蕴增加了${powerGain}！` };
+      },
+
+
+      interactWithNpc: (npcId, action) => {
+        const state = get();
+        const npc = sectNpcs.find(n => n.id === npcId);
+        if (!npc) return { message: 'NPC不存在' };
+        if (state.deadNpcs?.includes(npcId)) return { message: '此人已身死道消' };
+
+        if (action === 'chat') {
+          return { message: `你与${npc.name}论道一番，颇有感悟。` };
+        } else if (action === 'gift') {
+          if (state.spiritStones < 100) return { message: '灵石不足' };
+          set({ spiritStones: state.spiritStones - 100 });
+          return { message: `你赠予${npc.name} 100灵石，对方颇为喜悦。` };
+        } else if (action === 'spar') {
+          return { message: `你与${npc.name}切磋了一番，印证了所学。` };
+        } else if (action === 'snatch') {
+          const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+          const region = REGIONS.find(r => r.id === state.currentRegion);
+          const maxPower = region?.maxPower || Infinity;
+          const playerPower = Math.min(basePower, maxPower);
+          const npcPower = npc.cultivation;
+          
+          if (playerPower > npcPower * 1.1) {
+            const dropType = Math.random() > 0.5 ? 'skill' : 'artifact';
+            let droppedItem = null;
+            if (dropType === 'skill') {
+              const availableSkills = GAME_SKILLS.filter(s => !(state.skills || []).includes(s.id));
+              if (availableSkills.length > 0) droppedItem = availableSkills[Math.floor(Math.random() * availableSkills.length)];
+            } else {
+              const availableArtifacts = GAME_ARTIFACTS.filter(a => !(state.artifacts || []).includes(a.id));
+              if (availableArtifacts.length > 0) droppedItem = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
+            }
+            
+            if (droppedItem) {
+              if (dropType === 'skill') {
+                set({ skills: [...(state.skills || []), droppedItem.id] });
+              } else {
+                set({ artifacts: [...(state.artifacts || []), droppedItem.id] });
+              }
+              return { success: true, message: `你凭借强大的实力，强行夺取了${npc.name}的机缘，获得了【${droppedItem.name}】！` };
+            } else {
+              const lootStones = Math.floor(npcPower * 0.2) + 500;
+              set({ spiritStones: state.spiritStones + lootStones });
+              return { success: true, message: `你夺取了${npc.name}的机缘，但只发现了一些灵石，获得了${lootStones}灵石。` };
+            }
+          } else {
+            set({ experience: Math.max(0, state.experience - Math.floor(npcPower * 0.05)) });
+            return { success: false, message: `你试图夺取${npc.name}的机缘，却被对方击退，修为受损！` };
+          }
+        } else if (action === 'rob' || action === 'kill') {
+          const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+          const region = REGIONS.find(r => r.id === state.currentRegion);
+          const maxPower = region?.maxPower || Infinity;
+          const playerPower = Math.min(basePower, maxPower);
+          const npcPower = npc.cultivation;
+          
+          if (playerPower > npcPower) {
+            const lootStones = Math.floor(npcPower * 0.1) + 100;
+            set({
+              deadNpcs: [...(state.deadNpcs || []), npcId],
+              spiritStones: state.spiritStones + lootStones,
+              experience: state.experience + Math.floor(npcPower * 0.05)
+            });
+            return { success: true, message: `你击杀了${npc.name}，夺取了其储物袋！(你的战力:${Math.floor(playerPower)} vs 对方:${npcPower})`, loot: { spiritStones: lootStones } };
+          } else {
+            set({
+              experience: Math.max(0, state.experience - Math.floor(state.experience * 0.1))
+            });
+            return { success: false, message: `你试图杀人夺宝，却不敌${npc.name}，重伤逃遁，修为大损！(你的战力被界面法则压制在:${Math.floor(playerPower)} vs 对方:${npcPower})` };
+          }
+        }
+      },
       activateSectFormation: () => {
         const state = get();
         if (state.sectPosition !== 'elder' && state.sectPosition !== 'patriarch') {
@@ -1049,13 +1374,24 @@ export const useStore = create<AppState>()(
           }
         };
       }),
+      craftPuppet: () => {
+        const state = get();
+        if (state.spiritStones < 500) {
+          return { success: false, message: '灵石不足，需要 500 灵石' };
+        }
+        set({
+          spiritStones: state.spiritStones - 500,
+          puppets: state.puppets + 1
+        });
+        return { success: true, message: '成功炼制一具傀儡！' };
+      },
       exploreRealm: (risk) => {
         const state = get();
         const today = format(new Date(), 'yyyy-MM-dd');
         if (state.lastRealmExplorationDate !== today) {
           set({ realmExplorationsToday: 0, lastRealmExplorationDate: today });
         }
-        if (get().realmExplorationsToday >= 3) return { type: 'limit' };
+        if (get().realmExplorationsToday >= 10) return { type: 'limit' };
 
         const newTotal = state.realmExplorationTotal + 1;
         set({ 
@@ -1122,7 +1458,33 @@ export const useStore = create<AppState>()(
           if (state.currentRegion === '乱星海' && rand < 0.1) return applyReward({ type: 'material', itemId: 'monster_bone', amount: Math.ceil(2 * companionBonus) });
           if (state.currentRegion === '阴冥之地' && rand < 0.1) return applyReward({ type: 'material', itemId: 'yin_stone', amount: Math.ceil(1 * companionBonus) });
           
-          if (rand < 0.1) return applyReward({ type: 'pill', itemId: 'pill_1', amount: 1 });
+          if (rand < 0.15) {
+            const region = REGIONS.find(r => r.id === state.currentRegion);
+            const maxPower = region?.maxPower || 600000;
+            const minPower = region?.minLevel || 0;
+            const enemyPower = minPower + Math.random() * (maxPower - minPower) * 0.5;
+            
+            const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+            const playerPower = Math.min(basePower, maxPower);
+            
+            const isVictory = playerPower > enemyPower;
+            const lootStones = isVictory ? Math.floor(enemyPower * 0.1) + 50 : 0;
+            
+            if (isVictory) {
+              set({ spiritStones: state.spiritStones + lootStones });
+            } else {
+              set({ experience: Math.max(0, state.experience - Math.floor(state.experience * 0.05)) });
+            }
+            
+            return { 
+              type: 'combat', 
+              enemyName: state.currentRegion + '修士', 
+              isVictory, 
+              message: isVictory ? `你在秘境中遭遇${state.currentRegion}修士，一番激战后将其击杀！(战力:${Math.floor(playerPower)} vs ${Math.floor(enemyPower)})` : `你在秘境中遭遇强敌，不敌败退，修为受损！(战力:${Math.floor(playerPower)} vs ${Math.floor(enemyPower)})`,
+              loot: isVictory ? { spiritStones: lootStones } : undefined
+            };
+          }
+          if (rand < 0.2) return applyReward({ type: 'pill', itemId: 'pill_1', amount: 1 });
           if (rand < 0.5) return applyReward({ type: 'herb', amount: Math.ceil(1 * companionBonus) });
           if (rand < 0.7) return applyReward({ type: 'stone', amount: Math.ceil(10 * companionBonus) });
           if (rand < 0.8) return applyReward({ type: 'profound_iron', amount: Math.ceil(1 * companionBonus) });
@@ -1682,9 +2044,18 @@ export const useStore = create<AppState>()(
 
       ascend: () => {
         const state = get();
-        if (state.levelIndex < 54) return { success: false, message: '修为不足，无法感应飞升雷劫。' }; // 大乘巅峰
-        set({ currentRegion: '灵界', levelIndex: 55 }); // 飞升灵界，进入渡劫期
-        return { success: true, message: '雷劫过后，你白日飞升，进入灵界！' };
+        const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
+        
+        if (state.currentRegion === '灵界') {
+          if (basePower < 80000000) return { success: false, message: '修为不足渡劫期，无法感应仙界雷劫。' };
+          set({ currentRegion: '仙界' });
+          return { success: true, message: '雷劫过后，你白日飞升，进入仙界！' };
+        } else if (state.currentRegion !== '仙界') {
+          if (basePower < 300000) return { success: false, message: '修为不足化神期，无法打破人界壁垒。' };
+          set({ currentRegion: '灵界' });
+          return { success: true, message: '你打破了人界壁垒，成功飞升灵界！' };
+        }
+        return { success: false, message: '你已在最高位面。' };
       },
 
       leaveSect: () => {
@@ -1895,7 +2266,7 @@ export const useStore = create<AppState>()(
         const newLog = {
           timestamp: now,
           amount: totalExp,
-          type: 'water' as const, // Treat as water for simplicity
+          type: 'water' as any, // Treat as water for simplicity
           id: Math.random().toString(36).substring(7)
         };
 
@@ -2509,7 +2880,7 @@ export const useStore = create<AppState>()(
           ? Math.max(...todaysLogs.map(l => l.timestamp))
           : null;
 
-        let earliestNextReminder: number | null = null;
+        let earliestNextReminder: { time: number, plan: Plan } | null = null;
 
         for (const plan of activePlans) {
           const start = parse(plan.startTime, 'HH:mm', today);
@@ -2536,20 +2907,20 @@ export const useStore = create<AppState>()(
 
           // Ensure nextTime is within plan bounds and in the future
           if (nextTime <= end.getTime() && nextTime > now.getTime()) {
-            if (earliestNextReminder === null || nextTime < earliestNextReminder) {
-              earliestNextReminder = nextTime;
+            if (earliestNextReminder === null || nextTime < earliestNextReminder.time) {
+              earliestNextReminder = { time: nextTime, plan };
             }
           } else if (now.getTime() > end.getTime()) {
              // Plan is over for today, check tomorrow
              const tomorrowStart = addMinutes(start, 24 * 60).getTime();
-             if (earliestNextReminder === null || tomorrowStart < earliestNextReminder) {
-               earliestNextReminder = tomorrowStart;
+             if (earliestNextReminder === null || tomorrowStart < earliestNextReminder.time) {
+               earliestNextReminder = { time: tomorrowStart, plan };
              }
           } else if (nextTime < now.getTime()) {
              // Should not happen with the logic above, but fallback
              nextTime = now.getTime() + plan.intervalMinutes * 60 * 1000;
-             if (nextTime <= end.getTime() && (earliestNextReminder === null || nextTime < earliestNextReminder)) {
-                earliestNextReminder = nextTime;
+             if (nextTime <= end.getTime() && (earliestNextReminder === null || nextTime < earliestNextReminder.time)) {
+                earliestNextReminder = { time: nextTime, plan };
              }
           }
         }
