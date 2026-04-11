@@ -70,12 +70,12 @@ export default function ReminderManager() {
   const triggerReminder = () => {
     setIsReminding(true);
 
-    // 1. Pre-warning: Vibration
-    if (navigator.vibrate && settings.vibrationMode !== 'none') {
+    // 1. Pre-warning: Vibration (Forced as per user request)
+    if (navigator.vibrate) {
       try {
         if (settings.vibrationMode === 'drop') navigator.vibrate([100, 50, 100]);
-        if (settings.vibrationMode === 'heartbeat') navigator.vibrate([100, 100, 100, 100, 100]);
-        if (settings.vibrationMode === 'breathe') navigator.vibrate([500, 200, 500, 200, 500]);
+        else if (settings.vibrationMode === 'heartbeat') navigator.vibrate([100, 100, 100, 100, 100]);
+        else navigator.vibrate([500, 200, 500, 200, 500]); // Default strong vibration
       } catch (e) {
         console.error('Vibration failed:', e);
       }

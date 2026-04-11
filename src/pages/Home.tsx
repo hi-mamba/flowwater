@@ -3019,24 +3019,103 @@ export default function HomePage() {
                     {sectNpcs.filter(n => n.sectId !== sect).slice(0, 10).map(npc => {
                       const oppSect = SECTS.find(s => s.id === npc.sectId)?.name || '散修';
                       return (
-                        <div key={npc.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex justify-between items-center">
-                          <div>
-                            <div className="flex items-center">
-                              <span className="text-sm font-bold text-rose-300 mr-2">{npc.name}</span>
-                              <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">{oppSect}</span>
+                        <div key={npc.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <div>
+                              <div className="flex items-center">
+                                <span className="text-sm font-bold text-rose-300 mr-2">{npc.name}</span>
+                                <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">{oppSect}</span>
+                              </div>
+                              <div className="text-xs text-slate-400 mt-1">境界: {npc.level}</div>
+                              <div className="text-xs text-slate-400 mt-1">
+                                好感度: <span className={`${(npc.favorability || 0) < 0 ? 'text-red-400' : 'text-pink-400'}`}>{npc.favorability || 0}</span> ({
+                                  npc.relationship === 'close_friend' ? '生死之交' :
+                                  npc.relationship === 'close' ? '莫逆之交' :
+                                  npc.relationship === 'friend' ? '至交好友' :
+                                  npc.relationship === 'acquaintance' ? '泛泛之交' : 
+                                  npc.relationship === 'enemy' ? '仇深似海' : '素昧平生'
+                                })
+                              </div>
                             </div>
-                            <div className="text-xs text-slate-400 mt-1">境界: {npc.level}</div>
+                            <button
+                              onClick={() => {
+                                const result = challengeOtherSect(npc.id);
+                                setToastMessage(result.message);
+                                setTimeout(() => setToastMessage(null), 3000);
+                              }}
+                              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-purple-500/20 transition-all"
+                            >
+                              挑战
+                            </button>
                           </div>
-                          <button
-                            onClick={() => {
-                              const result = challengeOtherSect(npc.id);
-                              setToastMessage(result.message);
-                              setTimeout(() => setToastMessage(null), 3000);
-                            }}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-purple-500/20 transition-all"
-                          >
-                            挑战
-                          </button>
+                          <div className="flex space-x-2 mt-3">
+                            <button
+                              onClick={() => {
+                                const result = useStore.getState().interactWithNpc?.(npc.id, 'chat');
+                                if (result && result.message) setToastMessage(result.message);
+                                setTimeout(() => setToastMessage(null), 3000);
+                              }}
+                              className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition-colors"
+                            >
+                              论道
+                            </button>
+                            <button
+                              onClick={() => {
+                                const result = useStore.getState().interactWithNpc?.(npc.id, 'gift');
+                                if (result && result.message) setToastMessage(result.message);
+                                setTimeout(() => setToastMessage(null), 3000);
+                              }}
+                              className="flex-1 py-1.5 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 text-xs font-bold rounded-lg transition-colors"
+                            >
+                              赠礼 (100灵石)
+                            </button>
+                            <button
+                              onClick={() => {
+                                const result = useStore.getState().interactWithNpc?.(npc.id, 'spar');
+                                if (result && result.message) setToastMessage(result.message);
+                                setTimeout(() => setToastMessage(null), 3000);
+                              }}
+                              className="flex-1 py-1.5 bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/30 text-xs font-bold rounded-lg transition-colors"
+                            >
+                              切磋
+                            </button>
+                            <button
+                              onClick={() => {
+                                const result = useStore.getState().interactWithNpc?.(npc.id, 'rob');
+                                if (result) {
+                                  setCombatState({
+                                    isOpen: true,
+                                    attackerName: playerName,
+                                    defenderName: npc.name,
+                                    isVictory: result.success || false,
+                                    message: result.message,
+                                    loot: result.loot
+                                  });
+                                }
+                              }}
+                              className="flex-1 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors"
+                            >
+                              杀人夺宝
+                            </button>
+                            <button
+                              onClick={() => {
+                                const result = useStore.getState().interactWithNpc?.(npc.id, 'snatch');
+                                if (result) {
+                                  setCombatState({
+                                    isOpen: true,
+                                    attackerName: playerName,
+                                    defenderName: npc.name,
+                                    isVictory: result.success || false,
+                                    message: result.message,
+                                    loot: result.loot
+                                  });
+                                }
+                              }}
+                              className="flex-1 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-lg transition-colors"
+                            >
+                              夺取机缘
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -3060,18 +3139,32 @@ export default function HomePage() {
                         <div>弟子数量: <span className="text-purple-400">{useStore.getState().mySect?.disciples}</span></div>
                         <div>宗门底蕴: <span className="text-purple-400">{useStore.getState().mySect?.power}</span></div>
                       </div>
-                      <button
-                        onClick={() => {
-                          const result = useStore.getState().recruitDisciples?.();
-                          if (result) {
-                            setToastMessage(result.message);
-                            setTimeout(() => setToastMessage(null), 3000);
-                          }
-                        }}
-                        className="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 text-white text-xs font-bold rounded-lg transition-colors"
-                      >
-                        招收弟子 (消耗1000灵石)
-                      </button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => {
+                            const result = useStore.getState().recruitDisciples?.('normal');
+                            if (result) {
+                              setToastMessage(result.message);
+                              setTimeout(() => setToastMessage(null), 3000);
+                            }
+                          }}
+                          className="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 text-white text-xs font-bold rounded-lg transition-colors"
+                        >
+                          凡俗寻仙 (1000灵石)
+                        </button>
+                        <button
+                          onClick={() => {
+                            const result = useStore.getState().recruitDisciples?.('grand');
+                            if (result) {
+                              setToastMessage(result.message);
+                              setTimeout(() => setToastMessage(null), 3000);
+                            }
+                          }}
+                          className="w-full py-2 bg-amber-600/40 hover:bg-amber-600/60 text-white text-xs font-bold rounded-lg transition-colors"
+                        >
+                          升仙大会 (10000灵石)
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-4 text-center">
@@ -3158,10 +3251,12 @@ export default function HomePage() {
                               <span className="text-[10px] px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">{npc.level}</span>
                             </div>
                             <div className="text-xs text-slate-400 mt-1">
-                              好感度: <span className="text-pink-400">{npc.favorability || 0}</span> ({
+                              好感度: <span className={`${(npc.favorability || 0) < 0 ? 'text-red-400' : 'text-pink-400'}`}>{npc.favorability || 0}</span> ({
                                 npc.relationship === 'close_friend' ? '生死之交' :
+                                npc.relationship === 'close' ? '莫逆之交' :
                                 npc.relationship === 'friend' ? '至交好友' :
-                                npc.relationship === 'acquaintance' ? '泛泛之交' : '素昧平生'
+                                npc.relationship === 'acquaintance' ? '泛泛之交' : 
+                                npc.relationship === 'enemy' ? '仇深似海' : '素昧平生'
                               })
                             </div>
                           </div>
@@ -3455,10 +3550,10 @@ export default function HomePage() {
               <div className="flex-1 overflow-y-auto space-y-4 scrollbar-hide pb-4">
                 <div className="text-center mb-4">
                   <p className="text-sm text-slate-300">
-                    当前区域：<span className="text-purple-300 font-bold">{currentRegion}</span>
+                    当前区域：<span className="text-purple-300 font-bold">{REGIONS.find(r => r.id === currentRegion)?.name || currentRegion}</span>
                   </p>
                   <p className="text-xs text-slate-400 mt-1">
-                    今日已探索：{useStore.getState().realmExplorationsToday}/3 次
+                    今日已探索：{useStore.getState().realmExplorationsToday}/10 次
                   </p>
                 </div>
 

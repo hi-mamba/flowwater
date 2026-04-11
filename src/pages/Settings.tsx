@@ -215,14 +215,13 @@ export default function SettingsPage() {
             <div className="p-4 flex items-center justify-between">
               <span className="text-slate-300">多态震动</span>
               <select
-                value={settings.vibrationMode}
+                value={settings.vibrationMode === 'none' ? 'breathe' : settings.vibrationMode}
                 onChange={(e) => updateSettings({ vibrationMode: e.target.value as any })}
                 className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="drop">水滴 (轻柔)</option>
                 <option value="heartbeat">心跳 (节奏)</option>
                 <option value="breathe">呼吸 (渐进)</option>
-                <option value="none">关闭</option>
               </select>
             </div>
             

@@ -73,7 +73,9 @@ export const REGIONS = [
   { id: '乱星海', name: '乱星海', minLevel: 10000, maxPower: 600000, description: '海外修仙界，妖兽众多，资源丰富。需通过古传送阵前往。', cost: 1000, multiplier: 1.5 },
   { id: '阴冥之地', name: '阴冥之地', minLevel: 50000, maxPower: 600000, description: '阴气极重之地，传闻有鬼修出没。', cost: 5000, multiplier: 1.8 },
   { id: '大晋', name: '大晋', minLevel: 100000, maxPower: 600000, description: '人界修炼圣地，宗门林立，资源极度丰富。', cost: 10000, multiplier: 2.2 },
-  { id: '灵界', name: '灵界', minLevel: 300000, maxPower: 80000000, description: '更高层次的世界，灵气浓郁，强者如云。', cost: 100000, multiplier: 3.0 },
+  { id: '灵界-凤鸣大陆', name: '凤鸣大陆(灵界)', minLevel: 300000, maxPower: 80000000, description: '灵界三大块大陆之一，人妖两族聚居之地。', cost: 100000, multiplier: 3.0 },
+  { id: '灵界-雷鸣大陆', name: '雷鸣大陆(灵界)', minLevel: 1000000, maxPower: 80000000, description: '灵界大陆，异族林立，雷电之力充沛。', cost: 500000, multiplier: 3.5 },
+  { id: '灵界-血天大陆', name: '血天大陆(灵界)', minLevel: 5000000, maxPower: 80000000, description: '灵界大陆，血道功法盛行，极其凶险。', cost: 1000000, multiplier: 4.0 },
   { id: '仙界', name: '仙界', minLevel: 80000000, maxPower: Infinity, description: '真仙界，长生久视。', cost: 10000000, multiplier: 5.0 },
 ];
 
@@ -400,7 +402,7 @@ interface AppState {
   mySect: { name: string; disciples: number; level: number; power: number } | null;
   conquerSect?: (sectId: string) => { success: boolean; message: string; loot?: any };
   createMySect?: (name: string) => { success: boolean; message: string };
-  recruitDisciples?: () => { success: boolean; message: string };
+  recruitDisciples?: (type?: 'normal' | 'grand') => { success: boolean; message: string };
   plans: Plan[];
   logs: Log[];
   settings: Settings;
@@ -954,7 +956,7 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   storyChapter: 1,
   storyNode: 1,
   globalEvent: null,
-  sectNpcs: [],
+  sectNpcs: sectNpcs,
 
   // V6.0 Initial State
   characterId: null,
@@ -1106,45 +1108,103 @@ export const useStore = create<AppState>()(
         
         set({
           spiritStones: state.spiritStones - 10000,
-          mySect: { name, disciples: 0, level: 1, power: 1000 }
+          mySect: { name, disciples: 0, level: 1, power: 1000 },
+          sect: name,
+          sectStatus: 'joined',
+          sectPosition: 'patriarch',
+          sectContribution: 0
         });
-        return { success: true, message: `恭喜！你成功创立了【${name}】，正式开宗立派！` };
+        return { success: true, message: `恭喜！你成功创立了【${name}】，正式开宗立派，成为一代宗主！` };
       },
-      recruitDisciples: () => {
+      recruitDisciples: (type = 'normal') => {
         const state = get();
         if (!state.mySect) return { success: false, message: '你还没有宗门' };
-        if (state.spiritStones < 1000) return { success: false, message: '招收弟子需要1000灵石作为安家费' };
         
-        const newDisciples = Math.floor(Math.random() * 10) + 5;
-        const powerGain = newDisciples * 10;
+        const cost = type === 'grand' ? 10000 : 1000;
+        if (state.spiritStones < cost) return { success: false, message: `灵石不足，需要${cost}灵石作为安家费` };
+        
+        let newDisciples = 0;
+        let powerGain = 0;
+        let msg = '';
+
+        if (type === 'grand') {
+           newDisciples = Math.floor(Math.random() * 50) + 50; // 50-100
+           powerGain = newDisciples * 50; // Better quality
+           msg = `你举办了升仙大会，花费${cost}灵石，招收了${newDisciples}名资质优异的弟子，宗门底蕴大增${powerGain}！`;
+           if (Math.random() < 0.3) {
+             powerGain += 5000;
+             msg += ' 并且意外发现了一名天灵根天才！底蕴额外增加5000！';
+           }
+        } else {
+           newDisciples = Math.floor(Math.random() * 10) + 5;
+           powerGain = newDisciples * 10;
+           msg = `你派人去凡俗寻仙，花费${cost}灵石，招收了${newDisciples}名普通弟子，宗门底蕴增加了${powerGain}。`;
+        }
         
         set({
-          spiritStones: state.spiritStones - 1000,
+          spiritStones: state.spiritStones - cost,
           mySect: {
             ...state.mySect,
             disciples: state.mySect.disciples + newDisciples,
             power: state.mySect.power + powerGain
           }
         });
-        return { success: true, message: `你花费1000灵石，成功招收了${newDisciples}名弟子，宗门底蕴增加了${powerGain}！` };
+        return { success: true, message: msg };
       },
 
 
       interactWithNpc: (npcId, action) => {
         const state = get();
-        const npc = sectNpcs.find(n => n.id === npcId);
-        if (!npc) return { message: 'NPC不存在' };
+        const npcIndex = state.sectNpcs.findIndex(n => n.id === npcId);
+        if (npcIndex === -1) return { message: 'NPC不存在' };
+        const npc = state.sectNpcs[npcIndex];
         if (state.deadNpcs?.includes(npcId)) return { message: '此人已身死道消' };
 
+        const updateFavorability = (amount: number) => {
+          const newFav = (npc.favorability || 0) + amount;
+          let newRel = npc.relationship || 'stranger';
+          if (newFav < 0) newRel = 'enemy';
+          else if (newFav < 20) newRel = 'stranger';
+          else if (newFav < 50) newRel = 'acquaintance';
+          else if (newFav < 80) newRel = 'friend';
+          else if (newFav < 100) newRel = 'close';
+          else newRel = 'close_friend';
+
+          const newNpcs = [...state.sectNpcs];
+          newNpcs[npcIndex] = { ...npc, favorability: newFav, relationship: newRel as any };
+          set({ sectNpcs: newNpcs });
+          return newFav;
+        };
+
         if (action === 'chat') {
-          return { message: `你与${npc.name}论道一番，颇有感悟。` };
+          const fav = updateFavorability(1);
+          const dialogues = [
+            `你与${npc.name}论道一番，颇有感悟。`,
+            `${npc.name}与你分享了一些修炼心得。`,
+            `你与${npc.name}闲聊了几句，关系似乎更融洽了。`
+          ];
+          let msg = dialogues[Math.floor(Math.random() * dialogues.length)];
+          if (fav >= 50) msg = `${npc.name}见你到来，面露喜色，与你促膝长谈。`;
+          if (fav >= 100) msg = `${npc.name}视你为知己，将毕生修炼心得倾囊相授。`;
+          if (fav < 0) msg = `${npc.name}冷冷地看了你一眼，不愿与你多言。`;
+          return { message: msg };
         } else if (action === 'gift') {
           if (state.spiritStones < 100) return { message: '灵石不足' };
           set({ spiritStones: state.spiritStones - 100 });
-          return { message: `你赠予${npc.name} 100灵石，对方颇为喜悦。` };
+          const fav = updateFavorability(10);
+          let msg = `你赠予${npc.name} 100灵石，对方颇为喜悦。`;
+          if (fav >= 50) msg = `${npc.name}欣然收下你的礼物，对你越发亲近。`;
+          if (fav >= 100) msg = `${npc.name}激动地收下礼物，表示愿为你赴汤蹈火。`;
+          if (fav < 0) msg = `${npc.name}冷哼一声，勉强收下了你的灵石。`;
+          return { message: msg };
         } else if (action === 'spar') {
-          return { message: `你与${npc.name}切磋了一番，印证了所学。` };
+          const fav = updateFavorability(2);
+          let msg = `你与${npc.name}切磋了一番，印证了所学。`;
+          if (fav >= 50) msg = `你与${npc.name}点到为止，双方都获益良多。`;
+          if (fav < 0) msg = `你与${npc.name}交手，对方招招狠辣，似乎想置你于死地。`;
+          return { message: msg };
         } else if (action === 'snatch') {
+          updateFavorability(-50);
           const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
           const region = REGIONS.find(r => r.id === state.currentRegion);
           const maxPower = region?.maxPower || Infinity;
@@ -1168,17 +1228,18 @@ export const useStore = create<AppState>()(
               } else {
                 set({ artifacts: [...(state.artifacts || []), droppedItem.id] });
               }
-              return { success: true, message: `你凭借强大的实力，强行夺取了${npc.name}的机缘，获得了【${droppedItem.name}】！` };
+              return { success: true, message: `你凭借强大的实力，强行夺取了${npc.name}的机缘，获得了【${droppedItem.name}】！${npc.name}对你恨之入骨！` };
             } else {
               const lootStones = Math.floor(npcPower * 0.2) + 500;
               set({ spiritStones: state.spiritStones + lootStones });
-              return { success: true, message: `你夺取了${npc.name}的机缘，但只发现了一些灵石，获得了${lootStones}灵石。` };
+              return { success: true, message: `你夺取了${npc.name}的机缘，获得了${lootStones}灵石。${npc.name}对你恨之入骨！` };
             }
           } else {
             set({ experience: Math.max(0, state.experience - Math.floor(npcPower * 0.05)) });
             return { success: false, message: `你试图夺取${npc.name}的机缘，却被对方击退，修为受损！` };
           }
         } else if (action === 'rob' || action === 'kill') {
+          updateFavorability(-100);
           const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
           const region = REGIONS.find(r => r.id === state.currentRegion);
           const maxPower = region?.maxPower || Infinity;
@@ -1514,7 +1575,7 @@ export const useStore = create<AppState>()(
             return { type: 'hidden_cave', reward: '你在秘境深处解救了一缕神秘神魂，名为银月。她对你心生感激，已可结为道侣！' };
           }
 
-          if (state.currentRegion === '灵界' && rand < 0.05) return applyReward({ type: 'skill', itemId: 'skill_xuantian' });
+          if (state.currentRegion.includes('灵界') && rand < 0.05) return applyReward({ type: 'skill', itemId: 'skill_xuantian' });
           if (state.currentRegion === '大晋' && rand < 0.05) return applyReward({ type: 'skill', itemId: 'skill_5' }); // 天雷双剑
 
           if (rand < 0.02) return applyReward({ type: 'inheritance', reward: '上古大能传承，修为暴涨！', exp: 50000 });
@@ -2046,14 +2107,14 @@ export const useStore = create<AppState>()(
         const state = get();
         const basePower = state.logs.reduce((sum, l) => sum + (isNaN(l.amount) ? 0 : l.amount), 0) + state.bonusPoints;
         
-        if (state.currentRegion === '灵界') {
+        if (state.currentRegion.includes('灵界')) {
           if (basePower < 80000000) return { success: false, message: '修为不足渡劫期，无法感应仙界雷劫。' };
           set({ currentRegion: '仙界' });
           return { success: true, message: '雷劫过后，你白日飞升，进入仙界！' };
         } else if (state.currentRegion !== '仙界') {
           if (basePower < 300000) return { success: false, message: '修为不足化神期，无法打破人界壁垒。' };
-          set({ currentRegion: '灵界' });
-          return { success: true, message: '你打破了人界壁垒，成功飞升灵界！' };
+          set({ currentRegion: '灵界-凤鸣大陆' });
+          return { success: true, message: '你打破了人界壁垒，成功飞升灵界，降落于凤鸣大陆！' };
         }
         return { success: false, message: '你已在最高位面。' };
       },
