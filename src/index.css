@@ -26,9 +26,23 @@
   100% { transform: translateX(-50%) rotate(360deg); }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-10px, -10px) rotate(-2deg); }
+  20%, 40%, 60%, 80% { transform: translate(10px, 10px) rotate(2deg); }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
 html, body, #root {
   @apply h-full w-full overflow-hidden bg-slate-900 text-slate-100 antialiased;
   overscroll-behavior-y: none;
   touch-action: pan-x pan-y;
   -webkit-tap-highlight-color: transparent;
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }

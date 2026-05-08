@@ -47,7 +47,7 @@ export default function CharacterSelectionModal({ isOpen, onSelect }: CharacterS
 
               <div className="space-y-3">
                 {PRESET_CHARACTERS.map((char) => (
-                  <button
+                  <motion.button whileTap={{ scale: 0.95 }}
                     key={char.id}
                     onClick={() => {
                       setSelectedId(char.id);
@@ -71,10 +71,10 @@ export default function CharacterSelectionModal({ isOpen, onSelect }: CharacterS
                       </div>
                     </div>
                     <ChevronRight size={20} className={`transition-transform ${selectedId === char.id ? 'translate-x-1' : 'opacity-0'}`} />
-                  </button>
+                  </motion.button>
                 ))}
 
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setIsCustom(true);
                     setSelectedId(null);
@@ -97,7 +97,7 @@ export default function CharacterSelectionModal({ isOpen, onSelect }: CharacterS
                     </div>
                   </div>
                   <ChevronRight size={20} className={`transition-transform ${isCustom ? 'translate-x-1' : 'opacity-0'}`} />
-                </button>
+                </motion.button>
               </div>
             </div>
 
@@ -212,7 +212,7 @@ export default function CharacterSelectionModal({ isOpen, onSelect }: CharacterS
               </AnimatePresence>
 
               <div className="mt-12">
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={handleSelect}
                   disabled={!selectedId && !isCustom}
                   className={`w-full py-6 rounded-[32px] font-black text-xl tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl ${
@@ -224,7 +224,7 @@ export default function CharacterSelectionModal({ isOpen, onSelect }: CharacterS
                   }`}
                 >
                   踏上仙途
-                </button>
+                </motion.button>
               </div>
             </div>
           </motion.div>

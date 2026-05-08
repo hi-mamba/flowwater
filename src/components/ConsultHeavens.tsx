@@ -109,9 +109,9 @@ export default function ConsultHeavens({ isOpen, onClose, playerName, level, sec
                   <p className="text-[10px] text-indigo-400/70 uppercase tracking-tighter mt-0.5">Consult the Heavens · High Intelligence Mode</p>
                 </div>
               </div>
-              <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-full">
+              <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-full">
                 <X size={24} />
-              </button>
+              </motion.button>
             </div>
 
             {/* Chat Area */}
@@ -167,7 +167,7 @@ export default function ConsultHeavens({ isOpen, onClose, playerName, level, sec
                   placeholder="请输入你的疑惑，如：如何突破筑基？"
                   className="w-full bg-slate-950/50 border border-indigo-500/30 rounded-2xl py-4 pl-6 pr-14 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-all"
                 />
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={handleConsult}
                   disabled={!query.trim() || isThinking}
                   className={`absolute right-2 p-3 rounded-xl transition-all ${
@@ -177,7 +177,7 @@ export default function ConsultHeavens({ isOpen, onClose, playerName, level, sec
                   }`}
                 >
                   <Send size={20} />
-                </button>
+                </motion.button>
               </div>
               <div className="flex justify-center mt-4">
                 <div className="flex items-center space-x-2 text-[10px] text-indigo-400/50 uppercase tracking-widest">

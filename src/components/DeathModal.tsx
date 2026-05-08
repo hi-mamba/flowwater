@@ -55,7 +55,7 @@ export default function DeathModal({ isOpen, reason, rebirthCount, onRebirth }: 
             <div className="p-12 space-y-6">
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest text-center">选择你的转世天赋</h3>
               <div className="grid grid-cols-1 gap-4">
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => onRebirth('heaven')}
                   className="group p-6 rounded-3xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all text-left flex items-center justify-between"
                 >
@@ -69,9 +69,9 @@ export default function DeathModal({ isOpen, reason, rebirthCount, onRebirth }: 
                     </div>
                   </div>
                   <ChevronRight size={20} className="text-slate-600 group-hover:text-blue-400 transition-colors" />
-                </button>
+                </motion.button>
 
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => onRebirth()}
                   className="group p-6 rounded-3xl bg-slate-800/50 border border-slate-700 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all text-left flex items-center justify-between"
                 >
@@ -85,7 +85,7 @@ export default function DeathModal({ isOpen, reason, rebirthCount, onRebirth }: 
                     </div>
                   </div>
                   <ChevronRight size={20} className="text-slate-600 group-hover:text-emerald-400 transition-colors" />
-                </button>
+                </motion.button>
               </div>
 
               <div className="pt-6 text-center">

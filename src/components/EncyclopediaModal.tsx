@@ -73,12 +73,12 @@ export const EncyclopediaModal: React.FC<EncyclopediaModalProps> = ({ isOpen, on
                 <p className="text-xs text-slate-400">凡人修仙传：人物、宗门、功法全录</p>
               </div>
             </div>
-            <button
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={onClose}
               className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
             >
               <X size={20} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Search & Tabs */}
@@ -95,7 +95,7 @@ export const EncyclopediaModal: React.FC<EncyclopediaModalProps> = ({ isOpen, on
             </div>
             <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
               {categories.map((cat) => (
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id as Category)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
@@ -106,7 +106,7 @@ export const EncyclopediaModal: React.FC<EncyclopediaModalProps> = ({ isOpen, on
                 >
                   <cat.icon size={16} />
                   <span>{cat.name}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>

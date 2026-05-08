@@ -441,6 +441,10 @@ interface AppState {
   
   // V2.1 Additions
   createdAt: number;
+  showTribulation: boolean;
+  setShowTribulation: (show: boolean) => void;
+  activeEncounter: { title: string; desc: string; choices: { text: string; action: () => { message: string, loot?: any, isVictory?: boolean, penalty?: boolean } }[] } | null;
+  setActiveEncounter: (encounter: any) => void;
   showMarrowWashEvent: boolean;
   setShowMarrowWashEvent: (show: boolean) => void;
   daoCompanion: { id: string; name: string; active: boolean; favorability: number; dailyInteractions: number; lastInteractionDate: string | null; levelIndex?: number; exp?: number } | null;
@@ -533,6 +537,7 @@ interface AppState {
   setupFormation: (id: string) => { success: boolean; message: string };
   participateImmortalAssembly: () => { success: boolean; message: string };
   ascend: () => { success: boolean; message: string };
+  completeAscension: () => void;
   upgradeSect: () => { success: boolean; message: string };
   
   activateSectFormation: () => { success: boolean; message: string };
@@ -875,7 +880,7 @@ export const sectNpcs = [
 
 ];
 
-const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress' | 'deadNpcs' | 'destroyedSects' | 'conqueredSects' | 'mySect'>> = {
+const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress' | 'deadNpcs' | 'destroyedSects' | 'conqueredSects' | 'mySect' | 'puppets' | 'showTribulation' | 'activeEncounter'>> = {
   plans: [],
   logs: [],
   settings: {
@@ -918,6 +923,8 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   puppets: 0,
   
   createdAt: Date.now(),
+  showTribulation: false,
+  activeEncounter: null,
   showMarrowWashEvent: false,
   daoCompanion: null,
   marriedCompanions: [],
@@ -1493,6 +1500,67 @@ export const useStore = create<AppState>()(
         const luckFactor = 1 - ((state.dailyLuck - 50) / 100); 
         const rand = Math.random() * luckFactor;
 
+        // Big Serendipity System (Large Random Encounters)
+        if (rand < 0.05) {
+          const applyEncounterLoot = (loot: any) => {
+            if (!loot) return;
+            if (loot.type === 'stone') get().addSpiritStones(loot.amount);
+            if (loot.type === 'inheritance') set({ experience: get().experience + loot.exp });
+            if (loot.type === 'skill') get().learnSkill(loot.itemId);
+            if (loot.type === 'artifact') set({ artifacts: [...get().artifacts, loot.itemId] });
+          };
+          const applyPenalty = () => {
+            set({ experience: Math.max(0, get().experience - Math.floor(get().experience * 0.05)) });
+          };
+
+          const encounters = [
+            {
+              title: '上古洞府',
+              desc: '你坠崖后醒来，竟发现一处隐蔽的上古修士洞府。洞口设有残缺的禁制。',
+              choices: [
+                { text: '强行破阵', action: () => { if (Math.random() > 0.5) { applyEncounterLoot({ type: 'stone', amount: 5000 }); return { message: '破阵成功！获得大量灵石！', isVictory: true, loot: { amount: 5000, type: 'stone' } }; } else { applyPenalty(); return { message: '阵法暴动！你身受重伤！', isVictory: false }; } } },
+                { text: '仔细参悟', action: () => { get().learnSkill('skill_1'); return { message: '你从残阵中悟出了一套功法！', isVictory: true, loot: { itemId: 'skill_1' } }; } },
+                { text: '谨慎离开', action: () => ({ message: '你安全退走，无事发生。' }) }
+              ]
+            },
+            {
+              title: '奇珍异果',
+              desc: '你在密林深处发现了一枚散发着奇异光芒的果实，周围似乎有强大的妖兽潜伏。',
+              choices: [
+                { text: '火中取栗', action: () => { if (Math.random() > 0.3) { applyEncounterLoot({ type: 'inheritance', exp: 200000 }); return { message: '你一剑斩杀守护妖兽！夺下奇兵异果，修为暴涨！', isVictory: true, loot: { amount: 200000, type: 'exp' } }; } else { applyPenalty(); return { message: '你被守护妖兽一爪拍飞！仓皇逃窜，修为大损！', isVictory: false }; } } },
+                { text: '悄然退去', action: () => ({ message: '你按捺住贪欲，全身而退。' }) }
+              ]
+            },
+            {
+              title: '魔修夺舍',
+              desc: '你行至荒郊，一团黑雾突袭而来，竟是上古魔修残魂妄图夺舍！',
+              choices: [
+                { text: '神识反噬', action: () => { if (Math.random() > 0.5) { applyEncounterLoot({ type: 'artifact', itemId: 'artifact_sword' }); return { message: '你神识强大，反杀残魂，将其法器据为己有！', isVictory: true, loot: { itemId: 'artifact_sword' } }; } else { applyPenalty(); return { message: '你神识受创，拼死才逃离魔修的掌控！', isVictory: false }; } } },
+                { text: '遁符逃跑', action: () => ({ message: '你果断捏碎遁符，虽然损失了一张珍贵符箓，但保住了性命。' }) }
+              ]
+            },
+            {
+              title: '修士遇伏',
+              desc: '你看到前方几名散修正在围攻一名黄衣少女，少女已是强弩之末。',
+              choices: [
+                { text: '路见不平(杀人抢怪)', action: () => { if (Math.random() > 0.4) { applyEncounterLoot({ type: 'stone', amount: 15000 }); return { message: '你法宝齐出，将散修全部诛杀！不仅救下少女，还搜刮了散修们的储物袋！', isVictory: true, loot: { amount: 15000 } }; } else { applyPenalty(); return { message: '这群散修精通合计阵法，你反被重伤，只能狼狈退走！', isVictory: false }; } } },
+                { text: '绕路而行', action: () => ({ message: '多一事不如少一事，你选择了安全。' }) }
+              ]
+            },
+            {
+              title: '空间裂缝',
+              desc: '天空中突然撕开一道裂缝，掉落出一个闪闪发光的储物袋。',
+              choices: [
+                { text: '夺取储物袋', action: () => { if (Math.random() > 0.3) { applyEncounterLoot({ type: 'stone', amount: 30000 }); return { message: '你运气逆天，在空间闭合的瞬间抢到储物袋，获得巨额灵石！', isVictory: true, loot: { amount: 30000 } }; } else { applyPenalty(); return { message: '就在你触碰的瞬间，空间乱流卷走了一切，你的一条经脉也被切断！', isVictory: false }; } } },
+                { text: '冷眼旁观', action: () => ({ message: '你静等裂缝愈合，避过了一场生死危机。' }) }
+              ]
+            }
+          ];
+          const randomEncounter = encounters[Math.floor(Math.random() * encounters.length)];
+          set({ activeEncounter: randomEncounter });
+          return { type: 'encounter', message: '触发奇遇！' };
+        }
+
         const applyReward = (result: any) => {
           if (result.type === 'pill' || result.type === 'material') {
             get().addMaterial(result.itemId, result.amount);
@@ -1587,6 +1655,8 @@ export const useStore = create<AppState>()(
         }
       },
 
+      setShowTribulation: (show) => set({ showTribulation: show }),
+      setActiveEncounter: (encounter) => set({ activeEncounter: encounter }),
       setShowMarrowWashEvent: (show) => set({ showMarrowWashEvent: show }),
       unlockCompanion: (id) => set((state) => ({
         unlockedCompanions: state.unlockedCompanions.includes(id) ? state.unlockedCompanions : [...state.unlockedCompanions, id]
@@ -2109,14 +2179,22 @@ export const useStore = create<AppState>()(
         
         if (state.currentRegion.includes('灵界')) {
           if (basePower < 80000000) return { success: false, message: '修为不足渡劫期，无法感应仙界雷劫。' };
-          set({ currentRegion: '仙界' });
-          return { success: true, message: '雷劫过后，你白日飞升，进入仙界！' };
+          set({ showTribulation: true });
+          return { success: true, message: '天道感应，九天雷劫降临！准备渡劫！' };
         } else if (state.currentRegion !== '仙界') {
           if (basePower < 300000) return { success: false, message: '修为不足化神期，无法打破人界壁垒。' };
-          set({ currentRegion: '灵界-凤鸣大陆' });
-          return { success: true, message: '你打破了人界壁垒，成功飞升灵界，降落于凤鸣大陆！' };
+          set({ showTribulation: true });
+          return { success: true, message: '打破壁垒引动空间风暴与六九天劫！准备渡劫！' };
         }
         return { success: false, message: '你已在最高位面。' };
+      },
+      completeAscension: () => {
+        const state = get();
+        if (state.currentRegion.includes('灵界')) {
+          set({ currentRegion: '仙界', showTribulation: false });
+        } else {
+          set({ currentRegion: '灵界-凤鸣大陆', showTribulation: false });
+        }
       },
 
       leaveSect: () => {

@@ -49,9 +49,9 @@ export const PalmBottleModal: React.FC<PalmBottleModalProps> = ({ onClose }) => 
             <Droplets size={24} />
             <h2 className="text-xl font-bold">掌天瓶</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 transition-colors">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="text-slate-400 hover:text-white p-1 transition-colors">
             <X size={24} />
-          </button>
+          </motion.button>
         </div>
 
         <div className="flex flex-col items-center mb-8 relative z-10">
@@ -67,7 +67,7 @@ export const PalmBottleModal: React.FC<PalmBottleModalProps> = ({ onClose }) => 
         </div>
 
         <div className="space-y-3 relative z-10">
-          <button 
+          <motion.button whileTap={{ scale: 0.95 }} 
             onClick={() => handleUseLiquid('herb')}
             className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-emerald-500/50 transition-colors group"
           >
@@ -81,9 +81,9 @@ export const PalmBottleModal: React.FC<PalmBottleModalProps> = ({ onClose }) => 
               </div>
             </div>
             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">-1 滴</span>
-          </button>
+          </motion.button>
 
-          <button 
+          <motion.button whileTap={{ scale: 0.95 }} 
             onClick={() => handleUseLiquid('cultivation')}
             className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-500/50 transition-colors group"
           >
@@ -97,9 +97,9 @@ export const PalmBottleModal: React.FC<PalmBottleModalProps> = ({ onClose }) => 
               </div>
             </div>
             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">-1 滴</span>
-          </button>
+          </motion.button>
 
-          <button 
+          <motion.button whileTap={{ scale: 0.95 }} 
             onClick={() => handleUseLiquid('foundation')}
             className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-amber-500/50 transition-colors group"
           >
@@ -113,7 +113,7 @@ export const PalmBottleModal: React.FC<PalmBottleModalProps> = ({ onClose }) => 
               </div>
             </div>
             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">-3 滴</span>
-          </button>
+          </motion.button>
         </div>
 
         {bottleSpiritUnlocked && (

@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, CULTIVATION_LEVELS, SHOP_ITEMS, SPIRITUAL_ROOTS, DAO_COMPANIONS, REGIONS, SECTS, GAME_SKILLS, PRESET_CHARACTERS } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
-import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book, ShieldAlert } from 'lucide-react';
+import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book, ShieldAlert, CloudLightning } from 'lucide-react';
 import { formatDistanceToNowStrict, format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { io } from 'socket.io-client';
@@ -17,6 +17,7 @@ import { EncyclopediaModal } from '../components/EncyclopediaModal';
 import { NarrativeHeader } from '../components/NarrativeHeader';
 import { PalmBottleModal } from '../components/PalmBottleModal';
 import { CombatAnimation } from '../components/CombatAnimation';
+import { CraftAnimation } from '../components/CraftAnimation';
 import { BreakthroughAnimation } from '../components/BreakthroughAnimation';
 import { getUniqueEmotionalMessage } from '../data/emotionalMessages';
 
@@ -89,8 +90,9 @@ import { LIFE_STAGES } from '../store';
 export default function HomePage() {
   const navigate = useNavigate();
   const { 
-    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff, cultivationMode, foundationDamaged,
-    characterId, characterPreset, isDead, deathReason, rebirthCount, storyProgress, selectCharacter, die, rebirth, completeStoryNode, consultHeavens, companionDailyEvent
+    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, craftPuppet, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff, cultivationMode, foundationDamaged,
+    characterId, characterPreset, isDead, deathReason, rebirthCount, storyProgress, selectCharacter, die, rebirth, completeStoryNode, consultHeavens, companionDailyEvent,
+    showTribulation, setShowTribulation, completeAscension, activeEncounter, setActiveEncounter
   } = useStore();
   
   const [showConsultHeavens, setShowConsultHeavens] = useState(false);
@@ -122,7 +124,8 @@ export default function HomePage() {
   const [nextTime, setNextTime] = useState<{ time: number, plan: any } | null>(null);
   const [todayAmount, setTodayAmount] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [combatState, setCombatState] = useState<{ isOpen: boolean; attackerName: string; defenderName: string; isVictory: boolean; message: string; loot?: { spiritStones?: number } } | null>(null);
+  const [combatState, setCombatState] = useState<{ isOpen: boolean; attackerName: string; defenderName: string; isVictory: boolean; message: string; loot?: { spiritStones?: number; itemId?: string; exp?: number; amount?: number; type?: string } } | null>(null);
+  const [craftState, setCraftState] = useState<{ isOpen: boolean; type: 'talisman' | 'puppet' | 'pill' | 'artifact' | 'formation'; itemName: string; isSuccess: boolean; message: string; } | null>(null);
   const [cityName, setCityName] = useState<string>('定位中...');
   
   const [showDetails, setShowDetails] = useState(false);
@@ -137,6 +140,12 @@ export default function HomePage() {
   const [shopTab, setShopTab] = useState<'buy' | 'sell'>('buy');
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [showSectInvitation, setShowSectInvitation] = useState(false);
+  
+  // Tribulation State
+  const [tribulationRound, setTribulationRound] = useState(1);
+  const [tribulationStatus, setTribulationStatus] = useState<'ongoing' | 'success' | 'fail'>('ongoing');
+  const [tribulationLog, setTribulationLog] = useState<string[]>(['天劫酝酿，劫云蔽日...']);
+  const maxRounds = currentRegion === '凡人界' ? 6 : 9;
   const [showSectSelection, setShowSectSelection] = useState(false);
   const [showCreateSectModal, setShowCreateSectModal] = useState(false);
   const [newSectName, setNewSectName] = useState('');
@@ -173,7 +182,26 @@ export default function HomePage() {
   const [chestReward, setChestReward] = useState<{ type: string, name: string, amount?: number } | null>(null);
   const [noviceStep, setNoviceStep] = useState(0); // 0: Elder, 1: Root Card, 2: Task
   const shareRef = useRef<HTMLDivElement>(null);
-  const [floatingTexts, setFloatingTexts] = useState<{id: number, text: string, x: number, y: number}[]>([]);
+  const [floatingTexts, setFloatingTexts] = useState<{id: number, text: string, x: number, y: number, color?: string}[]>([]);
+  const spawnFloatingText = (text: string, e: React.MouseEvent | TouchEvent | any, color = 'text-emerald-400') => {
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    
+    if (e && e.currentTarget) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 40;
+      y = rect.top + (Math.random() - 0.5) * 40;
+    } else if (e && e.clientX && e.clientY) {
+      x = e.clientX + (Math.random() - 0.5) * 40;
+      y = e.clientY + (Math.random() - 0.5) * 40;
+    }
+    
+    const id = Date.now() + Math.random();
+    setFloatingTexts(prev => [...prev, { id, text, x, y, color }]);
+    setTimeout(() => {
+      setFloatingTexts(prev => prev.filter(t => t.id !== id));
+    }, 1500);
+  };
   
   // Multiplayer states
   const [socket, setSocket] = useState<any>(null);
@@ -678,6 +706,9 @@ export default function HomePage() {
   const handleDrink = (amount: number, type: 'water' | 'coffee' | 'tea' | 'milktea', e?: React.MouseEvent) => {
     const finalAmount = addLog(amount, type);
     
+    // Spawn floating text
+    spawnFloatingText(`+${finalAmount} 灵气`, e, 'text-emerald-400');
+    
     // Gain proficiency for equipped skills
     equippedSkills.forEach(skillId => {
       gainSkillProficiency(skillId, 1); // +1% proficiency per drink
@@ -738,10 +769,11 @@ export default function HomePage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleBuy = (item: any) => {
+  const handleBuy = (item: any, e?: React.MouseEvent) => {
     const success = buyItem(item.id, item.cost, item.type === 'consumable', item.effect);
     if (success) {
       setToastMessage(`成功购买 ${item.name}！`);
+      if (e) spawnFloatingText(`-${item.cost} 灵石`, e, 'text-red-400');
     } else {
       setToastMessage(`灵石不足或已拥有该物品！`);
     }
@@ -801,17 +833,17 @@ export default function HomePage() {
                 <AlertCircle size={20} />
                 <h2 className="text-lg font-medium">退出宗门</h2>
               </div>
-              <button onClick={() => setShowLeaveConfirm(false)} className="text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowLeaveConfirm(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
             </div>
             <p className="text-slate-300 mb-6">退出宗门后，你的职位和贡献度将被清空，但可以随时重新加入。是否确认退出？</p>
             <div className="flex space-x-3">
-              <button 
+              <motion.button whileTap={{ scale: 0.95 }} 
                 onClick={() => setShowLeaveConfirm(false)}
                 className="flex-1 py-3 rounded-xl bg-slate-700 text-white font-medium"
               >
                 取消
-              </button>
-              <button 
+              </motion.button>
+              <motion.button whileTap={{ scale: 0.95 }} 
                 onClick={() => {
                   leaveSect();
                   setShowLeaveConfirm(false);
@@ -819,7 +851,7 @@ export default function HomePage() {
                 className="flex-1 py-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/50 font-medium"
               >
                 确认退出
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -828,12 +860,12 @@ export default function HomePage() {
       <div className={`absolute inset-0 opacity-40 transition-colors duration-1000 bg-gradient-to-b ${currentLevel.bg}`} />
 
       <div className="absolute top-6 left-0 right-0 px-6 flex justify-between items-center z-20">
-        <button onClick={fetchWeatherData} className={`flex items-center space-x-2 bg-slate-800/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/50 transition-colors ${isRefreshing ? 'opacity-50' : 'hover:bg-slate-700/60'}`}>
+        <motion.button whileTap={{ scale: 0.95 }} onClick={fetchWeatherData} className={`flex items-center space-x-2 bg-slate-800/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/50 transition-colors ${isRefreshing ? 'opacity-50' : 'hover:bg-slate-700/60'}`}>
           <CloudSun size={14} className="text-amber-400" />
           <span className="text-xs text-slate-300">
             {cityName} {todayTemperature !== null ? `${todayTemperature}°C` : '--°C'}
           </span>
-        </button>
+        </motion.button>
         <div className="flex items-center space-x-2 bg-slate-800/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/50">
           <Footprints size={14} className="text-emerald-400" />
           <span className="text-xs text-slate-300">{todaySteps > 0 ? todaySteps : '0'} 步</span>
@@ -842,20 +874,20 @@ export default function HomePage() {
 
       {/* V4.0 Floating Actions */}
       <div className="absolute right-4 top-24 flex flex-col space-y-3 z-30">
-        <button 
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowConsultHeavens(true)}
           className="relative w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)] group"
           title="推演天机"
         >
           <BrainCircuit size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowExploreModal(true)}
           className="relative w-12 h-12 bg-purple-500/20 border border-purple-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.3)]"
         >
           <Mountain size={20} className="text-purple-400" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowChestModal(true)}
           className="relative w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.3)]"
         >
@@ -865,38 +897,38 @@ export default function HomePage() {
               {chests}
             </span>
           )}
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowEncyclopedia(true)}
           title="修仙百科"
           className="w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)] group"
         >
           <Book size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowSkillsModal(true)}
           className="w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)]"
         >
           <BookMarked size={20} className="text-indigo-400" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowStoryModal(true)}
           className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.3)]"
         >
           <BookOpen size={20} className="text-emerald-400" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowProductionModal(true)}
           className="w-12 h-12 bg-rose-500/20 border border-rose-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(244,63,94,0.3)]"
         >
           <Flame size={20} className="text-rose-400" />
-        </button>
-        <button 
+        </motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} 
           onClick={() => setShowNpcModal(true)}
           className="w-12 h-12 bg-blue-500/20 border border-blue-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.3)]"
         >
           <Users size={20} className="text-blue-400" />
-        </button>
+        </motion.button>
       </div>
 
       <div className="z-10 flex flex-col items-center w-full max-w-md mt-12">
@@ -906,45 +938,45 @@ export default function HomePage() {
             <span className="text-xs font-medium">连续修炼 {streakDays || 0} 天</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => setShowNameModal(true)} className="flex items-center space-x-1 bg-slate-500/20 text-slate-300 px-3 py-1 rounded-full border border-slate-500/30 hover:bg-slate-500/30 transition-colors">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowNameModal(true)} className="flex items-center space-x-1 bg-slate-500/20 text-slate-300 px-3 py-1 rounded-full border border-slate-500/30 hover:bg-slate-500/30 transition-colors">
               <Edit2 size={14} />
               <span className="text-xs font-medium">{playerName}</span>
-            </button>
-            <button onClick={() => setShowMapModal(true)} className="flex items-center space-x-1 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMapModal(true)} className="flex items-center space-x-1 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors">
               <Map size={14} />
               <span className="text-xs font-medium">{regionInfo?.name || '凡人界'}</span>
-            </button>
-            <button onClick={() => setShowInventoryModal(true)} className="flex items-center space-x-1 bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full border border-purple-500/30 hover:bg-purple-500/30 transition-colors">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowInventoryModal(true)} className="flex items-center space-x-1 bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full border border-purple-500/30 hover:bg-purple-500/30 transition-colors">
               <Package size={14} />
               <span className="text-xs font-medium">储物袋</span>
-            </button>
-            <button onClick={() => setShowShop(true)} className="flex items-center space-x-1 bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 hover:bg-amber-500/30 transition-colors">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShop(true)} className="flex items-center space-x-1 bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 hover:bg-amber-500/30 transition-colors">
               <Store size={14} />
               <span className="text-xs font-medium">坊市</span>
-            </button>
-            <button onClick={() => setShowMultiplayerModal(true)} className="flex items-center space-x-1 bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/30 hover:bg-cyan-500/30 transition-colors relative">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMultiplayerModal(true)} className="flex items-center space-x-1 bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/30 hover:bg-cyan-500/30 transition-colors relative">
               <Users size={14} />
               <span className="text-xs font-medium">大千世界</span>
               {onlinePlayers.length > 1 && (
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
               )}
-            </button>
-            <button onClick={() => setShowQuests(true)} className="flex items-center space-x-1 bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors relative">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowQuests(true)} className="flex items-center space-x-1 bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors relative">
               <ScrollText size={14} />
               <span className="text-xs font-medium">宗门任务</span>
               {quests.some(q => q.progress >= q.target && !q.completed) && (
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
               )}
-            </button>
+            </motion.button>
             {levelIndex >= 54 && (
-              <button onClick={() => {
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                 const res = ascend();
                 setToastMessage(res.message);
                 setTimeout(() => setToastMessage(null), 3000);
               }} className="flex items-center space-x-1 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/30 hover:bg-yellow-500/30 transition-colors animate-bounce">
                 <Sparkles size={14} />
                 <span className="text-xs font-bold">飞升灵界</span>
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
@@ -985,20 +1017,20 @@ export default function HomePage() {
           </div>
 
           {currentTitle && (
-            <button onClick={() => setShowTitleModal(true)} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30 mb-2 hover:bg-amber-500/20 transition-colors flex items-center">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowTitleModal(true)} className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30 mb-2 hover:bg-amber-500/20 transition-colors flex items-center">
               <Trophy size={12} className="mr-1" /> {currentTitle}
-            </button>
+            </motion.button>
           )}
           {!currentTitle && unlockedTitles && unlockedTitles.length > 0 && (
-            <button onClick={() => setShowTitleModal(true)} className="text-[10px] text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50 mb-2 hover:bg-slate-700/50 transition-colors">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowTitleModal(true)} className="text-[10px] text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50 mb-2 hover:bg-slate-700/50 transition-colors">
               佩戴称号
-            </button>
+            </motion.button>
           )}
 
           {/* Breakthrough Button or Progress */}
           {canBreakthrough && nextLevel ? (
             <div className="flex flex-col items-center mt-4">
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   const isMajor = currentLevel.name === '炼气十三层' || currentLevel.name === '筑基巅峰' || currentLevel.name === '结丹巅峰';
                   
@@ -1038,7 +1070,7 @@ export default function HomePage() {
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-full font-bold shadow-[0_0_20px_rgba(245,158,11,0.6)] transition-all animate-pulse flex items-center text-sm"
               >
                 <Flame size={18} className="mr-2" /> 尝试突破至 {nextLevel.name}
-              </button>
+              </motion.button>
               {(materials['qingxin_pill'] || 0) > 0 && (
                 <label className="mt-3 flex items-center space-x-2 text-xs text-slate-300 cursor-pointer bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700/50">
                   <input 
@@ -1108,12 +1140,12 @@ export default function HomePage() {
             {selectedFate ? (
               <span className="text-xs text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-500/30">已窥天机</span>
             ) : (
-              <button 
+              <motion.button whileTap={{ scale: 0.95 }} 
                 onClick={() => setShowFateModal(true)}
                 className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded border border-purple-500/30 animate-pulse"
               >
                 窥探天机
-              </button>
+              </motion.button>
             )}
           </div>
           {selectedFate ? (
@@ -1142,13 +1174,13 @@ export default function HomePage() {
               {spiritualRoot ? (
                 <span className={`text-sm font-bold ${rootInfo?.color}`}>{rootInfo?.name}</span>
               ) : (
-                <button onClick={() => {
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                   const root = testSpiritualRoot();
                   setGachaRootId(root);
                   setShowRootGachaModal(true);
                 }} className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">
                   测定灵根
-                </button>
+                </motion.button>
               )}
             </div>
             {spiritualRoot && spiritualRoot !== 'none' && (
@@ -1163,20 +1195,20 @@ export default function HomePage() {
                         {sectPosition === 'patriarch' ? '宗主' : sectPosition === 'elder' ? '长老' : sectPosition === 'core' ? '亲传弟子' : sectPosition === 'inner' ? '内门弟子' : '外门弟子'}
                       </span>
                       <div className="flex-1"></div>
-                      <button onClick={() => setShowLeaveConfirm(true)} className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
+                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowLeaveConfirm(true)} className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
                         退出
-                      </button>
+                      </motion.button>
                     </div>
                   ) : sectStatus === 'left' ? (
                     <span className="text-sm font-bold text-amber-400">散修</span>
                   ) : (
-                    <button onClick={() => {
+                    <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                       const res = participateImmortalAssembly();
                       setToastMessage(res.message);
                       setTimeout(() => setToastMessage(null), 3000);
                     }} className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/30">
                       参加升仙大会
-                    </button>
+                    </motion.button>
                   )}
                 </div>
                 {sect && (
@@ -1184,7 +1216,7 @@ export default function HomePage() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-400">宗门贡献：<span className="text-amber-400 font-bold">{sectContribution || 0}</span></span>
                       {sectPosition !== 'patriarch' && (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => {
                             const result = promoteSectPosition();
                             setToastMessage(result.message);
@@ -1193,10 +1225,10 @@ export default function HomePage() {
                           className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors"
                         >
                           晋升职位
-                        </button>
+                        </motion.button>
                       )}
                       {sectPosition === 'patriarch' && (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => {
                             const result = upgradeSect();
                             setToastMessage(result.message);
@@ -1205,14 +1237,14 @@ export default function HomePage() {
                           className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 hover:bg-amber-500/30 transition-colors"
                         >
                           提升宗门 (Lv.{sectLevel || 1})
-                        </button>
+                        </motion.button>
                       )}
-                      <button 
+                      <motion.button whileTap={{ scale: 0.95 }} 
                         onClick={() => setShowDonateModal(true)}
                         className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors ml-2"
                       >
                         捐献物资
-                      </button>
+                      </motion.button>
                     </div>
                     {currentSectInfo && (
                       <div className="text-[10px] text-slate-500 bg-slate-800/30 px-2 py-1 rounded border border-slate-700/30">
@@ -1255,24 +1287,24 @@ export default function HomePage() {
                   </span>
                 )}
                 {!daoCompanion?.active && daoCompanion && (
-                  <button onClick={() => {
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                     setToastMessage('已发送传音符提醒道侣！');
                     setTimeout(() => setToastMessage(null), 3000);
                   }} className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">
                     提醒打卡
-                  </button>
+                  </motion.button>
                 )}
-                <button onClick={() => setShowCompanionInteractModal(true)} className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/30 ml-2">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowCompanionInteractModal(true)} className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/30 ml-2">
                   互动
-                </button>
-                <button onClick={() => setShowCompanionModal(true)} className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 ml-2">
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowCompanionModal(true)} className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30 ml-2">
                   寻觅
-                </button>
+                </motion.button>
               </div>
             ) : (
-              <button onClick={() => setShowCompanionModal(true)} className="text-xs bg-rose-500/20 text-rose-300 px-2 py-1 rounded border border-rose-500/30">
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowCompanionModal(true)} className="text-xs bg-rose-500/20 text-rose-300 px-2 py-1 rounded border border-rose-500/30">
                 寻觅道侣
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
@@ -1284,7 +1316,7 @@ export default function HomePage() {
               <Heart size={16} className="mr-2" />
               <span className="text-sm font-bold">道侣传音</span>
             </div>
-            <button
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={() => {
                 const res = useStore.getState().claimCompanionEvent?.();
                 if (res && res.message) setToastMessage(res.message);
@@ -1293,7 +1325,7 @@ export default function HomePage() {
               className="px-3 py-1 bg-pink-600/30 hover:bg-pink-600/50 text-pink-200 text-xs font-bold rounded-lg transition-colors border border-pink-500/50"
             >
               查看
-            </button>
+            </motion.button>
           </div>
         )}
 
@@ -1342,7 +1374,7 @@ export default function HomePage() {
                 <span>剩余时间: {Math.max(0, Math.ceil(((globalEvent.endTime || Date.now()) - Date.now()) / (1000 * 60 * 60 * 24)))}天</span>
               </div>
               {globalEvent.status === 'active' && (
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     if (spiritStones >= 1) {
                       contributeToGlobalEvent(1);
@@ -1356,7 +1388,7 @@ export default function HomePage() {
                   className="w-full py-2 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl font-bold text-xs hover:bg-rose-500/30 transition-colors"
                 >
                   贡献力量 (消耗 1 灵石)
-                </button>
+                </motion.button>
               )}
             </div>
           </div>
@@ -1382,7 +1414,7 @@ export default function HomePage() {
             <span className="text-3xl font-medium text-white tracking-tight">{timeLeft}</span>
             {nextTime && (
               <span className="text-xs text-slate-400 mt-2 font-mono">
-                {new Date(nextTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(nextTime.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
           </div>
@@ -1410,7 +1442,7 @@ export default function HomePage() {
             <span className="text-[10px] text-slate-500">影响收益与风险</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <button
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={() => useStore.setState({ cultivationMode: 'safe' })}
               className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
                 cultivationMode === 'safe' || !cultivationMode
@@ -1421,8 +1453,8 @@ export default function HomePage() {
               <Home size={14} />
               <span>洞府闭关</span>
               <span className="text-[9px] opacity-70 font-normal">100%安全</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={() => useStore.setState({ cultivationMode: 'normal' })}
               className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
                 cultivationMode === 'normal'
@@ -1433,8 +1465,8 @@ export default function HomePage() {
               <Footprints size={14} />
               <span>外出历练</span>
               <span className="text-[9px] opacity-70 font-normal">1.5倍收益</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={() => useStore.setState({ cultivationMode: 'risky' })}
               className={`py-2 px-1 rounded-xl text-xs font-bold border transition-colors flex flex-col items-center justify-center gap-1 ${
                 cultivationMode === 'risky'
@@ -1445,7 +1477,7 @@ export default function HomePage() {
               <Skull size={14} />
               <span>秘境探险</span>
               <span className="text-[9px] opacity-70 font-normal">高风险高回报</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -1459,7 +1491,7 @@ export default function HomePage() {
             <span className="text-[10px] text-slate-500">等级: {Math.floor((alchemyLevel || 1) + (craftingLevel || 1))}</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <button 
+            <motion.button whileTap={{ scale: 0.95 }} 
               onClick={() => {
                 gatherMaterials();
                 setToastMessage('正在后山采药挖矿...');
@@ -1468,20 +1500,20 @@ export default function HomePage() {
               className="py-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center justify-center hover:bg-emerald-500/20 transition-colors"
             >
               <Pickaxe size={14} className="mr-1" /> 采药挖矿
-            </button>
-            <button 
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} 
               onClick={() => setShowProductionModal(true)}
               className="py-3 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold flex items-center justify-center hover:bg-rose-500/20 transition-colors"
             >
               <Flame size={14} className="mr-1" /> 洞府炼制
-            </button>
-            <button 
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} 
               onClick={() => setShowBottleModal(true)}
               className="py-3 bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 rounded-xl text-xs font-bold flex items-center justify-center hover:bg-emerald-500/30 transition-colors relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
               <Droplets size={14} className="mr-1" /> 掌天瓶
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -1511,12 +1543,12 @@ export default function HomePage() {
 
         {/* Action Links */}
         <div className="flex justify-between w-full mt-6 px-2">
-          <button onClick={() => setShowDetails(true)} className="flex items-center text-slate-400 hover:text-slate-200 text-sm transition-colors">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowDetails(true)} className="flex items-center text-slate-400 hover:text-slate-200 text-sm transition-colors">
             <List size={16} className="mr-1" /> 今日明细
-          </button>
-          <button onClick={() => setShowShare(true)} className="flex items-center text-emerald-400 hover:text-emerald-300 text-sm transition-colors">
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShare(true)} className="flex items-center text-emerald-400 hover:text-emerald-300 text-sm transition-colors">
             <Share2 size={16} className="mr-1" /> 炫耀一下
-          </button>
+          </motion.button>
         </div>
         
         <AdBanner />
@@ -1531,7 +1563,7 @@ export default function HomePage() {
             animate={{ opacity: 0, y: ft.y - 100, scale: 1.2 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className="fixed z-[100] pointer-events-none text-emerald-400 font-bold text-sm drop-shadow-md whitespace-nowrap"
+            className={`fixed z-[200] pointer-events-none drop-shadow-md whitespace-nowrap font-black text-2xl ${ft.color || 'text-emerald-400'}`}
           >
             {ft.text}
           </motion.div>
@@ -1549,7 +1581,7 @@ export default function HomePage() {
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium text-white">今日饮水明细</h2>
-              <button onClick={() => setShowDetails(false)} className="text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowDetails(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
             </div>
             
             <div className="mb-6 p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-xl">
@@ -1571,9 +1603,9 @@ export default function HomePage() {
                         <p className="text-xs text-slate-500">{format(new Date(log.timestamp), 'HH:mm')}</p>
                       </div>
                     </div>
-                    <button onClick={() => removeLog(log.timestamp)} className="text-rose-400/70 hover:text-rose-400 p-2 transition-colors">
+                    <motion.button whileTap={{ scale: 0.95 }} onClick={() => removeLog(log.timestamp)} className="text-rose-400/70 hover:text-rose-400 p-2 transition-colors">
                       <Trash2 size={18} />
-                    </button>
+                    </motion.button>
                   </div>
                   {log.message && (
                     <div className="mt-2 text-xs text-amber-400 bg-amber-900/20 p-2 rounded border border-amber-500/20">
@@ -1688,7 +1720,7 @@ export default function HomePage() {
                 )}
               </div>
 
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   claimDailyReward();
                   setShowDailyRewardModal(false);
@@ -1696,7 +1728,7 @@ export default function HomePage() {
                 className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white rounded-xl font-bold shadow-lg shadow-amber-500/20 transition-all"
               >
                 领取奖励
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -1740,14 +1772,14 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   setShowOfflineModal(false);
                 }}
                 className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all"
               >
                 出关
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -1788,7 +1820,7 @@ export default function HomePage() {
                 <span>奖励: {encounterData.reward}</span>
               </div>
 
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   encounterData.onClaim();
                   setShowEncounterModal(false);
@@ -1798,7 +1830,7 @@ export default function HomePage() {
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white rounded-xl font-bold shadow-lg shadow-purple-500/20 transition-all"
               >
                 收下机缘
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -1948,7 +1980,7 @@ export default function HomePage() {
                 </p>
                 
                 <div className="flex flex-col w-full gap-3">
-                  <button
+                  <motion.button whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       const success = rescueStreak(true);
                       if (success) {
@@ -1962,13 +1994,13 @@ export default function HomePage() {
                     className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all flex items-center justify-center"
                   >
                     <Flame size={18} className="mr-2" /> 服用护脉丹 (拥有: {materials['humai_pill'] || 0})
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }}
                     onClick={() => rescueStreak(false)}
                     className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium border border-slate-700 transition-all"
                   >
                     顺其自然，从头再来
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
@@ -2002,12 +2034,12 @@ export default function HomePage() {
               <p className="text-yellow-100/80 text-sm mb-8 leading-relaxed">
                 恭喜道友，历经千辛万苦，终于碎丹成婴，寿元大增！从此元婴不灭，神魂不散，真正踏入高阶修士行列！
               </p>
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => setShowLevelUpModal(false)}
                 className="w-full py-3 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-yellow-600/30"
               >
                 念头通达
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -2022,7 +2054,7 @@ export default function HomePage() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm p-6"
           >
-            <button onClick={() => setShowShare(false)} className="absolute top-6 right-6 text-slate-400 p-2"><X size={24} /></button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShare(false)} className="absolute top-6 right-6 text-slate-400 p-2"><X size={24} /></motion.button>
             
             {/* The Poster to be captured */}
             <div ref={shareRef} className={`w-full max-w-sm rounded-3xl p-8 shadow-2xl relative overflow-hidden bg-gradient-to-br ${currentLevel.bg}`}>
@@ -2084,9 +2116,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button onClick={handleShare} className="mt-8 flex items-center bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-full font-medium shadow-lg shadow-emerald-500/20 transition-colors">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={handleShare} className="mt-8 flex items-center bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-full font-medium shadow-lg shadow-emerald-500/20 transition-colors">
               <Download size={18} className="mr-2" /> 保存海报
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -2101,7 +2133,7 @@ export default function HomePage() {
             className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
           >
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 w-full max-w-sm relative">
-              <button onClick={() => setShowNameModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowNameModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></motion.button>
               <h2 className="text-xl font-bold text-slate-200 mb-4 flex items-center">
                 <Edit2 size={20} className="mr-2" /> 道号设定
               </h2>
@@ -2113,7 +2145,7 @@ export default function HomePage() {
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 mb-4 focus:outline-none focus:border-cyan-500"
                 maxLength={10}
               />
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (tempName.trim()) {
                     setPlayerName(tempName.trim());
@@ -2125,7 +2157,7 @@ export default function HomePage() {
                 className="w-full py-3 bg-cyan-600 text-white rounded-xl font-bold hover:bg-cyan-500 transition-colors"
               >
                 确认
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         )}
@@ -2141,7 +2173,7 @@ export default function HomePage() {
             className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
           >
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 w-full max-w-md relative max-h-[80vh] overflow-y-auto">
-              <button onClick={() => setShowMapModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMapModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></motion.button>
               <h2 className="text-xl font-bold text-slate-200 mb-2 flex items-center">
                 <Map size={20} className="mr-2" /> 传送阵
               </h2>
@@ -2160,7 +2192,7 @@ export default function HomePage() {
                           {isCurrent ? (
                             <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded border border-cyan-500/30">当前位置</span>
                           ) : (
-                            <button
+                            <motion.button whileTap={{ scale: 0.95 }}
                               disabled={!canTravel}
                               onClick={() => {
                                 if (spiritStones >= region.cost) {
@@ -2177,7 +2209,7 @@ export default function HomePage() {
                               className={`text-xs px-3 py-1.5 rounded font-bold ${canTravel ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
                             >
                               {canTravel ? `传送 (${region.cost}灵石)` : `需修为达到 ${region.minLevel}`}
-                            </button>
+                            </motion.button>
                           )}
                         </div>
                         <p className="text-xs text-slate-400">{region.description}</p>
@@ -2201,7 +2233,7 @@ export default function HomePage() {
             className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
           >
             <div className="bg-slate-800 border border-cyan-500/30 rounded-3xl p-6 w-full max-w-sm relative max-h-[80vh] overflow-y-auto">
-              <button onClick={() => setShowMultiplayerModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMultiplayerModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></motion.button>
               <h2 className="text-xl font-bold text-cyan-300 mb-2 flex items-center">
                 <Users size={20} className="mr-2" /> 大千世界
               </h2>
@@ -2211,7 +2243,7 @@ export default function HomePage() {
                 <div className="bg-rose-900/30 border border-rose-500/50 rounded-xl p-4 mb-4 animate-pulse">
                   <h3 className="text-sm font-bold text-rose-400 mb-1">血色禁地已开启！</h3>
                   <p className="text-xs text-rose-300/80 mb-3">秘境内危机四伏，可与其他修士厮杀夺宝！</p>
-                  <button 
+                  <motion.button whileTap={{ scale: 0.95 }} 
                     onClick={() => {
                       if (socket) {
                         socket.emit('enter_secret_realm');
@@ -2223,7 +2255,7 @@ export default function HomePage() {
                     className="w-full py-2 bg-rose-500/20 text-rose-300 border border-rose-500/50 rounded-lg text-xs font-bold hover:bg-rose-500/30"
                   >
                     进入秘境
-                  </button>
+                  </motion.button>
                 </div>
               )}
 
@@ -2240,16 +2272,16 @@ export default function HomePage() {
                       </div>
                       <div className="flex space-x-2">
                         {secretRealmActive ? (
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               if (socket) socket.emit('attack_player', player.id);
                             }}
                             className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-1 rounded border border-rose-500/30 hover:bg-rose-500/30"
                           >
                             偷袭
-                          </button>
+                          </motion.button>
                         ) : (
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               if (socket) {
                                 socket.emit('greet', player.id);
@@ -2260,7 +2292,7 @@ export default function HomePage() {
                             className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded border border-cyan-500/30 hover:bg-cyan-500/30"
                           >
                             结交
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     </div>
@@ -2287,12 +2319,12 @@ export default function HomePage() {
                   <Heart className="mr-2" size={20} />
                   道侣互动
                 </h2>
-                <button onClick={() => {
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                   setShowCompanionInteractModal(false);
                   setSelectedInteractCompanionId(null);
                 }} className="text-slate-400 hover:text-white">
                   <X size={24} />
-                </button>
+                </motion.button>
               </div>
               
               {(() => {
@@ -2313,20 +2345,20 @@ export default function HomePage() {
                           </div>
                           <div className="flex space-x-2">
                             {daoCompanion?.id !== comp.id && (
-                              <button 
+                              <motion.button whileTap={{ scale: 0.95 }} 
                                 onClick={() => setDaoCompanion(comp)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700"
                               >
                                 设为主修
-                              </button>
+                              </motion.button>
                             )}
-                            <button 
+                            <motion.button whileTap={{ scale: 0.95 }} 
                               onClick={() => setSelectedInteractCompanionId(comp.id)}
                               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30"
                             >
                               互动
-                            </button>
-                            <button 
+                            </motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }} 
                               onClick={() => {
                                 if (confirm(`确定要与 ${comp.name} 解除道侣关系吗？`)) {
                                   setMarriedCompanions(marriedCompanions.filter(c => c.id !== comp.id));
@@ -2340,7 +2372,7 @@ export default function HomePage() {
                               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-500 border border-slate-700 hover:text-rose-400 hover:border-rose-500/30"
                             >
                               解除
-                            </button>
+                            </motion.button>
                           </div>
                         </div>
                       ))}
@@ -2350,12 +2382,12 @@ export default function HomePage() {
 
                 return (
                   <>
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setSelectedInteractCompanionId(null)}
                       className="text-xs text-slate-400 hover:text-white mb-4 flex items-center"
                     >
                       ← 返回列表
-                    </button>
+                    </motion.button>
                     <div className="mb-6 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-slate-300">好感度</span>
@@ -2378,7 +2410,7 @@ export default function HomePage() {
                     </div>
 
                     <div className="space-y-3">
-                      <button 
+                      <motion.button whileTap={{ scale: 0.95 }} 
                         disabled={(selectedCompanion.favorability || 0) < 500 || (selectedCompanion.lastInteractionDate === format(new Date(), 'yyyy-MM-dd') ? (selectedCompanion.dailyInteractions || 0) : 0) >= 3}
                         onClick={() => {
                           const res = interactWithCompanion('dual_cultivate', selectedCompanion.id);
@@ -2400,7 +2432,7 @@ export default function HomePage() {
                           <div className="text-xs text-slate-400">每次增加</div>
                           <div className="text-sm font-bold text-rose-400">1000+ 修为</div>
                         </div>
-                      </button>
+                      </motion.button>
 
                       <div className="p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
                         <div className="flex items-center mb-3">
@@ -2426,7 +2458,7 @@ export default function HomePage() {
                             return giftableItems.map(item => {
                               const info = getItemInfo(item.id);
                               return (
-                                <button 
+                                <motion.button whileTap={{ scale: 0.95 }} 
                                   key={item.id}
                                   onClick={() => {
                                     const res = interactWithCompanion('gift', selectedCompanion.id, item.id);
@@ -2437,7 +2469,7 @@ export default function HomePage() {
                                 >
                                   <div className={`font-bold ${info.color}`}>{info.name}</div>
                                   <div className="text-slate-500">拥有: {item.count}</div>
-                                </button>
+                                </motion.button>
                               );
                             });
                           })()}
@@ -2462,7 +2494,7 @@ export default function HomePage() {
             className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
           >
             <div className="bg-slate-800 border border-rose-500/30 rounded-3xl p-6 w-full max-w-sm relative max-h-[80vh] overflow-y-auto">
-              <button onClick={() => setShowCompanionModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowCompanionModal(false)} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></motion.button>
               <h2 className="text-xl font-bold text-rose-300 mb-2 flex items-center">
                 <Heart size={20} className="mr-2" /> 寻觅道侣
               </h2>
@@ -2487,7 +2519,7 @@ export default function HomePage() {
                     if (!canMarry && currentLevelIndex >= reqLevelIndex && !isMarried) {
                       customAction = (
                         <div className="flex space-x-2 w-full mt-3">
-                          <button onClick={() => {
+                          <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                             if (hasZhuyan) {
                               addMaterial('zhuyan_pill', -1);
                               setDaoCompanion({ id: companion.id, name: companion.name, active: true });
@@ -2498,8 +2530,8 @@ export default function HomePage() {
                               setToastMessage('缺少稀有驻颜丹！');
                               setTimeout(() => setToastMessage(null), 3000);
                             }
-                          }} className="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700">赠送驻颜丹</button>
-                          <button onClick={() => {
+                          }} className="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700">赠送驻颜丹</motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
                             if (hasStones) {
                               addSpiritStones(-100000);
                               setDaoCompanion({ id: companion.id, name: companion.name, active: true });
@@ -2510,7 +2542,7 @@ export default function HomePage() {
                               setToastMessage('灵石不足10万！');
                               setTimeout(() => setToastMessage(null), 3000);
                             }
-                          }} className="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700">赠送10万灵石</button>
+                          }} className="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700">赠送10万灵石</motion.button>
                         </div>
                       );
                     }
@@ -2536,14 +2568,14 @@ export default function HomePage() {
                         结缘条件: {companion.strategy}
                       </div>
                       {isMarried ? (
-                        <button
+                        <motion.button whileTap={{ scale: 0.95 }}
                           disabled
                           className="w-full py-2 rounded-lg text-xs font-bold transition-colors bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-not-allowed"
                         >
                           已结缘
-                        </button>
+                        </motion.button>
                       ) : customAction ? customAction : (
-                        <button
+                        <motion.button whileTap={{ scale: 0.95 }}
                           onClick={() => {
                             if (canMarry) {
                               setDaoCompanion({ id: companion.id, name: companion.name, active: true });
@@ -2558,7 +2590,7 @@ export default function HomePage() {
                           className={`w-full py-2 rounded-lg text-xs font-bold transition-colors ${canMarry ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30' : 'bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed'}`}
                         >
                           {canMarry ? '结为道侣' : '条件未满'}
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   );
@@ -2590,6 +2622,20 @@ export default function HomePage() {
           onClose={() => setCombatState(null)}
         />
       )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {craftState && craftState.isOpen && (
+        <CraftAnimation
+          type={craftState.type}
+          itemName={craftState.itemName}
+          isSuccess={craftState.isSuccess}
+          message={craftState.message}
+          onClose={() => setCraftState(null)}
+        />
+      )}
+      </AnimatePresence>
+      <AnimatePresence>
       {showQuests && (
           <motion.div
             initial={{ opacity: 0, y: 100 }}
@@ -2599,54 +2645,54 @@ export default function HomePage() {
           >
             <div className="flex justify-between items-center mb-6 shrink-0">
               <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-2">
-                <button 
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setActiveQuestTab('hall')}
                   className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'hall' ? 'text-emerald-400' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   <Home size={16} className="mr-1" /> 宗门大殿
-                </button>
+                </motion.button>
                 {sectStatus !== 'none' && (
                   <>
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setActiveQuestTab('quests')}
                       className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'quests' ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}
                     >
                       <ScrollText size={16} className="mr-1" /> 宗门任务
-                    </button>
-                    <button 
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setActiveQuestTab('competition')}
                       className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'competition' ? 'text-red-400' : 'text-slate-500 hover:text-slate-300'}`}
                     >
                       <Swords size={16} className="mr-1" /> 内门大比
-                    </button>
-                    <button 
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setActiveQuestTab('sectWar')}
                       className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'sectWar' ? 'text-purple-400' : 'text-slate-500 hover:text-slate-300'}`}
                     >
                       <Shield size={16} className="mr-1" /> 宗门战
-                    </button>
-                    <button 
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setActiveQuestTab('members')}
                       className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'members' ? 'text-blue-400' : 'text-slate-500 hover:text-slate-300'}`}
                     >
                       <Users size={16} className="mr-1" /> 宗门同门
-                    </button>
+                    </motion.button>
                   </>
                 )}
-                <button 
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setActiveQuestTab('factions')}
                   className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'factions' ? 'text-rose-400' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   <Skull size={16} className="mr-1" /> 天下势力
-                </button>
-                <button 
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setActiveQuestTab('ranking')}
                   className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'ranking' ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   <Trophy size={16} className="mr-1" /> 宗门排行
-                </button>
+                </motion.button>
               </div>
-              <button onClick={() => setShowQuests(false)} className="text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowQuests(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide pb-10">
               {activeQuestTab === 'hall' ? (
@@ -2672,7 +2718,7 @@ export default function HomePage() {
                     {sectStatus === 'none' ? (
                       <div className="text-center py-4">
                         <p className="text-sm text-slate-300 mb-4">你目前是一介散修，无依无靠。是否要拜入宗门？</p>
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => {
                             if (spiritualRoot === 'none' || !spiritualRoot) {
                               setToastMessage('没有灵根，无法加入宗门！');
@@ -2684,7 +2730,7 @@ export default function HomePage() {
                           className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20 transition-all"
                         >
                           选择宗门
-                        </button>
+                        </motion.button>
                       </div>
                     ) : (
                       <>
@@ -2702,7 +2748,7 @@ export default function HomePage() {
                         </div>
                         
                         <div className="flex space-x-3">
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               const result = claimSectSalary();
                               setToastMessage(result.message);
@@ -2712,9 +2758,9 @@ export default function HomePage() {
                             className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${dailySalaryClaimed ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}
                           >
                             {dailySalaryClaimed ? '已领俸禄' : '领取每日俸禄'}
-                          </button>
+                          </motion.button>
                           
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               const result = promoteSectPosition();
                               setToastMessage(result.message);
@@ -2723,7 +2769,7 @@ export default function HomePage() {
                             className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all"
                           >
                             晋升职位
-                          </button>
+                          </motion.button>
                         </div>
                       </>
                     )}
@@ -2733,7 +2779,7 @@ export default function HomePage() {
                     <div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4">
                       <h4 className="text-amber-400 font-bold mb-2 flex items-center"><Sparkles size={16} className="mr-1" /> 宗门管理 (高层权限)</h4>
                       <p className="text-xs text-slate-400 mb-3">消耗宗门底蕴，开启全宗增益阵法。</p>
-                      <button 
+                      <motion.button whileTap={{ scale: 0.95 }} 
                         onClick={() => {
                           const res = activateSectFormation();
                           if (res.success) {
@@ -2752,7 +2798,7 @@ export default function HomePage() {
                         }`}
                       >
                         {sectBuff && sectBuff.expiresAt > Date.now() ? '护宗大阵运转中' : '开启护宗大阵 (消耗 10000 底蕴)'}
-                      </button>
+                      </motion.button>
                     </div>
                   )}
                 </div>
@@ -2801,12 +2847,12 @@ export default function HomePage() {
                           <CheckCircle2 size={14} className="mr-1" /> 已领取
                         </div>
                       ) : canClaim ? (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => claimQuestReward(quest.id)}
                           className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs rounded-full shadow-lg shadow-indigo-500/20 transition-colors flex items-center"
                         >
                           领取 <Gem size={12} className="ml-1 mr-0.5" /> {quest.reward}
-                        </button>
+                        </motion.button>
                       ) : (
                         <div className="flex items-center text-xs text-slate-500">
                           奖励 <Gem size={12} className="ml-1 mr-0.5 text-cyan-500/50" /> {quest.reward}
@@ -2846,12 +2892,12 @@ export default function HomePage() {
                           <CheckCircle2 size={14} className="mr-1" /> 已领取
                         </div>
                       ) : canClaim ? (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => claimQuestReward(quest.id)}
                           className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs rounded-full shadow-lg shadow-indigo-500/20 transition-colors flex items-center"
                         >
                           领取 <Gem size={12} className="ml-1 mr-0.5" /> {quest.reward}
-                        </button>
+                        </motion.button>
                       ) : (
                         <div className="flex items-center text-xs text-slate-500">
                           奖励 <Gem size={12} className="ml-1 mr-0.5 text-cyan-500/50" /> {quest.reward}
@@ -2891,12 +2937,12 @@ export default function HomePage() {
                           <CheckCircle2 size={14} className="mr-1" /> 已领取
                         </div>
                       ) : canClaim ? (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => claimQuestReward(quest.id)}
                           className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs rounded-full shadow-lg shadow-indigo-500/20 transition-colors flex items-center"
                         >
                           领取 <Gem size={12} className="ml-1 mr-0.5" /> {quest.reward}
-                        </button>
+                        </motion.button>
                       ) : (
                         <div className="flex items-center text-xs text-slate-500">
                           奖励 <Gem size={12} className="ml-1 mr-0.5 text-cyan-500/50" /> {quest.reward}
@@ -2936,7 +2982,7 @@ export default function HomePage() {
                           <CheckCircle2 size={14} className="mr-1" /> 已完成
                         </div>
                       ) : canClaim ? (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => {
                             const res = claimSectMissionReward(mission.id);
                             setToastMessage(res.message);
@@ -2945,7 +2991,7 @@ export default function HomePage() {
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-indigo-500/20 transition-colors"
                         >
                           执行
-                        </button>
+                        </motion.button>
                       ) : (
                         <div className="text-xs text-red-400/70 text-center">
                           境界不足
@@ -3037,7 +3083,7 @@ export default function HomePage() {
                                 })
                               </div>
                             </div>
-                            <button
+                            <motion.button whileTap={{ scale: 0.95 }}
                               onClick={() => {
                                 const result = challengeOtherSect(npc.id);
                                 setToastMessage(result.message);
@@ -3046,40 +3092,50 @@ export default function HomePage() {
                               className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-purple-500/20 transition-all"
                             >
                               挑战
-                            </button>
+                            </motion.button>
                           </div>
                           <div className="flex space-x-2 mt-3">
-                            <button
-                              onClick={() => {
+                            <motion.button whileTap={{ scale: 0.95 }}
+                              onClick={(e) => {
                                 const result = useStore.getState().interactWithNpc?.(npc.id, 'chat');
-                                if (result && result.message) setToastMessage(result.message);
+                                if (result && result.message) {
+                                  setToastMessage(result.message);
+                                  spawnFloatingText('+好感', e, 'text-pink-400');
+                                }
                                 setTimeout(() => setToastMessage(null), 3000);
                               }}
                               className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition-colors"
                             >
                               论道
-                            </button>
-                            <button
-                              onClick={() => {
+                            </motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }}
+                              onClick={(e) => {
                                 const result = useStore.getState().interactWithNpc?.(npc.id, 'gift');
-                                if (result && result.message) setToastMessage(result.message);
+                                if (result && result.message) {
+                                  setToastMessage(result.message);
+                                  if (result.message.includes('成功')) spawnFloatingText('+好感', e, 'text-pink-400');
+                                  if (result.message.includes('不足')) spawnFloatingText('灵石不足', e, 'text-red-400');
+                                }
                                 setTimeout(() => setToastMessage(null), 3000);
                               }}
                               className="flex-1 py-1.5 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 text-xs font-bold rounded-lg transition-colors"
                             >
                               赠礼 (100灵石)
-                            </button>
-                            <button
-                              onClick={() => {
+                            </motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }}
+                              onClick={(e) => {
                                 const result = useStore.getState().interactWithNpc?.(npc.id, 'spar');
-                                if (result && result.message) setToastMessage(result.message);
+                                if (result && result.message) {
+                                  setToastMessage(result.message);
+                                  spawnFloatingText('+修为', e, 'text-emerald-400');
+                                }
                                 setTimeout(() => setToastMessage(null), 3000);
                               }}
                               className="flex-1 py-1.5 bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/30 text-xs font-bold rounded-lg transition-colors"
                             >
                               切磋
-                            </button>
-                            <button
+                            </motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }}
                               onClick={() => {
                                 const result = useStore.getState().interactWithNpc?.(npc.id, 'rob');
                                 if (result) {
@@ -3096,8 +3152,8 @@ export default function HomePage() {
                               className="flex-1 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors"
                             >
                               杀人夺宝
-                            </button>
-                            <button
+                            </motion.button>
+                            <motion.button whileTap={{ scale: 0.95 }}
                               onClick={() => {
                                 const result = useStore.getState().interactWithNpc?.(npc.id, 'snatch');
                                 if (result) {
@@ -3114,7 +3170,7 @@ export default function HomePage() {
                               className="flex-1 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-lg transition-colors"
                             >
                               夺取机缘
-                            </button>
+                            </motion.button>
                           </div>
                         </div>
                       );
@@ -3140,7 +3196,7 @@ export default function HomePage() {
                         <div>宗门底蕴: <span className="text-purple-400">{useStore.getState().mySect?.power}</span></div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <button
+                        <motion.button whileTap={{ scale: 0.95 }}
                           onClick={() => {
                             const result = useStore.getState().recruitDisciples?.('normal');
                             if (result) {
@@ -3151,8 +3207,8 @@ export default function HomePage() {
                           className="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 text-white text-xs font-bold rounded-lg transition-colors"
                         >
                           凡俗寻仙 (1000灵石)
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.95 }}
                           onClick={() => {
                             const result = useStore.getState().recruitDisciples?.('grand');
                             if (result) {
@@ -3163,18 +3219,18 @@ export default function HomePage() {
                           className="w-full py-2 bg-amber-600/40 hover:bg-amber-600/60 text-white text-xs font-bold rounded-lg transition-colors"
                         >
                           升仙大会 (10000灵石)
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
                   ) : (
                     <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 mb-4 text-center">
                       <p className="text-sm text-slate-400 mb-3">你尚未开宗立派</p>
-                      <button
+                      <motion.button whileTap={{ scale: 0.95 }}
                         onClick={() => setShowCreateSectModal(true)}
                         className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors"
                       >
                         创立宗门 (消耗10000灵石)
-                      </button>
+                      </motion.button>
                     </div>
                   )}
                   
@@ -3193,7 +3249,7 @@ export default function HomePage() {
                           </div>
                         </div>
                         <div className="flex space-x-2 mt-3">
-                          <button
+                          <motion.button whileTap={{ scale: 0.95 }}
                             onClick={() => {
                               const result = useStore.getState().annihilateSect?.(s.id);
                               if (result) {
@@ -3210,8 +3266,8 @@ export default function HomePage() {
                             className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors flex items-center justify-center"
                           >
                             <Skull size={14} className="mr-1" /> 覆灭宗门
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }}
                             onClick={() => {
                               const result = useStore.getState().conquerSect?.(s.id);
                               if (result) {
@@ -3228,7 +3284,7 @@ export default function HomePage() {
                             className="w-full py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors flex items-center justify-center mt-2"
                           >
                             <Shield size={14} className="mr-1" /> 收服宗门
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                     ))}
@@ -3262,37 +3318,47 @@ export default function HomePage() {
                           </div>
                         </div>
                         <div className="flex space-x-2 mt-3">
-                          <button
-                            onClick={() => {
+                          <motion.button whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
                               const result = useStore.getState().interactWithNpc?.(npc.id, 'chat');
-                              if (result && result.message) setToastMessage(result.message);
+                              if (result && result.message) {
+                                setToastMessage(result.message);
+                                spawnFloatingText('+好感', e, 'text-pink-400');
+                              }
                               setTimeout(() => setToastMessage(null), 3000);
                             }}
                             className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition-colors"
                           >
                             论道
-                          </button>
-                          <button
-                            onClick={() => {
+                          </motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
                               const result = useStore.getState().interactWithNpc?.(npc.id, 'gift');
-                              if (result && result.message) setToastMessage(result.message);
+                              if (result && result.message) {
+                                setToastMessage(result.message);
+                                if (result.message.includes('成功')) spawnFloatingText('+好感', e, 'text-pink-400');
+                                if (result.message.includes('不足')) spawnFloatingText('灵石不足', e, 'text-red-400');
+                              }
                               setTimeout(() => setToastMessage(null), 3000);
                             }}
                             className="flex-1 py-1.5 bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 text-xs font-bold rounded-lg transition-colors"
                           >
                             赠礼 (100灵石)
-                          </button>
-                          <button
-                            onClick={() => {
+                          </motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
                               const result = useStore.getState().interactWithNpc?.(npc.id, 'spar');
-                              if (result && result.message) setToastMessage(result.message);
+                              if (result && result.message) {
+                                setToastMessage(result.message);
+                                spawnFloatingText('+修为', e, 'text-emerald-400');
+                              }
                               setTimeout(() => setToastMessage(null), 3000);
                             }}
                             className="flex-1 py-1.5 bg-orange-600/20 hover:bg-orange-600/30 text-orange-400 border border-orange-500/30 text-xs font-bold rounded-lg transition-colors"
                           >
                             切磋
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }}
                             onClick={() => {
                               const result = useStore.getState().interactWithNpc?.(npc.id, 'rob');
                               if (result) {
@@ -3309,8 +3375,8 @@ export default function HomePage() {
                             className="flex-1 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-bold rounded-lg transition-colors"
                           >
                             杀人夺宝
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button whileTap={{ scale: 0.95 }}
                             onClick={() => {
                               const result = useStore.getState().interactWithNpc?.(npc.id, 'snatch');
                               if (result) {
@@ -3327,7 +3393,7 @@ export default function HomePage() {
                             className="flex-1 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 text-xs font-bold rounded-lg transition-colors"
                           >
                             夺取机缘
-                          </button>
+                          </motion.button>
                         </div>
                       </div>
                     ))}
@@ -3353,7 +3419,7 @@ export default function HomePage() {
                     <div className="text-xs text-slate-400 mb-4">
                       大比奖励：胜者可获得 500 宗门贡献、1000 灵石，并有几率获得珍稀材料。
                     </div>
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => {
                         if (spiritStones < 100) {
                           setToastMessage('灵石不足，无法报名参加大比！');
@@ -3406,7 +3472,7 @@ export default function HomePage() {
                       className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors flex items-center justify-center"
                     >
                       <Swords size={18} className="mr-2" /> 报名参赛 (100灵石)
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               ) : null}
@@ -3430,7 +3496,7 @@ export default function HomePage() {
                   <Trophy className="text-amber-400" />
                   <h2 className="text-lg font-medium text-white">修仙称号</h2>
                 </div>
-                <button onClick={() => setShowTitleModal(false)} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowTitleModal(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide pb-4">
@@ -3444,7 +3510,7 @@ export default function HomePage() {
                       {currentTitle === title ? (
                         <span className="text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">已佩戴</span>
                       ) : (
-                        <button 
+                        <motion.button whileTap={{ scale: 0.95 }} 
                           onClick={() => {
                             setCurrentTitle(title);
                             setShowTitleModal(false);
@@ -3452,7 +3518,7 @@ export default function HomePage() {
                           className="text-xs text-slate-300 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-colors"
                         >
                           佩戴
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   ))
@@ -3463,7 +3529,7 @@ export default function HomePage() {
                 )}
                 
                 {currentTitle && (
-                  <button 
+                  <motion.button whileTap={{ scale: 0.95 }} 
                     onClick={() => {
                       setCurrentTitle(null);
                       setShowTitleModal(false);
@@ -3471,7 +3537,7 @@ export default function HomePage() {
                     className="w-full mt-4 py-2 text-xs text-slate-400 border border-slate-700 rounded-xl hover:bg-slate-700/50 transition-colors"
                   >
                     卸下当前称号
-                  </button>
+                  </motion.button>
                 )}
               </div>
             </div>
@@ -3494,14 +3560,14 @@ export default function HomePage() {
                   <Compass className="text-purple-400" />
                   <h2 className="text-lg font-medium text-white">今日天机</h2>
                 </div>
-                <button onClick={() => setShowFateModal(false)} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowFateModal(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide pb-4">
                 <p className="text-sm text-slate-400 mb-4">道友，天机不可泄露，今日你只能选择一条命运轨迹...</p>
                 {dailyFates && dailyFates.length > 0 ? (
                   dailyFates.map((fate) => (
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       key={fate.id}
                       onClick={() => {
                         selectFate(fate.id);
@@ -3516,7 +3582,7 @@ export default function HomePage() {
                         <span className={`text-sm font-bold ${fate.type === 'fortune' ? 'text-amber-400' : fate.type === 'disaster' ? 'text-rose-400' : 'text-blue-400'}`}>{fate.title}</span>
                       </div>
                       <p className="text-xs text-slate-300">{fate.desc}</p>
-                    </button>
+                    </motion.button>
                   ))
                 ) : (
                   <div className="text-center text-slate-500 py-8 text-sm">
@@ -3525,6 +3591,222 @@ export default function HomePage() {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Encounter Modal */}
+      <AnimatePresence>
+        {activeEncounter && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md p-6 overflow-hidden"
+          >
+            {/* Cinematic Background Lines */}
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 opacity-10 pointer-events-none"
+              style={{ background: 'conic-gradient(from 0deg, transparent, rgba(245, 158, 11, 0.5), transparent)' }}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", bounce: 0.5 }}
+              className="bg-slate-900/90 border border-amber-500/50 rounded-[2rem] p-8 w-full max-w-sm flex flex-col relative overflow-hidden text-center shadow-[0_0_50px_rgba(245,158,11,0.15)] z-10"
+            >
+              {/* Inner glowing orb */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
+
+              <motion.div 
+                animate={{ y: [-5, 5, -5] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Sparkles size={56} className="text-amber-400 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]" />
+              </motion.div>
+              
+              <h2 className="text-3xl font-black text-amber-400 mb-3 tracking-widest drop-shadow-md">{activeEncounter.title}</h2>
+              <p className="text-base text-amber-100/80 mb-8 leading-relaxed font-medium">{activeEncounter.desc}</p>
+              
+              <div className="space-y-4">
+                {activeEncounter.choices.map((choice, idx) => (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    key={idx}
+                    onClick={() => {
+                      const res = choice.action();
+                      
+                      // For a more epic result, let's show in combat modal if it's a major event, but currently we just toast
+                      if (res.isVictory !== undefined) {
+                        setCombatState({
+                          isOpen: true,
+                          attackerName: playerName,
+                          defenderName: activeEncounter.title,
+                          isVictory: res.isVictory,
+                          message: res.message,
+                          loot: res.loot,
+                        });
+                      } else {
+                        setToastMessage(res.message);
+                        setTimeout(() => setToastMessage(null), 3000);
+                      }
+                      setActiveEncounter(null);
+                    }}
+                    className={`w-full py-4 px-4 rounded-xl transition-all font-bold text-base shadow-lg relative overflow-hidden group ${
+                      idx === 0 
+                        ? 'bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]' 
+                        : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-slate-600'
+                    }`}
+                  >
+                    {/* Hover light effect */}
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                    <span className="relative z-10">{choice.text}</span>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Tribulation Modal */}
+      <AnimatePresence>
+        {showTribulation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex flex-col items-center justify-center bg-slate-950 backdrop-blur-3xl p-6 overflow-hidden"
+          >
+            {/* Thunder Sky Background */}
+            <motion.div 
+              animate={{ 
+                opacity: [0.1, 0.3, 0.1, 0.8, 0.1],
+                backgroundColor: ['#0f172a', '#312e81', '#0f172a', '#e0e7ff', '#0f172a']
+              }}
+              transition={{ duration: tribulationStatus === 'ongoing' ? 5 : 20, repeat: Infinity, times: [0, 0.4, 0.5, 0.55, 1] }}
+              className="absolute inset-0 z-0 pointer-events-none"
+            />
+            {/* Storm Clouds */}
+            <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[60%] bg-indigo-900/30 blur-[100px] rounded-full pointer-events-none" />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 50 }}
+              animate={tribulationStatus === 'success' ? { opacity: 1, scale: 1, y: 0, filter: 'drop-shadow(0 0 30px rgba(52,211,153,0.5))' } : { opacity: 1, scale: 1, y: 0 }}
+              className="bg-slate-900/80 border border-indigo-500/50 rounded-3xl p-8 w-full max-w-md flex flex-col relative shadow-[0_0_50px_rgba(99,102,241,0.2)] z-10 backdrop-blur-lg"
+            >
+              <div className="text-center mb-8 relative">
+                {tribulationStatus === 'ongoing' && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: [0, 1, 0], height: ['0%', '200%'] }}
+                    transition={{ duration: 0.5, repeat: Infinity, repeatDelay: Math.random() * 2 + 1 }}
+                    className="absolute left-1/2 -translate-x-1/2 top-[-100px] w-1 bg-blue-300 shadow-[0_0_20px_#93c5fd] z-0 blur-[1px]"
+                  />
+                )}
+                <CloudLightning size={64} className={`mx-auto mb-4 relative z-10 ${tribulationStatus === 'ongoing' ? 'text-indigo-400 drop-shadow-[0_0_15px_rgba(129,140,248,0.8)]' : tribulationStatus === 'success' ? 'text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.8)]' : 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]'}`} />
+                <h2 className={`text-4xl font-black mb-2 tracking-widest ${tribulationStatus === 'success' ? 'text-emerald-400' : tribulationStatus === 'fail' ? 'text-red-500' : 'text-indigo-100'}`}>
+                  {tribulationStatus === 'ongoing' ? `第 ${tribulationRound}/${maxRounds} 道雷劫` : tribulationStatus === 'success' ? '渡劫成功！' : '灰飞烟灭...'}
+                </h2>
+                <div className="w-full bg-slate-950/50 h-3 rounded-full mt-6 overflow-hidden border border-slate-700/50">
+                  <motion.div 
+                    className={`h-full ${tribulationStatus === 'success' ? 'bg-emerald-500' : tribulationStatus === 'fail' ? 'bg-red-500' : 'bg-gradient-to-r from-indigo-600 to-blue-400'}`} 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(tribulationRound / maxRounds) * 100}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 bg-slate-950/80 rounded-2xl p-5 mb-8 overflow-y-auto max-h-56 font-mono text-sm text-slate-300 space-y-3 border border-indigo-900/50 shadow-inner scrollbar-hide">
+                {tribulationLog.map((log, idx) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    key={idx} className={`${log.includes('成功') || log.includes('蜕变') || log.includes('飞升') ? 'text-emerald-400 font-bold' : log.includes('失败') || log.includes('受损') || log.includes('重伤') ? 'text-red-400 font-bold' : 'text-indigo-200'}`}
+                  >
+                    {log}
+                  </motion.div>
+                ))}
+              </div>
+
+              {tribulationStatus === 'ongoing' ? (
+                <div className="space-y-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      // Screen shake effect on press
+                      const thunderShake = () => {
+                        const evt = new CustomEvent('shake'); window.dispatchEvent(evt);
+                      };
+                      thunderShake();
+
+                      const successChance = 0.5 + (formations.length > 0 ? 0.2 : 0) + (artifacts.length > 0 ? 0.2 : 0);
+                      if (Math.random() < successChance) {
+                        setTribulationLog(prev => [...prev, `你肉身发光，硬抗下第 ${tribulationRound} 道劈天神雷！`]);
+                        if (tribulationRound >= maxRounds) {
+                          setTribulationStatus('success');
+                          setTribulationLog(prev => [...prev, '雷云散去，天降甘霖，仙音渺渺，你成功蜕变！']);
+                        } else {
+                          setTribulationRound(prev => prev + 1);
+                        }
+                      } else {
+                        setTribulationLog(prev => [...prev, `轰！第 ${tribulationRound} 道雷劫威力逆天，你防守不及，身受重伤！`]);
+                        setTribulationStatus('fail');
+                      }
+                    }}
+                    className="w-full py-4 bg-indigo-600/80 hover:bg-indigo-500/90 text-white font-bold rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-indigo-400/30 text-lg transition-all"
+                  >
+                    肉身硬抗 (基础概率)
+                  </motion.button>
+                  {artifacts.length > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setTribulationLog(prev => [...prev, `你祭出本命法宝迎击苍穹，法宝悲鸣，但成功替你挡下第 ${tribulationRound} 道雷劫！`]);
+                        if (tribulationRound >= maxRounds) {
+                          setTribulationStatus('success');
+                          setTribulationLog(prev => [...prev, '天穹放晴，霞光万丈，恭喜飞升！']);
+                        } else {
+                          setTribulationRound(prev => prev + 1);
+                        }
+                      }}
+                      className="w-full py-4 bg-blue-900/50 hover:bg-blue-800/60 border border-blue-500/50 text-blue-400 font-bold rounded-2xl text-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                    >
+                      祭出法宝抵命 (100%成功)
+                    </motion.button>
+                  )}
+                </div>
+              ) : (
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  onClick={() => {
+                    if (tribulationStatus === 'success') {
+                      completeAscension();
+                    }
+                    setShowTribulation(false);
+                    setTribulationStatus('ongoing');
+                    setTribulationRound(1);
+                    setTribulationLog(['天劫酝酿，劫云蔽日...']);
+                  }}
+                  className={`w-full py-4 font-bold rounded-2xl text-lg shadow-lg ${
+                    tribulationStatus === 'success' 
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(52,211,153,0.4)]' 
+                      : 'bg-red-800 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.4)]'
+                  }`}
+                >
+                  {tribulationStatus === 'success' ? '羽化登仙' : '来世再战'}
+                </motion.button>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -3544,7 +3826,7 @@ export default function HomePage() {
                   <Mountain className="text-purple-400" />
                   <h2 className="text-lg font-medium text-white">秘境探索</h2>
                 </div>
-                <button onClick={() => { setShowExploreModal(false); setExploreResult(null); }} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setShowExploreModal(false); setExploreResult(null); }} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-4 scrollbar-hide pb-4">
@@ -3575,16 +3857,16 @@ export default function HomePage() {
                        exploreResult.type === 'material' ? `获得材料：${SHOP_ITEMS.find(i => i.id === exploreResult.itemId)?.name || exploreResult.itemId} x${exploreResult.amount}` :
                        `获得材料：${SHOP_ITEMS.find(i => i.id === exploreResult.type)?.name || exploreResult.type} x${exploreResult.amount}`}
                     </p>
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => setExploreResult(null)}
                       className="w-full py-2 bg-purple-500/20 text-purple-300 border border-purple-500/50 rounded-xl font-bold text-sm hover:bg-purple-500/30"
                     >
                       继续探索
-                    </button>
+                    </motion.button>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => {
                         const res = exploreRealm('low');
                         setExploreResult(res);
@@ -3607,9 +3889,9 @@ export default function HomePage() {
                         <div className="text-xs text-slate-400">可能获得普通材料、少量灵石</div>
                       </div>
                       <div className="text-emerald-500"><Compass size={20} /></div>
-                    </button>
+                    </motion.button>
                     
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => {
                         const res = exploreRealm('mid');
                         setExploreResult(res);
@@ -3632,9 +3914,9 @@ export default function HomePage() {
                         <div className="text-xs text-slate-400">可能获得珍稀材料、功法、丹药</div>
                       </div>
                       <div className="text-blue-500"><Compass size={20} /></div>
-                    </button>
+                    </motion.button>
                     
-                    <button 
+                    <motion.button whileTap={{ scale: 0.95 }} 
                       onClick={() => {
                         const res = exploreRealm('high');
                         setExploreResult(res);
@@ -3657,7 +3939,7 @@ export default function HomePage() {
                         <div className="text-xs text-slate-400">极品机缘、上古传承，伴随陨落风险</div>
                       </div>
                       <div className="text-rose-500"><Compass size={20} /></div>
-                    </button>
+                    </motion.button>
                   </div>
                 )}
               </div>
@@ -3676,7 +3958,7 @@ export default function HomePage() {
             className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
           >
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 w-full max-w-sm flex flex-col relative overflow-hidden items-center text-center">
-              <button onClick={() => { setShowChestModal(false); setChestReward(null); }} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setShowChestModal(false); setChestReward(null); }} className="absolute top-4 right-4 text-slate-400 p-1"><X size={20} /></motion.button>
               
               <PackageOpen size={64} className="text-amber-400 mb-4" />
               <h2 className="text-xl font-bold text-white mb-2">灵宝箱</h2>
@@ -3689,7 +3971,7 @@ export default function HomePage() {
                 </div>
               ) : null}
 
-              <button 
+              <motion.button whileTap={{ scale: 0.95 }} 
                 onClick={() => {
                   const reward = openChest();
                   if (reward) setChestReward(reward);
@@ -3698,7 +3980,7 @@ export default function HomePage() {
                 className={`w-full py-3 rounded-xl font-bold text-sm transition-colors ${chests > 0 ? 'bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
               >
                 {chests > 0 ? '开启宝箱' : '暂无宝箱'}
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         )}
@@ -3719,7 +4001,7 @@ export default function HomePage() {
                   <BookMarked className="text-indigo-400" />
                   <h2 className="text-lg font-medium text-white">功法与法宝</h2>
                 </div>
-                <button onClick={() => setShowSkillsModal(false)} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowSkillsModal(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-6 scrollbar-hide pb-4">
@@ -3743,9 +4025,9 @@ export default function HomePage() {
                                 <div className="text-[10px] text-slate-400">{skillDesc}</div>
                               </div>
                               {isEquipped ? (
-                                <button onClick={() => unequipSkill(skillId)} className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">卸下</button>
+                                <motion.button whileTap={{ scale: 0.95 }} onClick={() => unequipSkill(skillId)} className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">卸下</motion.button>
                               ) : (
-                                <button onClick={() => equipSkill(skillId)} disabled={equippedSkills.length >= 3} className={`text-xs px-2 py-1 rounded ${equippedSkills.length >= 3 ? 'bg-slate-700 text-slate-500' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'}`}>运转</button>
+                                <motion.button whileTap={{ scale: 0.95 }} onClick={() => equipSkill(skillId)} disabled={equippedSkills.length >= 3} className={`text-xs px-2 py-1 rounded ${equippedSkills.length >= 3 ? 'bg-slate-700 text-slate-500' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'}`}>运转</motion.button>
                               )}
                             </div>
                             <div className="flex items-center justify-between text-[10px] text-slate-500">
@@ -3783,7 +4065,7 @@ export default function HomePage() {
                               </div>
                               <div className="flex items-center space-x-2">
                                 {level < 5 && (
-                                  <button 
+                                  <motion.button whileTap={{ scale: 0.95 }} 
                                     onClick={() => {
                                       if (spiritStones >= level * 10) {
                                         useStore.getState().addSpiritStones(-(level * 10));
@@ -3798,12 +4080,12 @@ export default function HomePage() {
                                     className="text-[10px] text-amber-300 bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30"
                                   >
                                     祭炼 ({level * 10}灵石)
-                                  </button>
+                                  </motion.button>
                                 )}
                                 {isEquipped ? (
-                                  <button onClick={() => unequipArtifact(artifactId)} className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">收起</button>
+                                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => unequipArtifact(artifactId)} className="text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">收起</motion.button>
                                 ) : (
-                                  <button onClick={() => equipArtifact(artifactId)} disabled={equippedArtifacts.length >= 1} className={`text-xs px-2 py-1 rounded ${equippedArtifacts.length >= 1 ? 'bg-slate-700 text-slate-500' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>祭出</button>
+                                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => equipArtifact(artifactId)} disabled={equippedArtifacts.length >= 1} className={`text-xs px-2 py-1 rounded ${equippedArtifacts.length >= 1 ? 'bg-slate-700 text-slate-500' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>祭出</motion.button>
                                 )}
                               </div>
                             </div>
@@ -3836,7 +4118,7 @@ export default function HomePage() {
                   <BookOpen className="text-emerald-400" />
                   <h2 className="text-lg font-medium text-white">修仙传</h2>
                 </div>
-                <button onClick={() => setShowStoryModal(false)} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowStoryModal(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-6 scrollbar-hide pb-4">
@@ -3856,7 +4138,7 @@ export default function HomePage() {
                 {STORY_CONTENT.find(c => c.id === storyChapter)?.nodes.find(n => n.id === storyNode)?.options ? (
                   <div className="space-y-3">
                     {STORY_CONTENT.find(c => c.id === storyChapter)?.nodes.find(n => n.id === storyNode)?.options?.map((opt, idx) => (
-                      <button 
+                      <motion.button whileTap={{ scale: 0.95 }} 
                         key={idx}
                         onClick={() => {
                           opt.action();
@@ -3865,16 +4147,16 @@ export default function HomePage() {
                         className="w-full py-3 bg-slate-800/80 text-slate-300 border border-slate-700 rounded-xl font-bold text-sm hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
                       >
                         {opt.text}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 ) : (
-                  <button 
+                  <motion.button whileTap={{ scale: 0.95 }} 
                     onClick={advanceStory}
                     className="w-full py-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition-colors"
                   >
                     继续历练
-                  </button>
+                  </motion.button>
                 )}
               </div>
             </div>
@@ -3896,7 +4178,7 @@ export default function HomePage() {
                 <Package className="text-purple-400" />
                 <h2 className="text-lg font-medium text-white">储物袋</h2>
               </div>
-              <button onClick={() => setShowInventoryModal(false)} className="text-slate-400 p-1"><X size={20} /></button>
+              <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowInventoryModal(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
             </div>
             
             <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide pb-10">
@@ -3918,7 +4200,7 @@ export default function HomePage() {
                         </div>
                         <div className="flex-shrink-0 flex flex-col items-end">
                           {isConsumable && (
-                            <button 
+                            <motion.button whileTap={{ scale: 0.95 }} 
                               onClick={() => {
                                 if (id === 'humai_pill') {
                                   setToastMessage('护脉丹在断签时自动提示使用！');
@@ -3950,7 +4232,7 @@ export default function HomePage() {
                               className="px-3 py-1.5 text-xs rounded-full shadow-lg transition-colors flex items-center bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20"
                             >
                               服用
-                            </button>
+                            </motion.button>
                           )}
                         </div>
                       </div>
@@ -3985,23 +4267,23 @@ export default function HomePage() {
                 <div className="flex items-center text-sm font-medium px-2 py-1 rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-700/50">
                   <Gem size={14} className="mr-1" /> {spiritStones || 0}
                 </div>
-                <button onClick={() => setShowShop(false)} className="text-slate-400 p-1"><X size={20} /></button>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShop(false)} className="text-slate-400 p-1"><X size={20} /></motion.button>
               </div>
             </div>
             
             <div className="flex space-x-2 mb-4 shrink-0">
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => setShopTab('buy')}
                 className={`flex-1 py-2 text-sm font-medium rounded-xl transition-colors ${shopTab === 'buy' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}
               >
                 购买
-              </button>
-              <button
+              </motion.button>
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => setShopTab('sell')}
                 className={`flex-1 py-2 text-sm font-medium rounded-xl transition-colors ${shopTab === 'sell' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}
               >
                 出售
-              </button>
+              </motion.button>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide pb-10">
@@ -4026,13 +4308,13 @@ export default function HomePage() {
                             <CheckCircle2 size={14} className="mr-1" /> 已拥有
                           </div>
                         ) : (
-                          <button 
-                            onClick={() => handleBuy(item)}
+                          <motion.button whileTap={{ scale: 0.95 }} 
+                            onClick={(e) => handleBuy(item, e)}
                             disabled={!canAfford}
                             className={`px-3 py-1.5 text-xs rounded-full shadow-lg transition-colors flex items-center ${canAfford ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-500/20' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
                           >
                             购买 <Gem size={12} className="ml-1 mr-0.5" /> {item.cost}
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     </div>
@@ -4074,7 +4356,7 @@ export default function HomePage() {
                           </div>
                           <div className="flex-shrink-0 flex flex-col items-end space-y-2">
                             {item.type === 'skill' && (
-                              <button 
+                              <motion.button whileTap={{ scale: 0.95 }} 
                                 onClick={() => {
                                   useStore.getState().learnSkill(item.id);
                                   useStore.getState().sellItem(item.id, 'inventory', 1, 0); // Remove from inventory
@@ -4084,9 +4366,9 @@ export default function HomePage() {
                                 className="px-3 py-1.5 text-xs rounded-full shadow-lg transition-colors flex items-center bg-indigo-500 hover:bg-indigo-400 text-white shadow-indigo-500/20"
                               >
                                 学习 <ScrollText size={12} className="ml-1 mr-0.5" />
-                              </button>
+                              </motion.button>
                             )}
-                            <button 
+                            <motion.button whileTap={{ scale: 0.95 }} 
                               onClick={() => {
                                 const sellType = (item.type === 'material' || item.type === 'consumable' || item.type === 'breakthrough') ? 'material' : 'inventory';
                                 if (sellItem(item.id, sellType, 1, item.price)) {
@@ -4097,7 +4379,7 @@ export default function HomePage() {
                               className="px-3 py-1.5 text-xs rounded-full shadow-lg transition-colors flex items-center bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/20"
                             >
                               出售 <Gem size={12} className="ml-1 mr-0.5" /> {item.price}
-                            </button>
+                            </motion.button>
                           </div>
                         </div>
                       </div>
@@ -4138,12 +4420,12 @@ export default function HomePage() {
                 <p className="text-slate-300 text-sm leading-relaxed mb-8">
                   "咦？老夫观你骨骼惊奇，体内隐隐有灵气波动……你，可是身具灵根之人？"
                 </p>
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => setNoviceStep(1)}
                   className="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-medium shadow-lg shadow-blue-500/20 transition-colors"
                 >
                   接受灵根鉴定
-                </button>
+                </motion.button>
               </motion.div>
             )}
 
@@ -4166,12 +4448,12 @@ export default function HomePage() {
                 <p className="text-slate-400 text-xs mb-8">
                   {rootInfo?.desc || '天机不可泄露'}
                 </p>
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => setNoviceStep(2)}
                   className="w-full py-3 bg-purple-500 hover:bg-purple-400 text-white rounded-xl font-medium shadow-lg shadow-purple-500/20 transition-colors"
                 >
                   下一步
-                </button>
+                </motion.button>
               </motion.div>
             )}
 
@@ -4188,7 +4470,7 @@ export default function HomePage() {
                 <p className="text-slate-300 text-sm leading-relaxed mb-8">
                   "长老：既然你体内有灵根，先饮一杯灵泉试试吧。向灵泉献上一杯清水，以感应天地灵气。"
                 </p>
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setShowNoviceGuide(false);
                     setIsFirstTime(false);
@@ -4196,7 +4478,7 @@ export default function HomePage() {
                   className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/20 transition-colors animate-pulse"
                 >
                   去喝第一杯水
-                </button>
+                </motion.button>
               </motion.div>
             )}
           </motion.div>
@@ -4229,7 +4511,7 @@ export default function HomePage() {
                 是否接受邀请，正式拜入修仙大派？
               </p>
               <div className="flex flex-col gap-3">
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     joinSect();
                     setShowSectInvitation(false);
@@ -4239,13 +4521,13 @@ export default function HomePage() {
                   className="w-full py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-medium shadow-lg shadow-blue-500/20 transition-colors"
                 >
                   接受邀请，拜入宗门
-                </button>
-                <button
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => setShowSectInvitation(false)}
                   className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl font-medium transition-colors"
                 >
                   婉拒好意，做个散修
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>
@@ -4272,9 +4554,9 @@ export default function HomePage() {
                 <h2 className="text-2xl font-bold text-blue-300 flex items-center">
                   <Shield size={24} className="mr-2" /> 宗门大选
                 </h2>
-                <button onClick={() => setShowSectSelection(false)} className="text-slate-400 hover:text-white">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowSectSelection(false)} className="text-slate-400 hover:text-white">
                   <X size={24} />
-                </button>
+                </motion.button>
               </div>
               
               <div className="overflow-y-auto pr-2 space-y-3 flex-1 scrollbar-hide">
@@ -4284,7 +4566,7 @@ export default function HomePage() {
                       <h3 className="text-lg font-bold text-blue-400 mb-1">{s.name}</h3>
                       <p className="text-xs text-slate-400">{s.desc}</p>
                     </div>
-                    <button
+                    <motion.button whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         joinSect(s.id);
                         setShowSectSelection(false);
@@ -4294,7 +4576,7 @@ export default function HomePage() {
                       className="ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20 transition-all whitespace-nowrap"
                     >
                       拜入山门
-                    </button>
+                    </motion.button>
                   </div>
                 ))}
               </div>
@@ -4328,12 +4610,12 @@ export default function HomePage() {
                 <span className="text-emerald-400 font-medium">脱胎换骨，逆天改命！</span><br/>
                 你的体质已蜕变为<span className="text-amber-400 font-bold">【伪灵根】</span>，从此踏上修仙之路！
               </p>
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 onClick={() => setShowMarrowWashEvent(false)}
                 className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-medium shadow-lg shadow-emerald-500/20 transition-colors"
               >
                 拜谢前辈，开始修炼
-              </button>
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
@@ -4392,7 +4674,7 @@ export default function HomePage() {
                 </>
               )}
               <div className="flex flex-col gap-3">
-                <button
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setBreakthroughEvent(null);
                     setShowShare(true);
@@ -4400,13 +4682,13 @@ export default function HomePage() {
                   className={`w-full py-3 ${breakthroughEvent === '炼虚初期' ? 'bg-rose-500 hover:bg-rose-400 shadow-rose-500/20' : 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'} text-white rounded-xl font-medium shadow-lg transition-colors flex items-center justify-center`}
                 >
                   <Share2 size={18} className="mr-2" /> 分享喜悦
-                </button>
-                <button
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }}
                   onClick={() => setBreakthroughEvent(null)}
                   className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl font-medium transition-colors"
                 >
                   继续闭关
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>
@@ -4453,36 +4735,42 @@ export default function HomePage() {
                   <Flame size={20} className="text-rose-400" />
                   <h2 className="text-xl font-bold text-white">洞府炼制</h2>
                 </div>
-                <button onClick={() => setShowProductionModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowProductionModal(false)} className="text-slate-400 hover:text-white transition-colors">
                   <X size={24} />
-                </button>
+                </motion.button>
               </div>
 
-              <div className="flex border-b border-slate-700 bg-slate-900/30">
-                <button 
+              <div className="flex border-b border-slate-700 bg-slate-900/30 overflow-x-auto scrollbar-hide">
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setProductionTab('alchemy')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors ${productionTab === 'alchemy' ? 'text-rose-400 border-b-2 border-rose-400 bg-rose-400/5' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-none px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${productionTab === 'alchemy' ? 'text-rose-400 border-b-2 border-rose-400 bg-rose-400/5' : 'text-slate-400 hover:text-slate-200'}`}
                 >
                   炼丹 (Lv.{alchemyLevel || 1})
-                </button>
-                <button 
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setProductionTab('crafting')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors ${productionTab === 'crafting' ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-400/5' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-none px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${productionTab === 'crafting' ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-400/5' : 'text-slate-400 hover:text-slate-200'}`}
                 >
                   炼器 (Lv.{craftingLevel || 1})
-                </button>
-                <button 
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setProductionTab('talisman')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors ${productionTab === 'talisman' ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-400/5' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-none px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${productionTab === 'talisman' ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-400/5' : 'text-slate-400 hover:text-slate-200'}`}
                 >
                   符箓 (Lv.{talismanLevel || 1})
-                </button>
-                <button 
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setProductionTab('formation')}
-                  className={`flex-1 py-3 text-sm font-medium transition-colors ${productionTab === 'formation' ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-400/5' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-none px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${productionTab === 'formation' ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-400/5' : 'text-slate-400 hover:text-slate-200'}`}
                 >
                   阵法 (Lv.{formationLevel || 1})
-                </button>
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
+                  onClick={() => setProductionTab('puppet' as any)}
+                  className={`flex-none px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${productionTab === ('puppet' as any) ? 'text-stone-400 border-b-2 border-stone-400 bg-stone-400/5' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  傀儡
+                </motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -4509,16 +4797,21 @@ export default function HomePage() {
                               ))}
                             </div>
                           </div>
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               const res = makePill(item.id);
-                              setToastMessage(res.message);
-                              setTimeout(() => setToastMessage(null), 2000);
+                              setCraftState({
+                                isOpen: true,
+                                type: 'pill',
+                                itemName: item.name,
+                                isSuccess: res.success || res.message.includes('成功'),
+                                message: res.message
+                              });
                             }}
                             className="px-4 py-2 bg-rose-500/20 text-rose-400 border border-rose-500/50 rounded-xl text-xs font-bold"
                           >
                             炼制
-                          </button>
+                          </motion.button>
                         </div>
                       ))}
                     </div>
@@ -4545,16 +4838,21 @@ export default function HomePage() {
                               ))}
                             </div>
                           </div>
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               craftArtifact(item.id);
-                              setToastMessage(`开始炼制 ${item.name}...`);
-                              setTimeout(() => setToastMessage(null), 2000);
+                              setCraftState({
+                                isOpen: true,
+                                type: 'artifact',
+                                itemName: item.name,
+                                isSuccess: true, // Assuming success for now
+                                message: `成功炼制初级法器 ${item.name}！`
+                              });
                             }}
                             className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/50 rounded-xl text-xs font-bold"
                           >
                             炼制
-                          </button>
+                          </motion.button>
                         </div>
                       ))}
                     </div>
@@ -4582,16 +4880,21 @@ export default function HomePage() {
                               ))}
                             </div>
                           </div>
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               const res = makeTalisman(item.id);
-                              setToastMessage(res.message);
-                              setTimeout(() => setToastMessage(null), 2000);
+                              setCraftState({
+                                isOpen: true,
+                                type: 'talisman',
+                                itemName: item.name,
+                                isSuccess: res.success || res.message.includes('成功'),
+                                message: res.message
+                              });
                             }}
                             className="px-4 py-2 bg-amber-500/20 text-amber-400 border border-amber-500/50 rounded-xl text-xs font-bold"
                           >
                             制作
-                          </button>
+                          </motion.button>
                         </div>
                       ))}
                     </div>
@@ -4613,18 +4916,62 @@ export default function HomePage() {
                             <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
                             <p className="text-[10px] text-amber-400 mt-2">消耗: {item.cost} 灵石</p>
                           </div>
-                          <button 
+                          <motion.button whileTap={{ scale: 0.95 }} 
                             onClick={() => {
                               setupFormation(item.id);
-                              setToastMessage(`布置 ${item.name} 成功！`);
-                              setTimeout(() => setToastMessage(null), 2000);
+                              setCraftState({
+                                isOpen: true,
+                                type: 'formation',
+                                itemName: item.name,
+                                isSuccess: true, // Assuming success
+                                message: `成功布置阵盘：${item.name}！阵法之力运转流转。`
+                              });
                             }}
                             className="px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 rounded-xl text-xs font-bold"
                           >
                             布置
-                          </button>
+                          </motion.button>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {productionTab === ('puppet' as any) && (
+                  <div className="space-y-4">
+                    <p className="text-xs text-slate-400">炼制傀儡需要消耗大量灵石，且需要强大的神识来操控。傀儡可代替你去完成一些危险任务，或者在战斗中协同你作战。</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="bg-slate-900/50 border border-slate-700 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                          <h4 className="text-white font-medium">机关傀儡</h4>
+                          <p className="text-xs text-slate-500 mt-1">基础傀儡，可进行简单的战斗或探索。</p>
+                          <div className="flex space-x-2 mt-2">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${spiritStones >= 500 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                              消耗灵石: {spiritStones}/500
+                            </span>
+                          </div>
+                        </div>
+                        <motion.button whileTap={{ scale: 0.95 }} 
+                          onClick={() => {
+                            const res = craftPuppet();
+                            if (!res.success) {
+                              setToastMessage(res.message);
+                              setTimeout(() => setToastMessage(null), 2000);
+                            } else {
+                              setCraftState({
+                                isOpen: true,
+                                type: 'puppet',
+                                itemName: '机关傀儡',
+                                isSuccess: true,
+                                message: res.message
+                              });
+                            }
+                          }}
+                          className="px-4 py-2 bg-stone-500/20 text-stone-400 border border-stone-500/50 rounded-xl text-xs font-bold"
+                        >
+                          炼制
+                        </motion.button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -4653,9 +5000,9 @@ export default function HomePage() {
                   <Shield size={20} className="text-emerald-400" />
                   <h2 className="text-xl font-bold text-white">捐献物资</h2>
                 </div>
-                <button onClick={() => setShowDonateModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowDonateModal(false)} className="text-slate-400 hover:text-white transition-colors">
                   <X size={24} />
-                </button>
+                </motion.button>
               </div>
               <div className="p-6 overflow-y-auto">
                 <p className="text-sm text-slate-400 mb-4">将多余的药材、丹药或功法捐献给宗门，可获得宗门贡献。</p>
@@ -4680,7 +5027,7 @@ export default function HomePage() {
                     const count = isSkill ? inventory.filter(i => i === item.id).length : (materials[item.id] || 0);
                     if (count <= 0) return null;
                     return (
-                      <button 
+                      <motion.button whileTap={{ scale: 0.95 }} 
                         key={item.id}
                         onClick={() => {
                           const res = donateToSect(item.id);
@@ -4692,7 +5039,7 @@ export default function HomePage() {
                         <div className={`font-bold text-sm ${item.color}`}>{item.name}</div>
                         <div className="text-xs text-slate-400 mt-1">拥有: {count}</div>
                         <div className="text-[10px] text-amber-400 mt-1">+{item.points} 贡献</div>
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
@@ -4726,9 +5073,9 @@ export default function HomePage() {
                   <Users size={20} className="text-blue-400" />
                   <h2 className="text-xl font-bold text-white">此界修士</h2>
                 </div>
-                <button onClick={() => setShowNpcModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowNpcModal(false)} className="text-slate-400 hover:text-white transition-colors">
                   <X size={24} />
-                </button>
+                </motion.button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -4818,13 +5165,13 @@ export default function HomePage() {
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white mb-6 focus:outline-none focus:border-purple-500"
               />
               <div className="flex space-x-3">
-                <button 
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => setShowCreateSectModal(false)}
                   className="flex-1 py-3 rounded-xl bg-slate-700 text-white font-medium"
                 >
                   取消
-                </button>
-                <button 
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} 
                   onClick={() => {
                     if (newSectName.trim()) {
                       const result = useStore.getState().createMySect?.(newSectName.trim());
@@ -4841,7 +5188,7 @@ export default function HomePage() {
                   className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors"
                 >
                   确认创立
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>

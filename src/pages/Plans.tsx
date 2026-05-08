@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { useStore, Plan, CULTIVATION_LEVELS } from '../store';
 import SectLeaderboard from '../components/SectLeaderboard';
-import { Plus, Trash2, Edit2, Check, X, Mic, BookOpen, ChevronRight, ExternalLink, ScrollText, Users } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Mic, BookOpen, ChevronRight, ExternalLink, ScrollText, Users, Book } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ENCYCLOPEDIA_ITEMS } from '../data/encyclopedia';
 import ReactMarkdown from 'react-markdown';
@@ -137,9 +137,9 @@ const parseVoiceCommand = (text: string): Omit<Plan, 'id'> => {
     endTime = parseTime(matches[1]);
   }
 
-  if (text.includes('水')) name = '喝水计划';
-  if (text.includes('咖啡')) name = '咖啡计划';
-  if (text.includes('茶')) name = '喝茶计划';
+  if (text.includes('水') || text.includes('灵液')) name = '服用灵液';
+  if (text.includes('丹')) name = '炼化丹药';
+  if (text.includes('修炼') || text.includes('打坐')) name = '打坐吐纳';
 
   return { name, startTime, endTime, intervalMinutes, active: true };
 };
@@ -267,22 +267,24 @@ export default function PlansPage() {
       )}
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-light tracking-wider text-slate-100">饮水计划</h1>
+        <h1 className="text-2xl font-light tracking-wider text-amber-500 flex items-center">
+          <Book size={24} className="mr-2" /> 洞府日程
+        </h1>
         <div className="flex space-x-3">
           <button
             onClick={startVoiceRecognition}
             className={`p-2 rounded-full transition-colors ${
               isListening 
                 ? 'bg-red-500/20 text-red-400 animate-pulse' 
-                : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
             }`}
-            title="语音创建计划"
+            title="神识传音(语音创建)"
           >
             <Mic size={20} />
           </button>
           <button
             onClick={handleAdd}
-            className="p-2 bg-emerald-500/20 text-emerald-400 rounded-full hover:bg-emerald-500/30 transition-colors"
+            className="p-2 bg-amber-500/20 text-amber-400 rounded-full hover:bg-amber-500/30 transition-colors"
           >
             <Plus size={20} />
           </button>
@@ -293,7 +295,7 @@ export default function PlansPage() {
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-3 bg-slate-800/80 border border-slate-700/50 rounded-xl text-sm text-slate-300 text-center"
+          className="mb-6 p-3 bg-slate-800/80 border border-amber-500/30 rounded-xl text-sm text-amber-100 text-center"
         >
           {voiceFeedback}
         </motion.div>
@@ -305,56 +307,56 @@ export default function PlansPage() {
             key={plan.id}
             layout
             className={`p-5 rounded-2xl border ${
-              plan.active ? 'border-emerald-500/30 bg-slate-800/80' : 'border-slate-700/50 bg-slate-800/40'
-            } backdrop-blur-sm transition-colors`}
+              plan.active ? 'border-amber-500/50 bg-slate-800/90 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'border-slate-700/50 bg-slate-800/40 text-slate-500'
+            } backdrop-blur-sm transition-all`}
           >
             {editingId === plan.id ? (
               <div className="space-y-4">
                 <div className="flex space-x-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-                  <button onClick={() => applyTemplate({ name: '早九晚六', startTime: '09:00', endTime: '18:00', intervalMinutes: 60 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">早九晚六</button>
-                  <button onClick={() => applyTemplate({ name: '上午半天', startTime: '09:00', endTime: '12:00', intervalMinutes: 30 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">上午半天</button>
-                  <button onClick={() => applyTemplate({ name: '下午半天', startTime: '14:00', endTime: '18:00', intervalMinutes: 30 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">下午半天</button>
-                  <button onClick={() => applyTemplate({ name: '全天补水', startTime: '08:00', endTime: '22:00', intervalMinutes: 90 })} className="whitespace-nowrap px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-xs hover:bg-slate-600">全天补水</button>
+                  <button onClick={() => applyTemplate({ name: '晨练吐纳', startTime: '06:00', endTime: '08:00', intervalMinutes: 60 })} className="whitespace-nowrap px-3 py-1 bg-amber-900/30 text-amber-300 border border-amber-700/50 rounded-full text-xs hover:bg-amber-800/50">晨练吐纳</button>
+                  <button onClick={() => applyTemplate({ name: '午间炼丹', startTime: '12:00', endTime: '14:00', intervalMinutes: 30 })} className="whitespace-nowrap px-3 py-1 bg-amber-900/30 text-amber-300 border border-amber-700/50 rounded-full text-xs hover:bg-amber-800/50">午间炼丹</button>
+                  <button onClick={() => applyTemplate({ name: '研读功法', startTime: '19:00', endTime: '22:00', intervalMinutes: 60 })} className="whitespace-nowrap px-3 py-1 bg-amber-900/30 text-amber-300 border border-amber-700/50 rounded-full text-xs hover:bg-amber-800/50">研读功法</button>
+                  <button onClick={() => applyTemplate({ name: '凝练神识', startTime: '09:00', endTime: '18:00', intervalMinutes: 120 })} className="whitespace-nowrap px-3 py-1 bg-amber-900/30 text-amber-300 border border-amber-700/50 rounded-full text-xs hover:bg-amber-800/50">凝练神识</button>
                 </div>
                 <div className="flex space-x-3">
                   <select
-                    value={editForm.type || 'water'}
+                    value={editForm.type || 'cultivation'}
                     onChange={(e) => setEditForm({ ...editForm, type: e.target.value as any })}
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                    className="bg-slate-900 border border-amber-700/50 rounded-lg px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500"
                   >
-                    <option value="water">饮水</option>
-                    <option value="cultivation">修炼</option>
+                    <option value="cultivation">修炼打坐</option>
+                    <option value="water">服用灵液(喝水)</option>
                   </select>
                   <input
                     type="text"
                     value={editForm.name || ''}
                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-                    placeholder="计划名称"
+                    className="flex-1 bg-slate-900 border border-amber-700/50 rounded-lg px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500"
+                    placeholder="日程名称"
                   />
                 </div>
                 <div className="flex space-x-4">
                   <div className="flex-1">
-                    <label className="text-xs text-slate-400 mb-1 block">开始时间</label>
+                    <label className="text-xs text-amber-500/70 mb-1 block">出关时间(结束时)</label>
                     <input
                       type="time"
                       value={editForm.startTime || ''}
                       onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-900 border border-amber-700/50 rounded-lg px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-slate-400 mb-1 block">结束时间</label>
+                    <label className="text-xs text-amber-500/70 mb-1 block">入定时间(开始时)</label>
                     <input
                       type="time"
                       value={editForm.endTime || ''}
                       onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-900 border border-amber-700/50 rounded-lg px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 mb-1 block">间隔 (分钟)</label>
+                  <label className="text-xs text-amber-500/70 mb-1 block">周天运转间隔 (分钟)</label>
                   <div className="flex items-center space-x-3">
                     <input
                       type="range"
@@ -363,9 +365,9 @@ export default function PlansPage() {
                       step="15"
                       value={editForm.intervalMinutes || 60}
                       onChange={(e) => setEditForm({ ...editForm, intervalMinutes: parseInt(e.target.value) })}
-                      className="flex-1 accent-emerald-500"
+                      className="flex-1 accent-amber-500"
                     />
-                    <span className="text-emerald-400 font-mono w-12 text-right">{editForm.intervalMinutes || 60}m</span>
+                    <span className="text-amber-400 font-mono w-12 text-right">{editForm.intervalMinutes || 60}m</span>
                   </div>
                 </div>
                 <div className="flex justify-end space-x-3 pt-2">
@@ -377,7 +379,7 @@ export default function PlansPage() {
                   </button>
                   <button
                     onClick={handleSave}
-                    className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="p-2 text-amber-400 hover:text-amber-300 transition-colors"
                   >
                     <Check size={18} />
                   </button>
@@ -387,15 +389,15 @@ export default function PlansPage() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className={`text-lg font-medium ${plan.active ? 'text-white' : 'text-slate-400'}`}>
+                    <h3 className={`text-lg font-medium ${plan.active ? 'text-amber-200' : 'text-slate-400'}`}>
                       {plan.name}
                     </h3>
-                    <span className="text-xs px-2 py-1 rounded-full bg-slate-700/50 text-slate-300 font-mono">
-                      {plan.intervalMinutes}m
+                    <span className="text-xs px-2 py-1 rounded-full bg-amber-900/30 border border-amber-700/30 text-amber-300 font-mono">
+                      每 {plan.intervalMinutes} 分钟
                     </span>
                   </div>
-                  <p className="text-sm text-slate-400 font-mono">
-                    {plan.startTime} - {plan.endTime}
+                  <p className="text-sm text-amber-500/60 font-mono">
+                    入定: {plan.startTime} - 出关: {plan.endTime}
                   </p>
                 </div>
                 
@@ -403,7 +405,7 @@ export default function PlansPage() {
                   <button
                     onClick={() => togglePlan(plan.id)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      plan.active ? 'bg-emerald-500' : 'bg-slate-600'
+                      plan.active ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-slate-700'
                     }`}
                   >
                     <span
@@ -416,13 +418,13 @@ export default function PlansPage() {
                   <div className="flex flex-col space-y-2">
                     <button
                       onClick={() => handleEdit(plan)}
-                      className="text-slate-400 hover:text-white transition-colors"
+                      className="text-amber-500/50 hover:text-amber-400 transition-colors"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => deletePlan(plan.id)}
-                      className="text-slate-400 hover:text-red-400 transition-colors"
+                      className="text-red-500/50 hover:text-red-400 transition-colors"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -434,9 +436,10 @@ export default function PlansPage() {
         ))}
         
         {plans.length === 0 && (
-          <div className="text-center py-12 text-slate-500">
-            <p>暂无饮水计划</p>
-            <p className="text-sm mt-2">点击右上角添加</p>
+          <div className="text-center py-12 text-amber-500/40">
+            <Book size={48} className="mx-auto mb-4 opacity-50" />
+            <p>洞府空虚，尚无修炼安排</p>
+            <p className="text-sm mt-2">点击右上角，制定你的修仙大计</p>
           </div>
         )}
       </div>

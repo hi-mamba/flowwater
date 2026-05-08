@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
 import CavePage from './pages/Cave';
 import { Home, ListTodo, Settings as SettingsIcon, BarChart2, Gamepad2, Mountain } from 'lucide-react';
 import HomePage from './pages/Home';
@@ -8,9 +9,22 @@ import HistoryPage from './pages/History';
 import GamesPage from './pages/Games';
 import ReminderManager from './components/ReminderManager';
 import { useStore } from './store';
+import { motion } from 'framer-motion';
 
 export default function App() {
   const currentRegion = useStore((state) => state.currentRegion);
+  const appRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleShake = () => {
+      if (appRef.current) {
+        appRef.current.classList.add('animate-shake');
+        setTimeout(() => appRef.current?.classList.remove('animate-shake'), 500);
+      }
+    };
+    window.addEventListener('shake', handleShake);
+    return () => window.removeEventListener('shake', handleShake);
+  }, []);
 
   const getRegionBg = () => {
     switch (currentRegion) {
@@ -38,7 +52,7 @@ export default function App() {
 
   return (
     <Router>
-      <div className={`flex flex-col h-[100dvh] w-full ${getRegionBg()} text-slate-100 font-sans overflow-hidden transition-colors duration-1000 relative`}>
+      <div ref={appRef} className={`flex flex-col h-[100dvh] w-full ${getRegionBg()} text-slate-100 font-sans overflow-hidden transition-colors duration-1000 relative`}>
         <div className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ${getRegionOverlay()}`}></div>
         <ReminderManager />
         <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide relative pb-20">
@@ -62,8 +76,10 @@ export default function App() {
                 }`
               }
             >
-              <Home size={24} />
-              <span className="text-[10px] mt-1 font-medium">首页</span>
+              <motion.div whileTap={{ scale: 0.85 }} className="flex flex-col items-center">
+                <Home size={24} />
+                <span className="text-[10px] mt-1 font-medium">首页</span>
+              </motion.div>
             </NavLink>
             <NavLink
               to="/plans"
@@ -73,8 +89,10 @@ export default function App() {
                 }`
               }
             >
-              <ListTodo size={24} />
-              <span className="text-[10px] mt-1 font-medium">计划</span>
+              <motion.div whileTap={{ scale: 0.85 }} className="flex flex-col items-center">
+                <ListTodo size={24} />
+                <span className="text-[10px] mt-1 font-medium">计划</span>
+              </motion.div>
             </NavLink>
             <NavLink
               to="/cave"
@@ -84,8 +102,10 @@ export default function App() {
                 }`
               }
             >
-              <Mountain size={24} />
-              <span className="text-[10px] mt-1 font-medium">洞府</span>
+              <motion.div whileTap={{ scale: 0.85 }} className="flex flex-col items-center">
+                <Mountain size={24} />
+                <span className="text-[10px] mt-1 font-medium">洞府</span>
+              </motion.div>
             </NavLink>
             <NavLink
               to="/games"
@@ -95,8 +115,10 @@ export default function App() {
                 }`
               }
             >
-              <Gamepad2 size={24} />
-              <span className="text-[10px] mt-1 font-medium">秘境</span>
+              <motion.div whileTap={{ scale: 0.85 }} className="flex flex-col items-center">
+                <Gamepad2 size={24} />
+                <span className="text-[10px] mt-1 font-medium">秘境</span>
+              </motion.div>
             </NavLink>
             <NavLink
               to="/settings"
@@ -106,8 +128,10 @@ export default function App() {
                 }`
               }
             >
-              <SettingsIcon size={24} />
-              <span className="text-[10px] mt-1 font-medium">设置</span>
+              <motion.div whileTap={{ scale: 0.85 }} className="flex flex-col items-center">
+                <SettingsIcon size={24} />
+                <span className="text-[10px] mt-1 font-medium">设置</span>
+              </motion.div>
             </NavLink>
           </div>
         </nav>

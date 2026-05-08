@@ -173,12 +173,12 @@ export default function ReminderManager() {
           exit={{ opacity: 0, scale: 1.1 }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6"
         >
-          <button 
+          <motion.button whileTap={{ scale: 0.95 }} 
             onClick={closeReminder}
             className="absolute top-8 right-8 text-slate-400 hover:text-white"
           >
             <X size={32} />
-          </button>
+          </motion.button>
 
           <div className="flex flex-col items-center text-center">
             <motion.div
@@ -206,7 +206,7 @@ export default function ReminderManager() {
               {currentReminderPlan?.type === 'cultivation' ? '凝神静气，运转周天' : '补充水分，保持活力'}
             </p>
 
-            <button
+            <motion.button whileTap={{ scale: 0.95 }}
               onClick={handleDrink}
               className={`text-white rounded-full py-4 px-16 text-xl font-medium shadow-lg transition-colors mb-8 ${
                 currentReminderPlan?.type === 'cultivation'
@@ -215,7 +215,7 @@ export default function ReminderManager() {
               }`}
             >
               {currentReminderPlan?.type === 'cultivation' ? '开始修炼' : '我刚喝了'}
-            </button>
+            </motion.button>
 
             {settings.voiceCommandEnabled && (
               <div className="flex items-center space-x-2 text-slate-500">
