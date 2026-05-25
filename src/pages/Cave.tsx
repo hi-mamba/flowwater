@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, Droplets, Flame, Package, Clock, Sparkles, Gem, X, Beaker, Swords } from 'lucide-react';
@@ -13,6 +13,40 @@ export default function CavePage() {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Audio Refs
+  const ambientAudioRef = useRef<HTMLAudioElement>(null);
+  const fireAudioRef = useRef<HTMLAudioElement>(null);
+  const craftingAudioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    // Play ambient sound when entering cave
+    if (ambientAudioRef.current) {
+      ambientAudioRef.current.volume = 0.3;
+      ambientAudioRef.current.play().catch(e => console.log('Audio autoplay prevented'));
+    }
+    
+    return () => {
+      if (ambientAudioRef.current) ambientAudioRef.current.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Toggle Fire sound
+    if (cave.furnace.active) {
+      if (ambientAudioRef.current) ambientAudioRef.current.volume = 0.1;
+      if (fireAudioRef.current) {
+        fireAudioRef.current.volume = 0.5;
+        fireAudioRef.current.play().catch(e => console.log(e));
+      }
+    } else {
+      if (ambientAudioRef.current) ambientAudioRef.current.volume = 0.3;
+      if (fireAudioRef.current) {
+        fireAudioRef.current.pause();
+        fireAudioRef.current.currentTime = 0;
+      }
+    }
+  }, [cave.furnace.active]);
+
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(interval);
@@ -23,6 +57,11 @@ export default function CavePage() {
 
   return (
     <div className="flex flex-col min-h-full bg-slate-900 p-6 relative overflow-y-auto pb-24">
+      {/* Audio Elements */}
+      <audio ref={ambientAudioRef} loop preload="auto" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=cave-water-drops-7269.mp3" />
+      <audio ref={fireAudioRef} loop preload="auto" src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_3bed8deede.mp3?filename=fire-crackling-22877.mp3" />
+      <audio ref={craftingAudioRef} loop preload="auto" src="https://cdn.pixabay.com/download/audio/2021/08/09/audio_65cb9ea094.mp3?filename=mining-a-mineral-6945.mp3" />
+      
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-emerald-400">洞府</h1>

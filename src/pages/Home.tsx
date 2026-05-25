@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStore, CULTIVATION_LEVELS, SHOP_ITEMS, SPIRITUAL_ROOTS, DAO_COMPANIONS, REGIONS, SECTS, GAME_SKILLS, PRESET_CHARACTERS } from '../store';
+import { useStore, CULTIVATION_LEVELS, SHOP_ITEMS, SPIRITUAL_ROOTS, DAO_COMPANIONS, REGIONS, SECTS, GAME_SKILLS, PRESET_CHARACTERS, SECT_SKILLS } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
-import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book, ShieldAlert, CloudLightning } from 'lucide-react';
+import { Droplets, CloudSun, Footprints, Coffee, CupSoda, Share2, List, Trash2, X, Download, Flame, ScrollText, CheckCircle2, Gem, Store, Sparkles, Shield, Heart, Trophy, Compass, PackageOpen, Package, BookMarked, BookOpen, AlertCircle, Users, Map, Edit2, Home, Pickaxe, Swords, Mountain, Gift, Sprout, Star, BrainCircuit, Skull, User, Book, ShieldAlert, CloudLightning, PawPrint } from 'lucide-react';
 import { formatDistanceToNowStrict, format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { io } from 'socket.io-client';
@@ -90,14 +90,16 @@ import { LIFE_STAGES } from '../store';
 export default function HomePage() {
   const navigate = useNavigate();
   const { 
-    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, craftPuppet, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff, cultivationMode, foundationDamaged,
+    hasClaimedDailyReward, claimDailyReward, claimOfflineGains, exploreRealm, setActiveGame, getNextReminder, addLog, removeLog, logs, settings, todaySteps, todayTemperature, setHealthData, checkIn, streakDays, pendingStreakRescue, rescueStreak, bonusPoints, quests, claimQuestReward, sectMissions, claimSectMissionReward, spiritStones, inventory, buyItem, sellItem, materials, spiritualRoot, sect, sectStatus, sectPosition, sectContribution, sectSkills, upgradeSectSkill, sectCompetitionWins, promoteSectPosition, testSpiritualRoot, joinSect, leaveSect, addSectContribution, donateToSect, marrowWashProgress, highestLevelReached, setHighestLevelReached, unlockAchievement, showMarrowWashEvent, setShowMarrowWashEvent, breakthroughEvent, setBreakthroughEvent, daoCompanion, setDaoCompanion, marriedCompanions, setMarriedCompanions, unlockedCompanions, unlockCompanion, interactWithCompanion, isFirstTime, setIsFirstTime, hasDoneFirstDrink, setHasDoneFirstDrink, cave, dailyEncyclopediaItems, currentTitle, unlockedTitles, setCurrentTitle, dailyFates, selectedFate, selectFate, chests, openChest, skills, equippedSkills, skillProficiency, artifacts, equippedArtifacts, artifactLevels, equipSkill, unequipSkill, equipArtifact, unequipArtifact, gainSkillProficiency, upgradeArtifact, storyChapter, storyNode, advanceStory, globalEvent, contributeToGlobalEvent, playerName, setPlayerName, currentRegion, setCurrentRegion, levelIndex, attemptBreakthrough, setLevelIndex, talismans, formations, monsterMaterials, alchemyLevel, craftingLevel, talismanLevel, formationLevel, makeTalisman, makePill, craftArtifact, craftPuppet, setupFormation, participateImmortalAssembly, ascend, sectNpcs, gatherMaterials, age, lifespan, addMaterial, addSpiritStones, sectLevel, upgradeSect, sectPrestige, sectWealth, interSectWins, dailySalaryClaimed, claimSectSalary, challengeOtherSect, activateSectFormation, sectBuff, cultivationMode, foundationDamaged,
     characterId, characterPreset, isDead, deathReason, rebirthCount, storyProgress, selectCharacter, die, rebirth, completeStoryNode, consultHeavens, companionDailyEvent,
-    showTribulation, setShowTribulation, completeAscension, activeEncounter, setActiveEncounter
+    showTribulation, setShowTribulation, completeAscension, activeEncounter, setActiveEncounter,
+    pet, feedPet, adoptPet
   } = useStore();
   
   const [showConsultHeavens, setShowConsultHeavens] = useState(false);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
   const [showCharacterSelection, setShowCharacterSelection] = useState(isFirstTime || !characterId);
+  const [showPetModal, setShowPetModal] = useState(false);
   const currentLevelName = useMemo(() => CULTIVATION_LEVELS[levelIndex]?.name || '凡人', [levelIndex]);
   const marketPrices = useMemo(() => {
     const seed = new Date().getHours(); // Changes every hour
@@ -134,7 +136,7 @@ export default function HomePage() {
   const [showCompanionModal, setShowCompanionModal] = useState(false);
   const [showCompanionInteractModal, setShowCompanionInteractModal] = useState(false);
   const [selectedInteractCompanionId, setSelectedInteractCompanionId] = useState<string | null>(null);
-  const [activeQuestTab, setActiveQuestTab] = useState<'quests' | 'ranking' | 'competition' | 'sectWar' | 'hall' | 'members' | 'factions'>('quests');
+  const [activeQuestTab, setActiveQuestTab] = useState<'quests' | 'ranking' | 'competition' | 'sectWar' | 'hall' | 'members' | 'factions' | 'skills' | 'pet'>('quests');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [shopTab, setShopTab] = useState<'buy' | 'sell'>('buy');
@@ -347,8 +349,13 @@ export default function HomePage() {
     passiveMultiplier *= regionInfo.multiplier;
   }
 
-  if (sectStatus === 'joined' && sectLevel > 1) {
-    passiveMultiplier *= (1 + (sectLevel - 1) * 0.1); // 10% bonus per level
+  if (sectStatus === 'joined') {
+    if (sectLevel > 1) {
+      passiveMultiplier *= (1 + (sectLevel - 1) * 0.1); // 10% bonus per level
+    }
+    if (sectSkills && sectSkills['ss_gather']) {
+      passiveMultiplier *= (1 + (sectSkills['ss_gather'] * 0.05)); // 5% bonus per level of ss_gather
+    }
   }
 
   // Calculate Cultivation Level
@@ -706,8 +713,24 @@ export default function HomePage() {
   const handleDrink = (amount: number, type: 'water' | 'coffee' | 'tea' | 'milktea', e?: React.MouseEvent) => {
     const finalAmount = addLog(amount, type);
     
+    // Screen Flash Effect
+    const flashDiv = document.createElement('div');
+    flashDiv.className = 'fixed inset-0 bg-emerald-400/20 z-[150] pointer-events-none transition-opacity duration-500 opacity-100';
+    document.body.appendChild(flashDiv);
+    setTimeout(() => {
+      flashDiv.style.opacity = '0';
+      setTimeout(() => {
+        if (document.body.contains(flashDiv)) document.body.removeChild(flashDiv);
+      }, 500);
+    }, 50);
+
     // Spawn floating text
     spawnFloatingText(`+${finalAmount} 灵气`, e, 'text-emerald-400');
+    if (todayTemperature !== null && todayTemperature >= 28) {
+      setTimeout(() => {
+        spawnFloatingText('炎热加成! +25%', e, 'text-rose-400');
+      }, 300);
+    }
     
     // Gain proficiency for equipped skills
     equippedSkills.forEach(skillId => {
@@ -824,6 +847,135 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-full p-6 relative">
       <NarrativeHeader />
+
+      {/* Floating Pet System */}
+      {pet && (
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowPetModal(true)}
+          className="absolute z-20 top-24 right-4 flex flex-col items-center cursor-pointer animate-in zoom-in duration-300"
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="w-12 h-12 bg-slate-800/80 rounded-full border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] backdrop-blur-sm flex items-center justify-center relative">
+            <PawPrint size={24} className={pet.type === 'fox' ? 'text-rose-400' : pet.type === 'tiger' ? 'text-amber-400' : pet.type === 'eagle' ? 'text-sky-400' : 'text-emerald-400'} />
+            <div className="absolute -bottom-2 -right-2 bg-slate-900 border border-slate-700 text-[10px] px-1.5 rounded-full font-bold">
+              Lv.{pet.level}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Pet Modal */}
+      <AnimatePresence>
+        {showPetModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-slate-800 border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)] rounded-3xl p-6 w-full max-w-sm flex flex-col relative overflow-hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-emerald-400 flex items-center">
+                  <PawPrint size={20} className="mr-2" /> {pet?.name || '灵兽空间'}
+                </h2>
+                <button onClick={() => setShowPetModal(false)} className="text-slate-400"><X size={20} /></button>
+              </div>
+
+              {!pet ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-300 text-center mb-6">灵兽可助你聚气修行，认主需1000灵石。</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { id: 'fox', name: '青丘玉狐', icon: '🦊', desc: '机敏灵动，适合女子' },
+                      { id: 'tiger', name: '赤焰虎', icon: '🐯', desc: '威猛无比，擅长战阵' },
+                      { id: 'eagle', name: '破空神鹰', icon: '🦅', desc: '穿梭虚空，速度极快' },
+                      { id: 'turtle', name: '玄水灵龟', icon: '🐢', desc: '寿命悠长，防御无双' }
+                    ].map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          const res = adoptPet(p.id as any, p.name);
+                          setToastMessage(res.message);
+                          if (res.success) setShowPetModal(false);
+                          setTimeout(() => setToastMessage(null), 3000);
+                        }}
+                        className="bg-slate-900/50 hover:bg-emerald-900/30 border border-slate-700 hover:border-emerald-500/50 p-3 rounded-xl transition-all text-center"
+                      >
+                        <div className="text-3xl mb-2">{p.icon}</div>
+                        <div className="text-sm font-bold text-slate-200">{p.name}</div>
+                        <div className="text-[10px] text-slate-400 mt-1">{p.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex justify-center my-4 animate-in zoom-in">
+                    <div className="w-24 h-24 bg-slate-900/50 rounded-full border border-emerald-500/30 flex justify-center items-center relative shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                      <div className="text-5xl">
+                        {pet.type === 'fox' ? '🦊' : pet.type === 'tiger' ? '🐯' : pet.type === 'eagle' ? '🦅' : '🐢'}
+                      </div>
+                      <div className="absolute -bottom-2 bg-emerald-600 border-2 border-slate-900 text-xs px-3 py-0.5 rounded-full font-bold">
+                        Lv.{pet.level}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs text-slate-400">修行加成</span>
+                      <span className="text-sm font-bold text-emerald-400">+{pet.level * 5}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mt-4">
+                      <div className="h-full bg-emerald-500" style={{ width: `${(pet.exp / (pet.level * 100)) * 100}%` }}></div>
+                    </div>
+                    <div className="text-[10px] text-slate-500 text-right mt-1">经验: {pet.exp} / {pet.level * 100}</div>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button 
+                      onClick={() => {
+                        const cost = 100;
+                        if (spiritStones < cost) {
+                          setToastMessage('灵石不足以喂食！');
+                          setTimeout(() => setToastMessage(null), 3000);
+                          return;
+                        }
+                        useStore.setState({ spiritStones: spiritStones - cost });
+                        const res = feedPet(20);
+                        setToastMessage(res.message);
+                        setTimeout(() => setToastMessage(null), 3000);
+                      }}
+                      className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg transition-all"
+                    >
+                      喂食 (100灵石)
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const res = feedPet(50);
+                        setToastMessage(res.message);
+                        setTimeout(() => setToastMessage(null), 3000);
+                      }}
+                      className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg transition-all"
+                    >
+                      互动玩耍 (免费)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Leave Sect Confirm Modal */}
       {showLeaveConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-6">
@@ -862,8 +1014,14 @@ export default function HomePage() {
       <div className="absolute top-6 left-0 right-0 px-6 flex justify-between items-center z-20">
         <motion.button whileTap={{ scale: 0.95 }} onClick={fetchWeatherData} className={`flex items-center space-x-2 bg-slate-800/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/50 transition-colors ${isRefreshing ? 'opacity-50' : 'hover:bg-slate-700/60'}`}>
           <CloudSun size={14} className="text-amber-400" />
-          <span className="text-xs text-slate-300">
-            {cityName} {todayTemperature !== null ? `${todayTemperature}°C` : '--°C'}
+          <span className="text-xs text-slate-300 flex items-center">
+            {cityName} {todayTemperature !== null ? (
+              <span className="flex items-center ml-1">
+                {todayTemperature}°C
+                {todayTemperature >= 28 && <span className="ml-1.5 px-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded text-[9px] font-black uppercase tracking-widest shadow-[0_0_5px_rgba(244,63,94,0.3)]">炎热</span>}
+                {todayTemperature <= 10 && <span className="ml-1.5 px-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded text-[9px] font-black uppercase tracking-widest shadow-[0_0_5px_rgba(59,130,246,0.3)]">凛冬</span>}
+              </span>
+            ) : '--°C'}
           </span>
         </motion.button>
         <div className="flex items-center space-x-2 bg-slate-800/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/50">
@@ -872,131 +1030,104 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* V4.0 Floating Actions */}
-      <div className="absolute right-4 top-24 flex flex-col space-y-3 z-30">
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowConsultHeavens(true)}
-          className="relative w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)] group"
-          title="推演天机"
-        >
-          <BrainCircuit size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowExploreModal(true)}
-          className="relative w-12 h-12 bg-purple-500/20 border border-purple-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.3)]"
-        >
-          <Mountain size={20} className="text-purple-400" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowChestModal(true)}
-          className="relative w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-        >
-          <PackageOpen size={20} className="text-amber-400" />
-          {chests > 0 && (
-            <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">
-              {chests}
-            </span>
-          )}
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowEncyclopedia(true)}
-          title="修仙百科"
-          className="w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)] group"
-        >
-          <Book size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowSkillsModal(true)}
-          className="w-12 h-12 bg-indigo-500/20 border border-indigo-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-        >
-          <BookMarked size={20} className="text-indigo-400" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowStoryModal(true)}
-          className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-        >
-          <BookOpen size={20} className="text-emerald-400" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowProductionModal(true)}
-          className="w-12 h-12 bg-rose-500/20 border border-rose-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(244,63,94,0.3)]"
-        >
-          <Flame size={20} className="text-rose-400" />
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.95 }} 
-          onClick={() => setShowNpcModal(true)}
-          className="w-12 h-12 bg-blue-500/20 border border-blue-500/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-        >
-          <Users size={20} className="text-blue-400" />
-        </motion.button>
-      </div>
+      {/* Removed V4.0 Floating Actions to reduce clutter */}
 
-      <div className="z-10 flex flex-col items-center w-full max-w-md mt-12">
-        <div className="flex items-center justify-between w-full px-2 mb-2">
-          <div className="flex items-center space-x-1 bg-rose-500/20 text-rose-400 px-3 py-1 rounded-full border border-rose-500/30">
-            <Flame size={14} />
-            <span className="text-xs font-medium">连续修炼 {streakDays || 0} 天</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowNameModal(true)} className="flex items-center space-x-1 bg-slate-500/20 text-slate-300 px-3 py-1 rounded-full border border-slate-500/30 hover:bg-slate-500/30 transition-colors">
-              <Edit2 size={14} />
-              <span className="text-xs font-medium">{playerName}</span>
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMapModal(true)} className="flex items-center space-x-1 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors">
-              <Map size={14} />
-              <span className="text-xs font-medium">{regionInfo?.name || '凡人界'}</span>
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowInventoryModal(true)} className="flex items-center space-x-1 bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full border border-purple-500/30 hover:bg-purple-500/30 transition-colors">
-              <Package size={14} />
-              <span className="text-xs font-medium">储物袋</span>
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShop(true)} className="flex items-center space-x-1 bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 hover:bg-amber-500/30 transition-colors">
-              <Store size={14} />
-              <span className="text-xs font-medium">坊市</span>
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMultiplayerModal(true)} className="flex items-center space-x-1 bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/30 hover:bg-cyan-500/30 transition-colors relative">
-              <Users size={14} />
-              <span className="text-xs font-medium">大千世界</span>
+      <div className="z-10 flex flex-col items-center w-full max-w-md mt-6">
+        <div className="flex flex-wrap items-center justify-center gap-4 w-full mb-8">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowNameModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-slate-200 transition-colors group">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:bg-slate-700/50 transition-colors"><Edit2 size={16} className="text-slate-300" /></div>
+            <span className="text-[10px] uppercase tracking-widest">{playerName}</span>
+          </motion.button>
+          
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMapModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-emerald-300 transition-colors group">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-emerald-500/30 transition-colors"><Map size={16} className="text-emerald-400 opacity-80" /></div>
+            <span className="text-[10px] uppercase tracking-widest">{regionInfo?.name || '凡人界'}</span>
+          </motion.button>
+          
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowInventoryModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-purple-300 transition-colors group">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-purple-500/30 transition-colors"><Package size={16} className="text-purple-400 opacity-80" /></div>
+            <span className="text-[10px] uppercase tracking-widest">储物袋</span>
+          </motion.button>
+          
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowShop(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-amber-300 transition-colors group">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-amber-500/30 transition-colors"><Store size={16} className="text-amber-400 opacity-80" /></div>
+            <span className="text-[10px] uppercase tracking-widest">坊市</span>
+          </motion.button>
+
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowMultiplayerModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-cyan-300 transition-colors group relative">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-cyan-500/30 transition-colors relative">
+              <Users size={16} className="text-cyan-400 opacity-80" />
               {onlinePlayers.length > 1 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
+                <span className="absolute 0 right-0 w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
               )}
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowQuests(true)} className="flex items-center space-x-1 bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors relative">
-              <ScrollText size={14} />
-              <span className="text-xs font-medium">宗门任务</span>
+            </div>
+            <span className="text-[10px] uppercase tracking-widest">大千世界</span>
+          </motion.button>
+
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowQuests(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-indigo-300 transition-colors group relative">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-indigo-500/30 transition-colors relative">
+              <ScrollText size={16} className="text-indigo-400 opacity-80" />
               {quests.some(q => q.progress >= q.target && !q.completed) && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+                <span className="absolute 0 right-0 w-2 h-2 bg-indigo-400 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
               )}
+            </div>
+            <span className="text-[10px] uppercase tracking-widest">宗门</span>
+          </motion.button>
+
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowSkillsModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-rose-300 transition-colors group relative">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-rose-500/30 transition-colors relative">
+              <BookMarked size={16} className="text-rose-400 opacity-80" />
+            </div>
+            <span className="text-[10px] uppercase tracking-widest">功法</span>
+          </motion.button>
+
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowProductionModal(true)} className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-orange-300 transition-colors group relative">
+            <div className="p-2.5 rounded-full bg-slate-800/40 border border-slate-700/50 group-hover:border-orange-500/30 transition-colors relative">
+              <Flame size={16} className="text-orange-400 opacity-80" />
+            </div>
+            <span className="text-[10px] uppercase tracking-widest">技艺</span>
+          </motion.button>
+
+          {levelIndex >= 54 && (
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
+              const res = ascend();
+              setToastMessage(res.message);
+              setTimeout(() => setToastMessage(null), 3000);
+            }} className="flex flex-col items-center gap-1.5 text-yellow-400 hover:text-yellow-200 transition-colors group">
+              <div className="p-2.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 animate-pulse"><Sparkles size={16} className="text-yellow-400" /></div>
+              <span className="text-[10px] uppercase tracking-widest font-bold">飞升灵界</span>
             </motion.button>
-            {levelIndex >= 54 && (
-              <motion.button whileTap={{ scale: 0.95 }} onClick={() => {
-                const res = ascend();
-                setToastMessage(res.message);
-                setTimeout(() => setToastMessage(null), 3000);
-              }} className="flex items-center space-x-1 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/30 hover:bg-yellow-500/30 transition-colors animate-bounce">
-                <Sparkles size={14} />
-                <span className="text-xs font-bold">飞升灵界</span>
-              </motion.button>
-            )}
-          </div>
+          )}
         </div>
         
         <h1 className="text-2xl font-light mb-2 tracking-wider text-slate-300 mt-4">悦泉</h1>
         
-        <p className="text-xs text-slate-400 mb-6 bg-slate-800/40 px-4 py-2 rounded-full border border-slate-700/50">
+        <p className="text-xs text-slate-400 mb-2 bg-slate-800/40 px-4 py-2 rounded-full border border-slate-700/50 tracking-wide">
           {getGreeting()}
         </p>
+        <span className="text-[10px] text-rose-500/80 uppercase tracking-widest mb-6">连续修炼 {streakDays || 0} 天</span>
 
         <div className="mb-8 flex flex-col items-center w-full">
-          <div className="relative mb-4">
-            <div className="w-40 h-40 rounded-full border-4 border-slate-700/50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm shadow-2xl relative overflow-hidden">
-              <div className={`absolute inset-0 opacity-20 bg-gradient-to-t ${currentLevel.bg}`} />
-              <span className="text-4xl font-light text-white mb-1 tracking-tighter">{Math.floor(totalAmount || 0)}</span>
-              <span className="text-[10px] text-slate-400 font-medium tracking-widest">当前修为</span>
-            </div>
-            {/* Sub-level indicator */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-600 px-3 py-1 rounded-full flex items-center shadow-lg whitespace-nowrap">
-              <span className="text-[10px] text-amber-400 font-bold tracking-widest">{currentLevel.name} {subLevel}阶</span>
+          <div className="relative mb-6">
+            <motion.div 
+              className="w-48 h-48 rounded-full flex flex-col items-center justify-center bg-transparent relative overflow-hidden"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              {/* Outer ring gradient */}
+              <div className={`absolute inset-0 rounded-full border-2 ${currentLevel.color.replace('text-', 'border-')}/30 animate-[spin_10s_linear_infinite]`} style={{ borderStyle: 'dotted' }}></div>
+              <div className={`absolute inset-2 rounded-full border ${currentLevel.color.replace('text-', 'border-')}/20 animate-[spin_15s_linear_infinite_reverse]`}></div>
+              
+              {/* Inner glowing core */}
+              <div className={`absolute inset-0 opacity-10 bg-gradient-to-t ${currentLevel.bg} mix-blend-overlay`} />
+              
+              <span className="text-5xl font-light text-slate-100 mb-1 tracking-tighter drop-shadow-sm">{Math.floor(totalAmount || 0)}</span>
+              <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase">当前修为</span>
+            </motion.div>
+            
+            {/* Minimalist Sub-level indicator */}
+            <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-900 border ${currentLevel.color.replace('text-', 'border-')}/30 px-4 py-1.5 rounded-full flex items-center shadow-lg backdrop-blur-md whitespace-nowrap`}>
+              <span className={`text-[11px] ${currentLevel.color} font-bold tracking-widest`}>{currentLevel.name} {subLevel}阶</span>
             </div>
           </div>
 
@@ -1394,41 +1525,47 @@ export default function HomePage() {
           </div>
         )}
 
-        <motion.div
-          className="relative w-64 h-64 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(56,189,248,0.2)] overflow-hidden"
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <div 
-            className="absolute bottom-0 w-[200%] bg-gradient-to-t from-sky-500 to-sky-300/80 transition-all duration-1000 ease-in-out"
-            style={{ height: `${progress}%`, left: '-50%', borderRadius: '40% 40% 0 0', animation: 'wave 4s infinite linear' }}
-          />
-          <div 
-            className="absolute bottom-0 w-[200%] bg-gradient-to-t from-emerald-500/50 to-sky-300/50 transition-all duration-1000 ease-in-out"
-            style={{ height: `${progress + 2}%`, left: '-50%', borderRadius: '40% 40% 0 0', animation: 'wave 5s infinite linear reverse' }}
-          />
-          <div className="absolute inset-0 rounded-full border-4 border-slate-700/50" />
-          
-          <div className="z-10 flex flex-col items-center text-center">
-            <span className="text-sm text-slate-300/80 mb-2">下次提醒</span>
-            <span className="text-3xl font-medium text-white tracking-tight">{timeLeft}</span>
-            {nextTime && (
-              <span className="text-xs text-slate-400 mt-2 font-mono">
-                {new Date(nextTime.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            )}
-          </div>
-        </motion.div>
+        <div className="flex justify-center w-full mb-12">
+          <motion.div
+            className="relative w-72 h-72 rounded-full flex flex-col items-center justify-center border-[0.5px] border-slate-700/30 overflow-hidden shadow-[inset_0_0_60px_rgba(0,0,0,0.5)]"
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            {/* Subtle Liquid Fill */}
+            <div 
+              className="absolute bottom-0 w-[200%] bg-gradient-to-t from-cyan-900/40 to-emerald-900/10 blur-xl transition-all duration-1000 ease-in-out mix-blend-screen"
+              style={{ height: `${progress + 10}%`, left: '-50%' }}
+            />
+            {/* Elegant ring border that represents progress */}
+            <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-slate-800/50" />
+              <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="1" className="text-cyan-400/50 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)] transition-all duration-1000" strokeDasharray={`${progress * 3.07} 308`} />
+            </svg>
 
-        <div className="mt-8 text-center w-full">
-          <p className="text-slate-400 text-sm mb-2">今日有效补水</p>
-          <p className="text-4xl font-light text-white">
-            {isNaN(todayAmount) ? 0 : todayAmount} <span className="text-lg text-slate-500">/ {dynamicGoal} ml</span>
-          </p>
+            <div className="z-10 flex flex-col items-center text-center px-4">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-slate-500 mb-4">下次提醒</span>
+              <span className="text-5xl font-light text-slate-100 tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>
+              {nextTime && (
+                <span className="text-xs text-slate-500 mt-4 font-mono tracking-widest px-3 py-1 border border-slate-800 rounded-full">
+                  {new Date(nextTime.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="mb-12 text-center w-full flex flex-col items-center">
+          <p className="text-slate-500 text-xs font-medium tracking-widest uppercase mb-3">今日有效补水</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-5xl font-light text-slate-100 tracking-tighter">
+              {isNaN(todayAmount) ? 0 : todayAmount}
+            </span>
+            <span className="text-lg text-slate-600 font-medium">/ {dynamicGoal} <span className="text-sm">ml</span></span>
+          </div>
           {dynamicGoal > settings.dailyGoal && (
-            <p className="text-[10px] text-emerald-400/80 mt-1">
-              (已根据天气和步数动态增加目标)
-            </p>
+            <span className="text-[10px] text-cyan-500/50 mt-3 border border-cyan-900/30 bg-cyan-900/10 px-2 py-0.5 rounded-full">
+              已根据天气动态调整
+            </span>
           )}
         </div>
 
@@ -1557,16 +1694,24 @@ export default function HomePage() {
       {/* Floating Texts */}
       <AnimatePresence>
         {floatingTexts.map(ft => (
-          <motion.div
-            key={ft.id}
-            initial={{ opacity: 1, y: ft.y, x: ft.x - 40, scale: 0.5 }}
-            animate={{ opacity: 0, y: ft.y - 100, scale: 1.2 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className={`fixed z-[200] pointer-events-none drop-shadow-md whitespace-nowrap font-black text-2xl ${ft.color || 'text-emerald-400'}`}
-          >
-            {ft.text}
-          </motion.div>
+          <React.Fragment key={`ft-${ft.id}`}>
+            <motion.div
+              initial={{ opacity: 0.8, scale: 0, x: ft.x - 40, y: ft.y - 40 }}
+              animate={{ opacity: 0, scale: 3 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className={`fixed z-[199] pointer-events-none w-20 h-20 rounded-full border-4 shadow-xl ${ft.color?.replace('text-', 'border-') || 'border-emerald-400'}`}
+            />
+            <motion.div
+              initial={{ opacity: 1, y: ft.y, x: ft.x - 40, scale: 0.5 }}
+              animate={{ opacity: 0, y: ft.y - 100, scale: 1.2 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className={`fixed z-[200] pointer-events-none drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] whitespace-nowrap font-black text-2xl ${ft.color || 'text-emerald-400'}`}
+              style={{ textShadow: '0 2px 10px currentColor' }}
+            >
+              {ft.text}
+            </motion.div>
+          </React.Fragment>
         ))}
       </AnimatePresence>
 
@@ -2651,6 +2796,14 @@ export default function HomePage() {
                 >
                   <Home size={16} className="mr-1" /> 宗门大殿
                 </motion.button>
+                {sectStatus === 'joined' && (
+                  <motion.button whileTap={{ scale: 0.95 }} 
+                    onClick={() => setActiveQuestTab('skills')}
+                    className={`text-sm font-bold flex items-center transition-colors whitespace-nowrap ${activeQuestTab === 'skills' ? 'text-indigo-400' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    <Book size={16} className="mr-1" /> 藏经阁
+                  </motion.button>
+                )}
                 {sectStatus !== 'none' && (
                   <>
                     <motion.button whileTap={{ scale: 0.95 }} 
@@ -2802,6 +2955,71 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
+              ) : activeQuestTab === 'skills' ? (
+                <>
+                  <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50 mb-4 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-200">宗门贡献</h4>
+                      <p className="text-xs text-slate-400">研习宗门秘法需消耗大量贡献点。</p>
+                    </div>
+                    <span className="text-xl font-bold text-amber-400">{sectContribution || 0} 点</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {SECT_SKILLS.map(skill => {
+                      const currentLevel = sectSkills?.[skill.id] || 0;
+                      const isMax = currentLevel >= skill.maxLevel;
+                      const cost = Math.floor(skill.baseCost * Math.pow(skill.costMultiplier, currentLevel));
+                      const canAfford = (sectContribution || 0) >= cost;
+
+                      return (
+                        <div key={skill.id} className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50 shadow-sm relative overflow-hidden">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="text-base font-bold text-indigo-300 flex items-center">
+                                {skill.name}
+                                <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${isMax ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-700 text-slate-300'}`}>
+                                  {isMax ? '满级' : `Lv.${currentLevel}/${skill.maxLevel}`}
+                                </span>
+                              </h4>
+                              <p className="text-xs text-slate-400 mt-1">{skill.desc}</p>
+                            </div>
+                            <div className="text-right whitespace-nowrap">
+                              {!isMax && (
+                                <motion.button
+                                  whileTap={canAfford ? { scale: 0.95 } : {}}
+                                  onClick={() => {
+                                    if (!canAfford) {
+                                      setToastMessage('宗门贡献不足！');
+                                      setTimeout(() => setToastMessage(null), 3000);
+                                      return;
+                                    }
+                                    if (upgradeSectSkill) {
+                                      const res = upgradeSectSkill(skill.id);
+                                      setToastMessage(res.message);
+                                      setTimeout(() => setToastMessage(null), 3000);
+                                    }
+                                  }}
+                                  disabled={!canAfford}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${canAfford ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_10px_rgba(79,70,229,0.3)]' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
+                                >
+                                  参悟 ({cost})
+                                </motion.button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="bg-slate-900/50 rounded-lg p-2 mt-3 border border-slate-700/30">
+                            <p className="text-xs text-emerald-400 font-medium">当前效果：<span className="text-slate-300">{skill.effectInfo(currentLevel)}</span></p>
+                            {!isMax && (
+                              <p className="text-[10px] text-slate-500 mt-1">下一级效果：<span className="text-slate-400">{skill.effectInfo(currentLevel + 1)}</span></p>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
               ) : activeQuestTab === 'quests' ? (
                 <>
                   {/* NPC Messages */}

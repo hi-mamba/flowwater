@@ -602,29 +602,91 @@ const MeditationGame = ({ onGameOver }: { onGameOver: (score: number) => void })
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-full justify-center">
-      <div className={`w-64 h-64 rounded-full flex items-center justify-center border-4 transition-all duration-1000 ${isActive ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.4)]' : 'border-slate-700'}`}>
-        <div className="text-center">
-          <p className="text-5xl font-light text-white mb-2">{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</p>
-          <p className="text-sm text-slate-400">{isActive ? '心如止水...' : '准备闭关'}</p>
-        </div>
-      </div>
+    <div className="flex flex-col items-center w-full h-full justify-center relative overflow-hidden">
+      {isActive && (
+        <motion.div 
+          className="absolute inset-0 bg-emerald-900/10 z-0 pointer-events-none"
+          animate={{ opacity: [0.1, 0.4, 0.1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
       
-      <div className="mt-12">
+      <motion.div 
+        animate={isActive ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : { scale: 1, rotate: 0 }}
+        transition={isActive ? { duration: 8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.5 }}
+        className={`w-64 h-64 rounded-full flex items-center justify-center border-4 transition-all duration-1000 relative z-10 ${isActive ? 'border-emerald-500 shadow-[0_0_80px_rgba(16,185,129,0.4)] bg-emerald-900/20' : 'border-slate-700 bg-slate-800'}`}
+      >
+        {isActive && (
+          <>
+            <motion.div 
+              className="absolute inset-0 rounded-full border border-emerald-400 pointer-events-none"
+              animate={{ scale: [1, 1.5], opacity: [0.8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeOut" }}
+            />
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full bg-emerald-300 pointer-events-none"
+                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.5, 0],
+                  x: Math.cos((i * 45 * Math.PI) / 180) * 150,
+                  y: Math.sin((i * 45 * Math.PI) / 180) * 150,
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: i * 0.2,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+          </>
+        )}
+        <div className="text-center relative z-20">
+          <p className="text-5xl font-light text-white mb-2 font-mono drop-shadow-md">{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</p>
+          <p className={`text-sm tracking-[0.3em] font-medium ${isActive ? 'text-emerald-300' : 'text-slate-400'}`}>{isActive ? '吐故纳新' : '准备闭关'}</p>
+        </div>
+      </motion.div>
+      
+      <div className="mt-12 z-10">
         {!isActive ? (
-          <button onClick={startMeditation} className="bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-full font-medium shadow-lg shadow-emerald-500/20 transition-colors">
-            开始闭关 (1分钟)
-          </button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={startMeditation} 
+            className="bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-emerald-500/30 transition-colors tracking-widest text-lg border border-emerald-400/50"
+          >
+            开始闭关
+          </motion.button>
         ) : (
-          <button onClick={stopMeditation} className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/50 px-8 py-3 rounded-full font-medium transition-colors">
-            走火入魔 (放弃)
-          </button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={stopMeditation} 
+            className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-8 py-3 rounded-full font-medium shadow border border-slate-600 backdrop-blur-md"
+          >
+            提前出关 (放弃)
+          </motion.button>
         )}
       </div>
       
-      {score > 0 && (
-        <p className="mt-6 text-emerald-400 font-medium animate-pulse">闭关圆满，获得 {score} 历练积分！</p>
-      )}
+      <AnimatePresence>
+        {score > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="absolute bottom-10 bg-emerald-900/80 border border-emerald-500 text-emerald-300 px-6 py-3 rounded-full font-medium shadow-[0_0_20px_rgba(16,185,129,0.3)] z-20"
+          >
+            <span className="flex items-center">
+              <Sparkles size={16} className="mr-2" />
+              闭关圆满，获得 {score} 历练积分！
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

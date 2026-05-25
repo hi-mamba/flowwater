@@ -145,23 +145,42 @@ export const BreakthroughAnimation: React.FC<BreakthroughAnimationProps> = ({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 1.5, opacity: 0 }}
           transition={{ type: "spring", bounce: 0.5, duration: 1 }}
-          className="relative z-10 text-center"
+          className="relative z-10 text-center flex flex-col items-center"
         >
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "100vh", opacity: [0, 0.5, 0] }}
+            transition={{ duration: 2 }}
+            className="absolute w-[2px] bg-white left-1/2 -top-[50vh] -translate-x-1/2"
+            style={{ boxShadow: `0 0 20px 2px ${colorPalette[0]}` }}
+          />
+
           <motion.h2 
-            animate={{ textShadow: [`0 0 10px ${colorPalette[0]}`, `0 0 30px ${colorPalette[0]}`, `0 0 10px ${colorPalette[0]}`] }}
+            animate={{ textShadow: [`0 0 20px ${colorPalette[0]}`, `0 0 50px ${colorPalette[0]}`, `0 0 20px ${colorPalette[0]}`] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-300 mb-4"
+            className="text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-6 tracking-widest drop-shadow-2xl"
           >
             境界突破
           </motion.h2>
+
           <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-3xl font-bold text-white tracking-widest"
-            style={{ textShadow: `0 0 10px ${colorPalette[0]}` }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: "spring" }}
+            className="text-4xl sm:text-5xl font-bold text-white tracking-[0.5em] uppercase px-8 py-3 border-y-2 border-white/20"
+            style={{ textShadow: `0 0 20px ${colorPalette[0]}` }}
           >
             晋升 {levelName}
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 1 }}
+            className="mt-10 text-xl tracking-[1em] text-slate-300 font-medium"
+            style={{ textShadow: `0 0 10px ${colorPalette[0]}` }}
+          >
+            大道共鸣 夺天地造化
           </motion.p>
         </motion.div>
       </motion.div>

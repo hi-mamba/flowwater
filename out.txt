@@ -1,0 +1,2 @@
+92:  const { 
+602:      const { x, y, z } = event.accelerationIncludingGravity;

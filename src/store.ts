@@ -180,6 +180,23 @@ export const SPIRITUAL_ROOTS = [
   { id: 'none', name: '无灵根', bonus: 0, chance: 0, desc: '凡人之躯，需洗毛伐髓', color: 'text-slate-500' },
 ];
 
+export interface SectSkill {
+  id: string;
+  name: string;
+  desc: string;
+  maxLevel: number;
+  baseCost: number;
+  costMultiplier: number;
+  effectInfo: (level: number) => string;
+}
+
+export const SECT_SKILLS: SectSkill[] = [
+  { id: 'ss_gather', name: '聚灵法阵', desc: '门派专属聚气之法，提升每日灵泉吸纳基础倍率', maxLevel: 10, baseCost: 100, costMultiplier: 1.5, effectInfo: (l) => `修仙饮水倍率 +${(l * 5)}%` },
+  { id: 'ss_stamina', name: '强身宝诀', desc: '强健体魄之法，配合灵泉冲刷，巩固肉身基础', maxLevel: 5, baseCost: 200, costMultiplier: 2.0, effectInfo: (l) => `肉身承载力(隐性)提升，降低走火入魔概率 ${l * 2}%` },
+  { id: 'ss_combat', name: '斗战真解', desc: '宗门不传之秘，提升实战杀伐战力', maxLevel: 10, baseCost: 150, costMultiplier: 1.6, effectInfo: (l) => `宗门战力加成 +${(l * 3)}%` },
+  { id: 'ss_fate', name: '福缘心法', desc: '聚宗门气运于一身，极难修炼', maxLevel: 5, baseCost: 500, costMultiplier: 2.5, effectInfo: (l) => `极品机缘掉落率 +${(l * 1)}%` },
+];
+
 export const SECTS = [
 
   // 凡人界
@@ -392,6 +409,8 @@ interface AppState {
   usePalmBottleLiquid?: (type: 'herb' | 'cultivation' | 'foundation') => { success: boolean; message: string };
   cultivationMode?: 'normal' | 'closed' | 'breakthrough' | 'safe' | 'risky';
   foundationDamaged?: boolean;
+  sectSkills?: Record<string, number>;
+  upgradeSectSkill?: (skillId: string) => { success: boolean; message: string };
   companionDailyEvent?: any;
   claimCompanionEvent?: () => { message: string } | void;
   interactWithNpc?: (npcId: string, action: 'chat' | 'gift' | 'spar' | 'rob' | 'kill' | 'snatch') => { message: string, success?: boolean, loot?: any } | void;
@@ -456,6 +475,9 @@ interface AppState {
   interactWithCompanion: (type: 'dual_cultivate' | 'gift', companionId?: string, giftItem?: string) => { success: boolean; message: string; reward?: number };
   breakthroughEvent: string | null;
   setBreakthroughEvent: (event: string | null) => void;
+  pet: { type: 'fox' | 'tiger' | 'turtle' | 'eagle'; name: string; level: number; exp: number } | null;
+  adoptPet: (type: 'fox' | 'tiger' | 'turtle' | 'eagle', name: string) => { success: boolean; message: string };
+  feedPet: (amount: number) => { success: boolean; message: string };
 
   // V3.0 Additions
   playerName: string;
@@ -880,7 +902,7 @@ export const sectNpcs = [
 
 ];
 
-const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress' | 'deadNpcs' | 'destroyedSects' | 'conqueredSects' | 'mySect' | 'puppets' | 'showTribulation' | 'activeEncounter'>> = {
+const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'settings' | 'todaySteps' | 'todayTemperature' | 'streakDays' | 'lastActiveDate' | 'lastActiveTimestamp' | 'hasClaimedDailyReward' | 'bonusPoints' | 'spiritStones' | 'inventory' | 'quests' | 'sectMissions' | 'spiritualRoot' | 'sect' | 'sectStatus' | 'sectPosition' | 'sectContribution' | 'sectCompetitionWins' | 'age' | 'lifespan' | 'baseLuck' | 'dailyLuck' | 'sealedLogs' | 'marrowWashProgress' | 'highestLevelReached' | 'levelIndex' | 'experience' | 'learnedKnowledge' | 'dailyEncyclopediaItems' | 'achievements' | 'createdAt' | 'showMarrowWashEvent' | 'daoCompanion' | 'marriedCompanions' | 'unlockedCompanions' | 'breakthroughEvent' | 'playerName' | 'currentRegion' | 'isFirstTime' | 'hasDoneFirstDrink' | 'claimedStreakRewards' | 'currentTitle' | 'unlockedTitles' | 'cave' | 'materials' | 'realmExplorationsToday' | 'realmExplorationTotal' | 'lastRealmExplorationDate' | 'activeGame' | 'dailyFates' | 'selectedFate' | 'skills' | 'equippedSkills' | 'skillProficiency' | 'artifacts' | 'equippedArtifacts' | 'artifactLevels' | 'chests' | 'heavenlyBottleDrops' | 'storyChapter' | 'storyNode' | 'globalEvent' | 'sectNpcs' | 'talismans' | 'formations' | 'monsterMaterials' | 'alchemyLevel' | 'craftingLevel' | 'talismanLevel' | 'formationLevel' | 'sectContributionRank' | 'sectLevel' | 'sectPrestige' | 'sectWealth' | 'interSectWins' | 'dailySalaryClaimed' | 'sectBuff' | 'pendingStreakRescue' | 'characterId' | 'characterPreset' | 'isDead' | 'deathReason' | 'rebirthCount' | 'storyProgress' | 'deadNpcs' | 'destroyedSects' | 'conqueredSects' | 'mySect' | 'puppets' | 'showTribulation' | 'activeEncounter' | 'palmBottleLiquid' | 'bottleSpiritUnlocked' | 'cultivationMode' | 'foundationDamaged'>> = {
   plans: [],
   logs: [],
   settings: {
@@ -930,6 +952,7 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   marriedCompanions: [],
   unlockedCompanions: [],
   breakthroughEvent: null,
+  pet: null,
   
   playerName: '无名修士',
   currentRegion: '凡人界',
@@ -993,6 +1016,10 @@ const initialState: Omit<AppState, keyof Omit<AppState, 'plans' | 'logs' | 'sett
   destroyedSects: [],
   conqueredSects: [],
   mySect: null,
+  palmBottleLiquid: 0,
+  bottleSpiritUnlocked: false,
+  cultivationMode: 'normal',
+  foundationDamaged: false
 };
 
 export const useStore = create<AppState>()(
@@ -1053,6 +1080,82 @@ export const useStore = create<AppState>()(
           });
           return { success: false, message: `你试图覆灭${sect.name}，却被其护宗大阵和底蕴重创，修为大损！(你的战力被界面法则压制在:${Math.floor(playerPower)} vs 宗门底蕴:${sectPower})` };
         }
+      },
+      usePalmBottleLiquid: (type) => {
+        const state = get();
+        const liquid = state.palmBottleLiquid || 0;
+        if (liquid <= 0) return { success: false, message: '绿液不足，掌天瓶正在凝聚中...' };
+        
+        if (type === 'herb') {
+          if (liquid < 1) return { success: false, message: '需1滴绿液' };
+          const materials = [
+            { id: 'herb_3', name: '霓裳草', probability: 0.4 },
+            { id: 'herb_4', name: '紫灵花', probability: 0.4 },
+            { id: 'herb_5', name: '天灵果', probability: 0.15 },
+            { id: 'herb_6', name: '九曲灵参', probability: 0.05 }
+          ];
+          const rand = Math.random();
+          let accumulatedProb = 0;
+          let droppedItem = materials[materials.length - 1].id;
+          let droppedName = materials[materials.length - 1].name;
+          
+          for (const item of materials) {
+            accumulatedProb += item.probability;
+            if (rand <= accumulatedProb) {
+              droppedItem = item.id;
+              droppedName = item.name;
+              break;
+            }
+          }
+          
+          const qty = Math.floor(Math.random() * 3) + 2;
+          get().addMaterial(droppedItem, qty);
+          set({ palmBottleLiquid: liquid - 1 });
+          return { success: true, message: `消耗一滴绿液，催熟万年灵草，获得 ${droppedName} x${qty}` };
+          
+        } else if (type === 'cultivation') {
+          if (liquid < 1) return { success: false, message: '需1滴绿液' };
+          const expGain = 50000 * (state.levelIndex + 1);
+          get().addLog(expGain, 'water');
+          set({ palmBottleLiquid: liquid - 1 });
+          return { success: true, message: `消耗一滴绿液强行灌顶，修为暴涨 ${expGain} 点` };
+          
+        } else if (type === 'foundation') {
+          if (liquid < 3) return { success: false, message: '需3滴绿液' };
+          if (!state.foundationDamaged) return { success: false, message: '你的道基完好' };
+          
+          set({ 
+            palmBottleLiquid: liquid - 3,
+            foundationDamaged: false 
+          });
+          return { success: true, message: '消耗三滴绿液，道基重塑完美！' };
+        }
+        
+        return { success: false, message: '未知的用途' };
+      },
+      upgradeSectSkill: (skillId) => {
+        const state = get();
+        const skillsObj = state.sectSkills || {};
+        const currentLevel = skillsObj[skillId] || 0;
+        const skillDef = SECT_SKILLS.find(s => s.id === skillId);
+        
+        if (!skillDef) return { success: false, message: '未知的宗门技能' };
+        if (currentLevel >= skillDef.maxLevel) return { success: false, message: '该技能已满级' };
+        
+        const cost = Math.floor(skillDef.baseCost * Math.pow(skillDef.costMultiplier, currentLevel));
+        if ((state.sectContribution || 0) < cost) {
+          return { success: false, message: `贡献点不足，需要 ${cost} 点（当前 ${state.sectContribution || 0}点）` };
+        }
+        
+        set({
+          sectContribution: (state.sectContribution || 0) - cost,
+          sectSkills: {
+            ...skillsObj,
+            [skillId]: currentLevel + 1
+          }
+        });
+        
+        return { success: true, message: `成功消耗 ${cost} 宗门贡献，升级了 ${skillDef.name}！` };
       },
       conquerSect: (sectId) => {
         const state = get();
@@ -1459,11 +1562,18 @@ export const useStore = create<AppState>()(
         if (state.lastRealmExplorationDate !== today) {
           set({ realmExplorationsToday: 0, lastRealmExplorationDate: today });
         }
-        if (get().realmExplorationsToday >= 10) return { type: 'limit' };
+        
+        // Cold weather stamina penalty (consume more stamina per exploration)
+        let cost = 1;
+        if (state.todayTemperature !== null && state.todayTemperature <= 10) {
+          cost = 2;
+        }
+
+        if (get().realmExplorationsToday + cost > 10) return { type: 'limit' };
 
         const newTotal = state.realmExplorationTotal + 1;
         set({ 
-          realmExplorationsToday: get().realmExplorationsToday + 1,
+          realmExplorationsToday: get().realmExplorationsToday + cost,
           realmExplorationTotal: newTotal
         });
         get().updateQuestProgress('game', 1);
@@ -1825,6 +1935,45 @@ export const useStore = create<AppState>()(
         return { success: false, message: '未知互动' };
       },
       setBreakthroughEvent: (event) => set({ breakthroughEvent: event }),
+
+      adoptPet: (type, name) => {
+        const state = get();
+        if (state.pet) return { success: false, message: '你已经有一只灵兽了，莫要贪心！' };
+        if (state.spiritStones < 1000) return { success: false, message: '灵石不足，需要1000灵石认主灵兽！' };
+        
+        set((s) => ({
+          spiritStones: s.spiritStones - 1000,
+          pet: { type, name, level: 1, exp: 0 }
+        }));
+        return { success: true, message: `成功收服灵兽：${name}！` };
+      },
+
+      feedPet: (amount) => {
+        const state = get();
+        if (!state.pet) return { success: false, message: '你还没有灵兽！' };
+        
+        let newExp = state.pet.exp + amount;
+        let newLevel = state.pet.level;
+        let didLevelUp = false;
+        
+        const expNeeded = newLevel * 100;
+        if (newExp >= expNeeded) {
+          newLevel++;
+          newExp -= expNeeded;
+          didLevelUp = true;
+        }
+
+        set((s) => ({
+          pet: {
+            ...s.pet!,
+            level: newLevel,
+            exp: newExp
+          }
+        }));
+
+        if (didLevelUp) return { success: true, message: `你的灵兽 ${state.pet.name} 达到Lv.${newLevel}，为你增加了日常修行加成！` };
+        return { success: true, message: `喂食成功，${state.pet.name} 很开心！` };
+      },
 
       unlockAchievement: (id) => set((state) => {
         if (!state.achievements.includes(id)) {
@@ -2934,6 +3083,19 @@ export const useStore = create<AppState>()(
         const state = get();
         const multipliers = state.settings.drinkMultipliers || { water: 1, tea: 0.9, coffee: 0.8, milktea: 0.5 };
         let finalAmount = (isNaN(amount) ? 0 : amount) * (multipliers[type] ?? 1);
+        
+        // Weather Buffs
+        if (state.todayTemperature !== null && state.todayTemperature >= 28) {
+          finalAmount *= 1.25; // Hot weather gives +25% cultivation when drinking
+        }
+        if (state.todayTemperature !== null && state.todayTemperature > 10 && state.todayTemperature <= 24) {
+          finalAmount *= 1.1; // Spring Rain / Normal gives +10%
+        }
+
+        // Pet Buff
+        if (state.pet) {
+          finalAmount *= (1 + (state.pet.level * 0.05)); // 5% bonus per pet level
+        }
         
         // Region Multiplier
         const regionInfo = REGIONS.find(r => r.id === state.currentRegion);

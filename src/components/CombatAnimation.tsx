@@ -43,79 +43,95 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-transparent overflow-hidden">
       <motion.div 
         animate={{ 
           backgroundPosition: ['0% 0%', '100% 100%']
         }}
         transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/10 via-slate-950 to-slate-950"
+        className="absolute inset-0 bg-[#020617]/95 backdrop-blur-xl"
       />
+      {stage !== 'result' && (
+        <motion.div 
+          animate={stage === 'clash' ? { opacity: [0, 1, 0, 0.5, 0] } : { opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        className="absolute inset-0 bg-red-600/30 mix-blend-overlay z-0" />
+      )}
       
       <AnimatePresence mode="wait">
         {stage !== 'result' && (
           <motion.div
             key="clash"
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={
               stage === 'buildUp' ? { scale: 1, opacity: 1 } : 
-              { scale: [1, 1.1, 1], x: [-10, 10, -10, 10, 0], y: [-10, 10, -5, 5, 0] }
+              { scale: [1, 1.05, 1], x: [-20, 20, -10, 10, 0], y: [-20, 20, -10, 10, 0] }
             }
             exit={{ scale: 1.5, opacity: 0, filter: 'blur(10px)' }}
-            transition={stage === 'clash' ? { duration: 0.5, type: 'spring', bounce: 0.7 } : { duration: 0.8 }}
+            transition={stage === 'clash' ? { duration: 0.4, ease: "easeInOut" } : { duration: 1, ease: "easeOut" }}
             className="flex flex-col items-center justify-center relative z-10 w-full h-full"
           >
-            <motion.div initial={{ height: 0 }} animate={{ height: '64px' }} className="absolute top-0 left-0 w-full bg-black z-20" />
-            <motion.div initial={{ height: 0 }} animate={{ height: '64px' }} className="absolute bottom-0 left-0 w-full bg-black z-20" />
+            <motion.div initial={{ height: 0 }} animate={{ height: '30vh' }} className="absolute top-0 left-0 w-full bg-gradient-to-b from-black via-black/80 to-transparent z-20 pointer-events-none" />
+            <motion.div initial={{ height: 0 }} animate={{ height: '30vh' }} className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent z-20 pointer-events-none" />
             
-            <div className="flex items-center gap-4 text-3xl sm:text-5xl font-black text-slate-200">
+            <div className="flex items-center gap-6 sm:gap-10 text-4xl sm:text-6xl font-black text-slate-200 z-30 tracking-widest">
               <motion.div
-                initial={{ x: -200, opacity: 0 }}
-                animate={stage === 'clash' ? { x: 50 } : { x: 0, opacity: 1 }}
-                transition={stage === 'clash' ? { duration: 0.2 } : { type: 'spring', bounce: 0.3 }}
-                className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] relative"
+                initial={{ x: -200, opacity: 0, filter: 'blur(10px)' }}
+                animate={stage === 'clash' ? { x: 80, filter: 'blur(0px)' } : { x: 0, opacity: 1, filter: 'blur(0px)' }}
+                transition={stage === 'clash' ? { duration: 0.2, ease: "circIn" } : { type: 'spring', bounce: 0.2, duration: 1.5 }}
+                className="text-slate-100 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] relative"
               >
                 {attackerName}
-                {stage === 'clash' && <div className="absolute inset-0 bg-white blur-xl opacity-50 rounded-full" />}
+                {stage === 'clash' && <div className="absolute inset-0 bg-white blur-2xl opacity-80 rounded-full" />}
               </motion.div>
               
               <motion.div
-                animate={stage === 'clash' ? { scale: [1, 3], rotate: 720, opacity: [1, 0] } : { scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5 }}
-                className="text-red-500 z-10 relative px-4"
+                animate={stage === 'clash' ? { scale: [1, 4], rotate: 360, opacity: [1, 0] } : { scale: 1, rotate: 0 }}
+                transition={{ duration: 0.4 }}
+                className="text-red-600 z-10 relative px-4"
               >
-                <Swords size={64} className="drop-shadow-[0_0_20px_rgba(239,68,68,1)]" />
+                <div className="absolute inset-0 bg-red-600/20 blur-xl rounded-full"></div>
+                <Swords size={72} strokeWidth={1.5} className="drop-shadow-[0_0_30px_rgba(220,38,38,1)] relative z-10" />
               </motion.div>
 
               <motion.div
-                initial={{ x: 200, opacity: 0 }}
-                animate={stage === 'clash' ? { x: -50 } : { x: 0, opacity: 1 }}
-                transition={stage === 'clash' ? { duration: 0.2 } : { type: 'spring', bounce: 0.3 }}
-                className="text-red-400 drop-shadow-[0_0_15px_rgba(248,113,113,0.8)] relative"
+                initial={{ x: 200, opacity: 0, filter: 'blur(10px)' }}
+                animate={stage === 'clash' ? { x: -80, filter: 'blur(0px)' } : { x: 0, opacity: 1, filter: 'blur(0px)' }}
+                transition={stage === 'clash' ? { duration: 0.2, ease: "circIn" } : { type: 'spring', bounce: 0.2, duration: 1.5 }}
+                className="text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)] relative"
               >
                 {defenderName}
-                {stage === 'clash' && <div className="absolute inset-0 bg-red-500 blur-xl opacity-50 rounded-full" />}
+                {stage === 'clash' && <div className="absolute inset-0 bg-red-600 blur-2xl opacity-80 rounded-full" />}
               </motion.div>
             </div>
             
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={stage === 'buildUp' ? { opacity: 1, y: 0 } : { scale: 2, opacity: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 text-2xl sm:text-3xl text-red-500 font-bold tracking-[0.3em] sm:tracking-[0.5em]"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={stage === 'buildUp' ? { opacity: 1, scale: 1 } : { scale: 1.5, opacity: 0 }}
+              transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
+              className="mt-20 text-xl sm:text-2xl text-red-700/80 font-black tracking-[0.5em] sm:tracking-[1em] z-30 uppercase bg-clip-text text-transparent bg-gradient-to-r from-red-800 via-red-500 to-red-800"
             >
-              狭路相逢，生死难料 
+              狭路相逢 生死难料
             </motion.div>
 
-            {stage === 'clash' && Array.from({ length: 40 }).map((_, i) => (
+            {stage === 'clash' && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: [1, 0], scale: [1, 2] }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 border-[20px] border-red-600/30 z-40 pointer-events-none mix-blend-overlay"
+              />
+            )}
+
+            {stage === 'clash' && Array.from({ length: 60 }).map((_, i) => (
               <Particle 
                 key={i}
-                color={Math.random() > 0.5 ? 'bg-red-500' : 'bg-orange-400'}
-                duration={0.5 + Math.random() * 0.5}
+                color={Math.random() > 0.5 ? 'bg-red-500' : 'bg-orange-300'}
+                duration={0.4 + Math.random() * 0.4}
                 delay={0}
-                x={(Math.random() - 0.5) * window.innerWidth}
-                y={(Math.random() - 0.5) * window.innerHeight}
-                size={2 + Math.random() * 4}
+                x={(Math.random() - 0.5) * window.innerWidth * 1.5}
+                y={(Math.random() - 0.5) * window.innerHeight * 1.5}
+                size={3 + Math.random() * 8}
               />
             ))}
           </motion.div>

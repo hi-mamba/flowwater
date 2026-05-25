@@ -37,7 +37,12 @@
 }
 
 html, body, #root {
-  @apply h-full w-full overflow-hidden bg-slate-900 text-slate-100 antialiased;
+  @apply h-full w-full overflow-hidden text-slate-100 antialiased;
+  background-color: #020617;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.05), transparent 60%),
+    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.05), transparent 60%),
+    linear-gradient(to bottom right, #0f172a, #020617);
   overscroll-behavior-y: none;
   touch-action: pan-x pan-y;
   -webkit-tap-highlight-color: transparent;

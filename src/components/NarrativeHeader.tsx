@@ -1,26 +1,27 @@
 import { useStore, LIFE_STAGES } from '../store';
-import { Droplets } from 'lucide-react';
+import { Droplets, Sparkles } from 'lucide-react';
 
 export const NarrativeHeader = () => {
   const { currentStageId, palmBottleLiquid, bottleSpiritUnlocked } = useStore();
   const stage = LIFE_STAGES.find(s => s.id === currentStageId) || LIFE_STAGES[0];
 
   return (
-    <div className="bg-slate-900/80 backdrop-blur-md p-4 rounded-xl border border-slate-700 mb-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-lg font-bold text-emerald-400">{stage.name}</h2>
-          <p className="text-sm text-slate-400">{stage.description}</p>
+    <div className="w-full mb-10 px-2 mt-4 flex justify-between items-end border-b border-white/5 pb-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-2xl font-light tracking-widest text-slate-100">{stage.name}</h2>
+        <p className="text-sm text-slate-500 font-serif italic">{stage.description}</p>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2 group">
+          <Droplets className="w-4 h-4 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+          <span className="text-sm font-mono tracking-wider text-cyan-200/80">{palmBottleLiquid} <span className="text-xs text-slate-500">灵液</span></span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full">
-            <Droplets className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-mono text-blue-200">{palmBottleLiquid} 滴灵液</span>
+        {bottleSpiritUnlocked && (
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-purple-400/60 font-medium">
+            <Sparkles className="w-3 h-3" />
+            瓶灵激活
           </div>
-          {bottleSpiritUnlocked && (
-            <div className="text-xs text-purple-400">瓶灵已激活</div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
