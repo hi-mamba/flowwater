@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">悦泉修仙</string>
+    <string name="title_activity_main">悦泉修仙</string>
+    <string name="package_name">com.flowwater.app</string>
+    <string name="custom_url_scheme">com.flowwater.app</string>
+</resources>

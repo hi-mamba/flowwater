@@ -1,0 +1,7 @@
+{
+  "name": "悦泉修仙v3",
+  "description": "一款专注“不打扰的温柔提醒”的智能饮水助手，通过高度定制的间隔提醒和修仙等级系统，帮助用户养成健康饮水习惯。",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
