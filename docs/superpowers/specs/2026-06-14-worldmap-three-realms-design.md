@@ -98,29 +98,33 @@ export interface RealmMeta {
 
 ### 4.2 灵界（10 地点）
 
+`CULTIVATION_LEVELS` 索引参考：大乘初期=38、大乘中期=39、大乘后期=40、大乘巅峰=41、渡劫期=42。
+
 | ID | 名称 | 类型 | 解锁 | 备注 |
 |---|---|---|---|---|
 | `fengyuan_human` | 风元大陆·人族区 | region | 38 | 人族飞升者聚居 |
 | `fengyuan_lingzu` | 风元大陆·灵族城 | city | 38 | 灵族都市 |
-| `leiming` | 雷鸣大陆 | region | 40 | 雷电灵气浓郁 |
-| `baxiongling` | 霸熊岭 | region | 40 | 妖族圣地 |
-| `lieyang_island` | 烈阳岛 | region | 41 | 火灵根圣地 |
-| `xuanfeng_sea` | 玄风海 | region | 42 | 灵界海域 |
-| `cuilin_island` | 翠灵岛 | secret | 41 | 韩立洞府所在 |
-| `void_hall_spirit` | 灵界·虚天殿 | dungeon | 43 | 高阶虚天殿 |
-| `changsheng_gate` | 长生界入口 | gate | 44 (渡劫期) | 灵界至高之地 |
-| `feisheng_arc` | 飞升古阵 | gate | 44 | 飞升仙界 |
+| `leiming` | 雷鸣大陆 | region | 39 | 雷电灵气浓郁 |
+| `baxiongling` | 霸熊岭 | region | 39 | 妖族圣地 |
+| `lieyang_island` | 烈阳岛 | region | 40 | 火灵根圣地 |
+| `xuanfeng_sea` | 玄风海 | region | 40 | 灵界海域 |
+| `cuilin_island` | 翠灵岛 | secret | 40 | 韩立洞府所在 |
+| `void_hall_spirit` | 灵界·虚天殿 | dungeon | 41 | 高阶虚天殿 |
+| `changsheng_gate` | 长生界入口 | gate | 41 | 灵界至高之地 |
+| `feisheng_arc` | 飞升古阵 | gate | 42 (渡劫期) | 飞升仙界 |
 
 ### 4.3 仙界（6 地点，符合"仙路缥缈"语义）
 
+仙界 Tab 整体在 `levelIndex >= 42`（渡劫期）解锁；未飞升前 Tab 可点开但整界灰雾遮蔽，仅显示模糊轮廓。
+
 | ID | 名称 | 类型 | 解锁 | 备注 |
 |---|---|---|---|---|
-| `qingming_gate` | 青冥圣界·入口 | gate | 44 (渡劫期顶端) | 仙界入口 |
-| `zhenling_realm` | 真灵界 | region | 44 | 仙人初临之地 |
-| `jitan_palace` | 极天宫 | city | 44 | 万仙朝拜处 |
-| `xiangong_yunhai` | 仙宫云海 | region | 44 | 飘渺仙宫 |
-| `hanli_ascend` | 韩立飞升点 | secret | 44 | 终点彩蛋 |
-| `mystery_hidden` | ??? | secret | 44 | 神秘隐藏（点亮所有其他后显现） |
+| `qingming_gate` | 青冥圣界·入口 | gate | 42 | 仙界入口 |
+| `zhenling_realm` | 真灵界 | region | 42 | 仙人初临之地 |
+| `jitan_palace` | 极天宫 | city | 42 | 万仙朝拜处 |
+| `xiangong_yunhai` | 仙宫云海 | region | 42 | 飘渺仙宫 |
+| `hanli_ascend` | 韩立飞升点 | secret | 42 | 终点彩蛋 |
+| `mystery_hidden` | ??? | secret | 42 | 神秘隐藏（点亮所有其他后显现） |
 
 ---
 
@@ -156,6 +160,7 @@ export interface RealmMeta {
 2. **展开后**：
    - 顶部三界 Tab：`人界 ▶ 灵界 ▶ 仙界`，未解锁灰显（`pointer-events-none` 但显示门槛）
    - 默认 Tab = 当前修为所属界（凡人~大乘=人界，渡劫=灵界，飞升真仙后=仙界）
+   - 三界整体解锁阈值：人界 0；灵界 38（大乘初期）；仙界 42（渡劫期）
    - 主区域：50vh 子地图组件
 3. **点击地点**：
    - `region`：弹气泡 → 确认传送 → `setCurrentRegion(loc.regionStoreId)` + 旋转消失动画
