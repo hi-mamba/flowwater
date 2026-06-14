@@ -9,6 +9,7 @@ import DivineSense from '../components/DivineSense';
 import SwordFormation from '../components/SwordFormation';
 import SpiritBeastComponent from '../components/SpiritBeast';
 import PuppetMaster from '../components/PuppetMaster';
+import CaveSteward from '../components/CaveSteward';
 import CultivationPathSelect from '../components/CultivationPath';
 import HerbGarden from '../components/HerbGarden';
 import AlchemyFurnace from '../components/AlchemyFurnace';
@@ -212,6 +213,9 @@ export default function CavePage() {
           <SpiritRealm />
         </div>
       )}
+
+      {/* 洞府总管 — 傀儡自动化任务面板 */}
+      <div className="mb-4 relative z-10"><CaveSteward /></div>
 
       {/* ===== 法宝与修炼 ===== */}
       <SectionTitle title="法宝" subtitle="本命法宝 · 助修之具" theme={theme} />

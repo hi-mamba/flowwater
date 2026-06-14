@@ -32,6 +32,7 @@ const navItems = [
 
 export default function App() {
   const currentRegion = useStore((state) => state.currentRegion);
+  const tickPuppetAutomation = useStore((state) => state.tickPuppetAutomation);
 
   // Initialize socket lifecycle and native notifications on mount
   useEffect(() => {
@@ -41,6 +42,19 @@ export default function App() {
       cleanupSocket();
     };
   }, []);
+
+  // 全局傀儡 tick — 无论在哪个页面，都按一定频率推进自动化任务
+  // 进入应用即结算一次（兑现离线收益），之后每 60 秒推进
+  useEffect(() => {
+    tickPuppetAutomation();
+    const id = setInterval(() => tickPuppetAutomation(), 60_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') tickPuppetAutomation(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [tickPuppetAutomation]);
 
   const getRegionBg = () => {
     switch (currentRegion) {

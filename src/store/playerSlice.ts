@@ -27,13 +27,15 @@ export const createPlayerSlice = (set: any, get: any, _store?: any) => ({
   setPlayerName: (name: string) => set({ playerName: name }),
   setCurrentRegion: (region: string) => set({ currentRegion: region }),
   setLevelIndex: (index: number) => {
+    // 寿元随境界增长（凡人 100 / 炼气 200 / 筑基-结丹 500 / 元婴-化神 1000 / 炼虚-合体 5000 / 大乘-渡劫 10000）
     let newLifespan = 100;
-    if (index >= 9) newLifespan = 200;
-    if (index >= 18) newLifespan = 500;
-    if (index >= 27) newLifespan = 1000;
-    if (index >= 36) newLifespan = 2000;
-    if (index >= 45) newLifespan = 5000;
-    if (index >= 54) newLifespan = 10000;
+    if (index >= 1) newLifespan = 200;       // 炼气
+    if (index >= 14) newLifespan = 500;      // 筑基
+    if (index >= 22) newLifespan = 1000;     // 元婴
+    if (index >= 26) newLifespan = 2000;     // 化神
+    if (index >= 30) newLifespan = 5000;     // 炼虚（灵界）
+    if (index >= 38) newLifespan = 10000;    // 大乘（灵界）
+    if (index >= 42) newLifespan = 50000;    // 渡劫期
 
     set({ levelIndex: index, lifespan: newLifespan });
   },
@@ -187,8 +189,9 @@ export const createPlayerSlice = (set: any, get: any, _store?: any) => ({
   setBreakthroughEvent: (event: string | null) => set({ breakthroughEvent: event }),
   ascend: () => {
     const state = get();
-    if (state.levelIndex < 54) return { success: false, message: '修为不足，无法感应飞升雷劫。' };
-    set({ currentRegion: '灵界', levelIndex: 55 });
+    // 凡人修仙传设定：化神中期方可感应飞升雷劫，飞升至灵界后方修炼炼虚及以上境界
+    if (state.levelIndex < 27) return { success: false, message: '修为不足，化神中期方可感应飞升雷劫。' };
+    set({ currentRegion: '灵界', levelIndex: Math.max(state.levelIndex, 30) });
     return { success: true, message: '雷劫过后，你白日飞升，进入灵界！' };
   },
   testSpiritualRoot: () => {

@@ -754,91 +754,359 @@ const DevilfallGame = ({ onGameOver }: { onGameOver: (score: number) => void }) 
 };
 
 // --- Blood Forbidden Game Logic ---
+// --- Blood Forbidden Game Logic ---
+// 改造为纯战斗模式：10 个 NPC 接力 + 1 个 BOSS，技能面板常驻
+const BLOOD_ENEMIES = [
+  { name: '血煞门散修', isMonster: false, hpMul: 0.8, atkMul: 0.85, reward: 600, intro: '一名披血袍的散修拦在路前，喝令交出灵石。' },
+  { name: '赤鳞蛇妖', isMonster: true, hpMul: 0.9, atkMul: 0.9, reward: 700, intro: '红雾中扑出一条赤鳞巨蛇，吐着腥红信子。' },
+  { name: '魔道弟子', isMonster: false, hpMul: 1.0, atkMul: 1.0, reward: 900, intro: '魔道弟子双手结印，黑气缭绕逼近。' },
+  { name: '九尾血狐', isMonster: true, hpMul: 1.0, atkMul: 1.05, reward: 1000, intro: '九条尾巴的血色妖狐妖瞳一闪，瞬移到你身前。' },
+  { name: '夺宝狂徒', isMonster: false, hpMul: 1.1, atkMul: 1.05, reward: 1200, intro: '一柄阴森骨剑指住你咽喉——“留下储物袋，可饶不死。”' },
+  { name: '噬人血蛛', isMonster: true, hpMul: 1.15, atkMul: 1.1, reward: 1300, intro: '一头数丈大的血蛛从洞穴中探出，蛛网瞬间网罩你周身。' },
+  { name: '血煞执事', isMonster: false, hpMul: 1.25, atkMul: 1.15, reward: 1700, intro: '执事冷笑："禁地之中，岂容外人。"血气如刀。' },
+  { name: '血煞狼王', isMonster: true, hpMul: 1.30, atkMul: 1.20, reward: 1800, intro: '狼王嚎月，周身血雾凝成虚影狼群。' },
+  { name: '血煞长老', isMonster: false, hpMul: 1.45, atkMul: 1.30, reward: 2400, intro: '一位白发长老踏空而至，元婴气息如山压下。' },
+  { name: '血煞妖将', isMonster: true, hpMul: 1.55, atkMul: 1.35, reward: 2800, intro: '妖将披甲持戟，戟尖一点，血煞凝成长河。' },
+];
+const BLOOD_BOSS = {
+  name: '血煞老祖', isMonster: false, hpMul: 2.6, atkMul: 1.6, reward: 8000,
+  intro: '血色法阵尽头，血煞老祖睁开双眼。一甲子魔功凝成血雨倾泻——“小辈，葬身于此罢。”',
+};
+
 const BloodForbiddenGame = ({ onGameOver }: { onGameOver: (score: number) => void }) => {
-  const { levelIndex, addMaterial } = useStore();
-  const [steps, setSteps] = useState(10);
+  const {
+    levelIndex, addMaterial,
+    swordFormation, spiritBeast, goldDevouringBeetles, heavenlyBottle, divineSense,
+  } = useStore();
+
+  const maxHealth = 200 + levelIndex * 30;
+  const [health, setHealth] = useState(maxHealth);
   const [score, setScore] = useState(0);
-  const [log, setLog] = useState<string[]>(['你进入了血色禁地，四周弥漫着诡异的红雾。']);
+  const [stage, setStage] = useState(0); // 0..9 普通 NPC, 10 = BOSS
+  const [log, setLog] = useState<string[]>(['🩸 你踏入血色禁地，前方杀机四伏…']);
   const [gameOver, setGameOver] = useState(false);
-  const [health, setHealth] = useState(100 + levelIndex * 20);
-  const maxHealth = 100 + levelIndex * 20;
+  const [busy, setBusy] = useState(false); // 防止连点
 
-  const addLogMsg = (msg: string) => {
-    setLog(prev => [msg, ...prev].slice(0, 5));
+  // 本场技能蓄量
+  const [liquidCharges, setLiquidCharges] = useState(Math.max(2, Math.floor(heavenlyBottle.greenLiquid / 5)));
+  const [beetleCharges, setBeetleCharges] = useState(goldDevouringBeetles.stage || 1);
+  const [divineCharges, setDivineCharges] = useState(divineSense.level || 1);
+  const [beastUsed, setBeastUsed] = useState(false);
+
+  // 当前敌人
+  const initEnemy = (idx: number) => {
+    const def = idx >= 10 ? BLOOD_BOSS : BLOOD_ENEMIES[idx];
+    const hp = Math.floor((180 + levelIndex * 30) * def.hpMul);
+    return {
+      name: def.name,
+      hp,
+      maxHp: hp,
+      atk: Math.floor((14 + levelIndex * 3) * def.atkMul),
+      isMonster: def.isMonster,
+      isBoss: idx >= 10,
+      reward: def.reward,
+      armorBreak: 0,
+      beetleDot: 0,
+      intro: def.intro,
+    };
   };
+  const [enemy, setEnemy] = useState(() => initEnemy(0));
 
-  const explore = (direction: string) => {
-    if (gameOver) return;
+  const addLogMsg = (msg: string) => setLog(prev => [msg, ...prev].slice(0, 6));
 
-    const rand = Math.random();
-    let newScore = score;
-    let newHealth = health;
+  // 玩家面板
+  const baseAtk = 22 + levelIndex * 4;
+  const swordAtk = swordFormation.swords * 2;
+  const formationMult: Record<string, number> = { none: 1.0, swarm: 1.3, dragon: 1.5, net: 1.7, storm: 2.0 };
+  const formationBonus = formationMult[swordFormation.formation || 'none'] || 1.0;
 
-    if (rand < 0.3) {
-      // Find herbs
-      const herbsFound = Math.floor(Math.random() * 3) + 1;
-      addLogMsg(`你向${direction}探索，发现了一株珍稀灵草！`);
-      addMaterial('rare_herb', herbsFound);
-      newScore += herbsFound * 500;
-    } else if (rand < 0.6) {
-      // Find spirit stones
-      const stonesFound = Math.floor(Math.random() * 500) + 100;
-      addLogMsg(`你向${direction}探索，在一个隐蔽的洞穴中找到了 ${stonesFound} 灵石。`);
-      newScore += stonesFound;
-    } else if (rand < 0.8) {
-      // Encounter monster
-      const dmg = Math.floor(Math.random() * 30) + 10;
-      newHealth -= dmg;
-      addLogMsg(`你向${direction}探索，遭遇了妖兽袭击！损失了 ${dmg} 点气血。`);
-    } else {
-      // Encounter cultivator
-      const dmg = Math.floor(Math.random() * 50) + 20;
-      newHealth -= dmg;
-      addLogMsg(`你向${direction}探索，遭遇了其他修仙者偷袭！损失了 ${dmg} 点气血。`);
+  // 介绍当前敌人（首次进入或换人时）
+  useEffect(() => {
+    addLogMsg(`⚔️ 第 ${stage + 1}/${stage >= 10 ? 11 : 11} 关 · ${enemy.name}`);
+    addLogMsg(enemy.intro);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enemy.name]);
+
+  // ==== 敌方反击 ====
+  const enemyTurn = (e: typeof enemy, currentHealth: number) => {
+    let beetleDot = e.beetleDot;
+    let dotDmg = 0;
+    let nextEnemy = { ...e };
+
+    if (beetleDot > 0) {
+      dotDmg = Math.floor(goldDevouringBeetles.count * 0.8 + 30);
+      beetleDot -= 1;
+      nextEnemy = { ...e, hp: Math.max(0, e.hp - dotDmg), beetleDot };
+      addLogMsg(`🪲 噬金虫啃噬，${e.name} -${dotDmg}`);
+      if (nextEnemy.hp <= 0) {
+        onEnemyDefeated(nextEnemy);
+        return;
+      }
     }
 
+    // BOSS 高伤反击 + 偶发大招
+    const isCrit = e.isBoss && Math.random() < 0.25;
+    const dmg = Math.floor(nextEnemy.atk * (0.85 + Math.random() * 0.3) * (isCrit ? 1.8 : 1));
+    const nextHealth = currentHealth - dmg;
+    addLogMsg(`💢 ${e.name} ${isCrit ? '【血煞滔天】重击' : '反击'}你 -${dmg}`);
+    setHealth(nextHealth);
+    setEnemy(nextEnemy);
+    setBusy(false);
+
+    if (nextHealth <= 0) {
+      addLogMsg('☠️ 你重伤倒地，被传送出禁地。');
+      setGameOver(true);
+      setTimeout(() => onGameOver(Math.floor(score * 0.5)), 600);
+    }
+  };
+
+  // ==== 击败结算 ====
+  const onEnemyDefeated = (e: typeof enemy) => {
+    const reward = e.reward + (e.isBoss ? 5000 : 0);
+    addLogMsg(`💀 击杀 ${e.name}！+${reward} 灵石`);
+    setScore(s => s + reward);
+
+    // 掉落
+    if (Math.random() < (e.isMonster ? 0.35 : 0.55)) {
+      addMaterial('rare_herb', e.isBoss ? 5 : 1);
+      addLogMsg(`📦 拾得珍稀灵草 ${e.isBoss ? 5 : 1} 株`);
+    }
+
+    if (e.isBoss) {
+      addLogMsg('🏆 血色禁地至深处征服！');
+      setGameOver(true);
+      setTimeout(() => onGameOver(score + reward), 800);
+      return;
+    }
+
+    // 进入下一关，回 30% 血
+    const heal = Math.floor(maxHealth * 0.3);
+    setHealth(h => Math.min(maxHealth, h + heal));
+    addLogMsg(`💚 短暂喘息，恢复 ${heal} 气血`);
+    const nextStage = stage + 1;
+    setStage(nextStage);
+    setEnemy(initEnemy(nextStage));
+    setBusy(false);
+  };
+
+  // ==== 技能：普攻 ====
+  const skillAttack = () => {
+    if (busy || gameOver) return;
+    setBusy(true);
+    const armorMult = 1 + enemy.armorBreak * 0.15;
+    const dmg = Math.floor((baseAtk + Math.random() * baseAtk * 0.4) * armorMult);
+    const newHp = Math.max(0, enemy.hp - dmg);
+    addLogMsg(`👊 普攻 -${dmg}${enemy.armorBreak > 0 ? ` (破甲x${enemy.armorBreak})` : ''}`);
+    finalizeStrike(newHp);
+  };
+
+  // ==== 技能：青竹蜂云剑阵 ====
+  const skillSwords = () => {
+    if (busy || gameOver) return;
+    if (swordFormation.swords < 1) { addLogMsg('⚠️ 尚无飞剑可用'); return; }
+    setBusy(true);
+    const armorMult = 1 + enemy.armorBreak * 0.15;
+    const base = (baseAtk + swordAtk) * formationBonus;
+    const dmg = Math.floor(base * (0.9 + Math.random() * 0.3) * armorMult);
+    const fname = ({ none: '飞剑斩', swarm: '蜂群乱舞', dragon: '游龙吞天', net: '天罗地网', storm: '剑雨风暴' } as Record<string, string>)[swordFormation.formation || 'none'];
+    const newHp = Math.max(0, enemy.hp - dmg);
+    addLogMsg(`⚔️ 【${fname}】(${swordFormation.swords}口) -${dmg}`);
+    finalizeStrike(newHp);
+  };
+
+  // ==== 技能：噬金虫 DOT ====
+  const skillBeetles = () => {
+    if (busy || gameOver) return;
+    if (beetleCharges <= 0) return;
+    setBusy(true);
+    setBeetleCharges(c => c - 1);
+    const turns = 2 + goldDevouringBeetles.stage;
+    const armorMult = 1 + enemy.armorBreak * 0.15;
+    const burst = Math.floor(goldDevouringBeetles.count * 1.5 * armorMult);
+    const newHp = Math.max(0, enemy.hp - burst);
+    addLogMsg(`🪲 投放 ${goldDevouringBeetles.count} 只噬金虫，将持续啃噬 ${turns} 回合`);
+    addLogMsg(`🪲 首轮蚀骨 -${burst}`);
+    if (newHp <= 0) { onEnemyDefeated({ ...enemy, hp: 0 }); return; }
+    const nextE = { ...enemy, hp: newHp, beetleDot: turns };
+    setEnemy(nextE);
+    setTimeout(() => enemyTurn(nextE, health), 150);
+  };
+
+  // ==== 技能：神识压制 ====
+  const skillDivine = () => {
+    if (busy || gameOver) return;
+    if (divineCharges <= 0) return;
+    setBusy(true);
+    setDivineCharges(c => c - 1);
+    const nextE = { ...enemy, armorBreak: enemy.armorBreak + 1 };
+    setEnemy(nextE);
+    addLogMsg(`🧠 大衍神识压制，${enemy.name} 破甲 +1（伤害 +15%）`);
+    setTimeout(() => enemyTurn(nextE, health), 150);
+  };
+
+  // ==== 技能：灵兽出战（终结技） ====
+  const skillBeast = () => {
+    if (busy || gameOver) return;
+    if (beastUsed || !spiritBeast.active) return;
+    const beast = spiritBeast.stabled.find(b => b.id === spiritBeast.active);
+    if (!beast) return;
+    setBusy(true);
+    setBeastUsed(true);
+    const armorMult = 1 + enemy.armorBreak * 0.15;
+    const dmg = Math.floor((baseAtk * 2.5 + beast.stage * 80) * (0.9 + Math.random() * 0.4) * armorMult);
+    const beastSkillName = ({
+      blood_jade_spider: '血玉蛛丝缠', wailing_beast: '啼魂夺魄', six_wing_centipede: '霜蚣冰封',
+    } as Record<string, string>)[beast.id] || '灵兽撕咬';
+    const newHp = Math.max(0, enemy.hp - dmg);
+    addLogMsg(`🐾 ${beast.name} 施展【${beastSkillName}】 -${dmg}`);
+    finalizeStrike(newHp);
+  };
+
+  // ==== 技能：翠绿灵液（回血） ====
+  const skillLiquid = () => {
+    if (busy || gameOver) return;
+    if (liquidCharges <= 0) return;
+    setBusy(true);
+    setLiquidCharges(c => c - 1);
+    const heal = Math.floor(maxHealth * (0.25 + heavenlyBottle.level * 0.05));
+    const newHealth = Math.min(maxHealth, health + heal);
+    addLogMsg(`💧 饮一口翠绿灵液，恢复 ${newHealth - health} 气血`);
     setHealth(newHealth);
-    setScore(newScore);
-    setSteps(prev => prev - 1);
-
-    if (newHealth <= 0) {
-      addLogMsg('你重伤倒地，被迫传送出了血色禁地。');
-      setGameOver(true);
-      setTimeout(() => onGameOver(Math.floor(newScore * 0.5)), 2000); // Lose half score on death
-    } else if (steps - 1 <= 0) {
-      addLogMsg('禁地即将关闭，你被传送了出去。');
-      setGameOver(true);
-      setTimeout(() => onGameOver(newScore), 2000);
-    }
+    setTimeout(() => enemyTurn(enemy, newHealth), 150);
   };
+
+  // ==== 攻击结算 ====
+  const finalizeStrike = (newHp: number) => {
+    if (newHp <= 0) {
+      onEnemyDefeated({ ...enemy, hp: 0 });
+      return;
+    }
+    const nextE = { ...enemy, hp: newHp };
+    setEnemy(nextE);
+    setTimeout(() => enemyTurn(nextE, health), 150);
+  };
+
+  const skillBtn = (active: boolean, color: string, extraCls = '') =>
+    `relative px-2 py-2 rounded-lg text-[11px] font-medium transition-all border ${
+      active
+        ? `bg-${color}-600/30 border-${color}-500/50 text-${color}-100 hover:bg-${color}-600/50 shadow-[0_0_8px_rgba(0,0,0,0.3)]`
+        : 'bg-slate-800/40 border-slate-700/40 text-slate-600 cursor-not-allowed'
+    } ${extraCls}`;
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 h-full">
-      <div className="w-full max-w-md bg-slate-800 rounded-2xl p-6 border border-slate-700 text-center">
+    <div className="flex flex-col items-center justify-start p-3 h-full overflow-y-auto">
+      <div className="w-full max-w-md bg-gradient-to-br from-rose-950/80 via-slate-900 to-slate-900 rounded-2xl p-4 border border-rose-900/40 shadow-[0_0_30px_rgba(220,38,38,0.15)]">
         {gameOver ? (
-          <div>
-            <h3 className="text-lg font-bold text-slate-300 mb-2">试炼结束</h3>
-            <p className="text-amber-400 mb-4">获得总价值: {score} 灵石</p>
+          <div className="text-center py-4">
+            <h3 className="text-lg font-bold text-rose-300 mb-2">血色禁地试炼结束</h3>
+            <p className="text-amber-400 mb-4 text-sm">总收益: {score} 灵石</p>
+            <p className="text-slate-400 text-xs">通过关卡：{Math.min(stage, 11)} / 11</p>
           </div>
         ) : (
-          <div>
-            <div className="flex justify-between mb-4 text-sm">
-              <span className="text-emerald-400 font-bold">气血: {Math.floor(health)} / {maxHealth}</span>
-              <span className="text-sky-400 font-bold">剩余步数: {steps}</span>
+          <>
+            {/* 关卡进度条 */}
+            <div className="flex items-center justify-between mb-2 text-[10px]">
+              <span className="text-rose-300/70">关卡进度</span>
+              <span className="text-amber-400 font-mono">{stage + 1} / 11</span>
             </div>
-            
-            <div className="grid grid-cols-3 gap-2 mb-6">
-              <button onClick={() => explore('左')} className="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-medium transition-colors">向左</button>
-              <button onClick={() => explore('前')} className="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-medium transition-colors">向前</button>
-              <button onClick={() => explore('右')} className="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-medium transition-colors">向右</button>
-            </div>
-
-            <div className="bg-slate-900 rounded-xl p-3 h-40 overflow-y-auto text-left text-xs space-y-2 border border-slate-700">
-              {log.map((msg, idx) => (
-                <p key={idx} className={idx === 0 ? 'text-slate-200 font-bold' : 'text-slate-500'}>{msg}</p>
+            <div className="grid grid-cols-11 gap-0.5 mb-3">
+              {Array.from({ length: 11 }).map((_, i) => (
+                <div key={i} className={`h-1.5 rounded-sm ${
+                  i < stage ? 'bg-emerald-500'
+                    : i === stage ? (stage === 10 ? 'bg-amber-400 animate-pulse' : 'bg-rose-500 animate-pulse')
+                    : 'bg-slate-800'
+                }`} />
               ))}
             </div>
-          </div>
+
+            {/* 双方状态 */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {/* 玩家 */}
+              <div className="bg-slate-900/70 rounded-xl p-2 border border-emerald-700/30">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-emerald-300 font-bold text-xs">🧑 你</span>
+                  <span className="text-[9px] text-emerald-400/60">攻 {baseAtk}</span>
+                </div>
+                <div className="h-2 bg-slate-950 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all"
+                    style={{ width: `${Math.max(0, (health / maxHealth) * 100)}%` }} />
+                </div>
+                <div className="text-[10px] text-emerald-200/70 mt-0.5">{Math.max(0, Math.floor(health))} / {maxHealth}</div>
+              </div>
+              {/* 敌人 */}
+              <div className={`bg-slate-900/70 rounded-xl p-2 border ${enemy.isBoss ? 'border-amber-500/60 shadow-[0_0_12px_rgba(251,191,36,0.3)]' : 'border-rose-700/40'}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`font-bold text-xs ${enemy.isBoss ? 'text-amber-300' : 'text-rose-300'}`}>
+                    {enemy.isBoss ? '👑' : enemy.isMonster ? '👹' : '🗡️'} {enemy.name}
+                  </span>
+                  <span className="text-[9px] text-rose-400/60">攻 {enemy.atk}</span>
+                </div>
+                <div className="h-2 bg-slate-950 rounded-full overflow-hidden">
+                  <div className={`h-full transition-all ${enemy.isBoss ? 'bg-gradient-to-r from-amber-600 to-amber-400' : 'bg-gradient-to-r from-rose-600 to-rose-400'}`}
+                    style={{ width: `${(enemy.hp / enemy.maxHp) * 100}%` }} />
+                </div>
+                <div className="flex items-center justify-between mt-0.5">
+                  <span className="text-[10px] text-rose-200/70">{Math.max(0, enemy.hp)} / {enemy.maxHp}</span>
+                  <div className="flex space-x-1">
+                    {enemy.armorBreak > 0 && (
+                      <span className="text-[8px] px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">破{enemy.armorBreak}</span>
+                    )}
+                    {enemy.beetleDot > 0 && (
+                      <span className="text-[8px] px-1 rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">🪲{enemy.beetleDot}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 顶部计分 */}
+            <div className="flex justify-between mb-2 text-[10px]">
+              <span className="text-amber-400">💎 {score} 灵石</span>
+              <span className="text-slate-400">气血上限 {maxHealth}</span>
+            </div>
+
+            {/* 技能面板（常驻） */}
+            <div className="grid grid-cols-3 gap-1.5 mb-3">
+              <button onClick={skillAttack} disabled={busy} className={skillBtn(!busy, 'slate')}>
+                <div>👊 普攻</div>
+                <div className="text-[9px] opacity-60">{baseAtk}</div>
+              </button>
+              <button onClick={skillSwords} disabled={busy || swordFormation.swords < 1}
+                className={skillBtn(!busy && swordFormation.swords >= 1, 'cyan')}>
+                <div>⚔️ 剑阵</div>
+                <div className="text-[9px] opacity-60">{swordFormation.swords}口×{formationBonus}</div>
+              </button>
+              <button onClick={skillBeetles} disabled={busy || beetleCharges <= 0}
+                className={skillBtn(!busy && beetleCharges > 0, 'yellow')}>
+                <div>🪲 噬金虫</div>
+                <div className="text-[9px] opacity-60">{beetleCharges > 0 ? `剩 ${beetleCharges}` : '已用'}</div>
+              </button>
+              <button onClick={skillDivine} disabled={busy || divineCharges <= 0}
+                className={skillBtn(!busy && divineCharges > 0, 'purple')}>
+                <div>🧠 神识</div>
+                <div className="text-[9px] opacity-60">{divineCharges > 0 ? `剩 ${divineCharges}` : '已用'}</div>
+              </button>
+              <button onClick={skillBeast} disabled={busy || beastUsed || !spiritBeast.active}
+                className={skillBtn(!busy && !beastUsed && !!spiritBeast.active, 'teal')}>
+                <div>🐾 灵兽</div>
+                <div className="text-[9px] opacity-60">
+                  {!spiritBeast.active ? '未派' : beastUsed ? '已用' : '终结技'}
+                </div>
+              </button>
+              <button onClick={skillLiquid} disabled={busy || liquidCharges <= 0}
+                className={skillBtn(!busy && liquidCharges > 0, 'emerald')}>
+                <div>💧 灵液</div>
+                <div className="text-[9px] opacity-60">{liquidCharges > 0 ? `剩 ${liquidCharges}` : '已用'}</div>
+              </button>
+            </div>
+
+            {/* 战斗日志 */}
+            <div className="bg-slate-950/80 rounded-xl p-2.5 h-32 overflow-y-auto text-left text-[11px] space-y-1 border border-slate-700/40">
+              {log.map((msg, idx) => (
+                <p key={idx} className={idx === 0 ? 'text-slate-100 font-medium' : 'text-slate-500'}>{msg}</p>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

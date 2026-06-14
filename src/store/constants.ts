@@ -5,7 +5,7 @@ export const REGIONS = [
   { id: '大晋', name: '大晋', minLevel: 50000, description: '人界第一大修仙国度，人才辈出，资源最丰。星宫、化神老怪云集。', cost: 5000, multiplier: 2.0 },
   { id: '阴冥之地', name: '阴冥之地', minLevel: 80000, description: '阴气极重之地，鬼修横行，魂兽出没。', cost: 10000, multiplier: 2.2 },
   { id: '魔界', name: '魔界', minLevel: 200000, description: '上古魔渊裂缝降临之地，古魔横行。人界与魔界的争夺战场。', cost: 50000, multiplier: 2.8 },
-  { id: '灵界', name: '灵界', minLevel: 700000, description: '飞升者所至，灵气如海，强者如云。风元大陆、雷鸣大陆、霸熊岭等各方大陆。', cost: 100000, multiplier: 4.0 },
+  { id: '灵界', name: '灵界', minLevel: 400000, description: '飞升者所至，灵气如海，强者如云。化神中期可感应飞升，灵界中方修炼炼虚、合体、大乘。', cost: 100000, multiplier: 4.0 },
   { id: '仙界', name: '仙界', minLevel: 50000000, description: '凡人修仙的终极归宿，仙人居所，万千仙宫漂浮云海之上。', cost: 1000000, multiplier: 10.0 },
 ];
 

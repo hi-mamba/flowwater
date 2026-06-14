@@ -33,7 +33,7 @@ export interface RealmMeta {
 
 export const REALM_META: Record<RealmId, RealmMeta> = {
   mortal:   { id: 'mortal',   name: '人界', unlockLevelIndex: 0,  unlockHintLevel: '凡人',     accentColor: '#34d399' },
-  spirit:   { id: 'spirit',   name: '灵界', unlockLevelIndex: 38, unlockHintLevel: '大乘初期', accentColor: '#818cf8' },
+  spirit:   { id: 'spirit',   name: '灵界', unlockLevelIndex: 27, unlockHintLevel: '化神中期', accentColor: '#818cf8' },
   immortal: { id: 'immortal', name: '仙界', unlockLevelIndex: 42, unlockHintLevel: '渡劫期',   accentColor: '#facc15' },
 };
 
@@ -50,20 +50,20 @@ const MORTAL_LOCATIONS: WorldLocation[] = [
   { id: 'void_hall',        realm: 'mortal', name: '虚天殿',         x: 80, y: 28, type: 'dungeon', iconKey: 'gem',      unlockLevelIndex: 18, desc: '上古通天灵宝遗留之地', dungeonId: 'void_hall' },
   { id: 'xinggong',         realm: 'mortal', name: '星宫',           x: 55, y: 35, type: 'sect',    iconKey: 'castle',   unlockLevelIndex: 22, desc: '大晋第一大派，化神老怪云集', regionStoreId: '大晋' },
   { id: 'demon_valley',     realm: 'mortal', name: '坠魔谷',         x: 14, y: 32, type: 'dungeon', iconKey: 'skull',    unlockLevelIndex: 26, desc: '上古魔渊，元婴亦难全身而退', dungeonId: 'demon_valley', regionStoreId: '阴冥之地' },
-  { id: 'kunwu_ascension',  realm: 'mortal', name: '昆吾山·飞升地', x: 50, y: 12, type: 'gate',    iconKey: 'mountain', unlockLevelIndex: 38, desc: '人界飞升点，传说有玄天之宝镇压', dungeonId: 'kunwu_mountain' },
+  { id: 'kunwu_ascension',  realm: 'mortal', name: '昆吾山·飞升地', x: 50, y: 12, type: 'gate',    iconKey: 'mountain', unlockLevelIndex: 27, desc: '人界飞升点，化神中期方可感应', dungeonId: 'kunwu_mountain' },
 ];
 
 // ---------- 灵界（10 地点）----------
 const SPIRIT_LOCATIONS: WorldLocation[] = [
-  { id: 'fengyuan_human',   realm: 'spirit', name: '风元大陆·人族区', x: 38, y: 70, type: 'region', iconKey: 'mountain',  unlockLevelIndex: 38, desc: '人族飞升者聚居之地', regionStoreId: '灵界' },
-  { id: 'fengyuan_lingzu',  realm: 'spirit', name: '风元大陆·灵族城', x: 52, y: 65, type: 'city',   iconKey: 'castle',    unlockLevelIndex: 38, desc: '灵族都市，灵气如海' },
-  { id: 'leiming',          realm: 'spirit', name: '雷鸣大陆',       x: 25, y: 50, type: 'region', iconKey: 'sparkles',  unlockLevelIndex: 39, desc: '雷电交织之地，雷属性圣地' },
-  { id: 'baxiongling',      realm: 'spirit', name: '霸熊岭',         x: 70, y: 55, type: 'region', iconKey: 'mountain',  unlockLevelIndex: 39, desc: '妖族圣地，霸熊一族盘踞' },
-  { id: 'lieyang_island',   realm: 'spirit', name: '烈阳岛',         x: 78, y: 40, type: 'region', iconKey: 'sparkles',  unlockLevelIndex: 40, desc: '海外火属性灵脉之地' },
-  { id: 'xuanfeng_sea',     realm: 'spirit', name: '玄风海',         x: 18, y: 38, type: 'region', iconKey: 'waves',     unlockLevelIndex: 40, desc: '灵界海域，狂风骤雨' },
-  { id: 'cuilin_island',    realm: 'spirit', name: '翠灵岛',         x: 60, y: 48, type: 'secret', iconKey: 'gem',       unlockLevelIndex: 40, desc: '韩立洞府所在，翠光环绕' },
-  { id: 'void_hall_spirit', realm: 'spirit', name: '灵界·虚天殿',   x: 45, y: 30, type: 'dungeon',iconKey: 'gem',       unlockLevelIndex: 41, desc: '高阶虚天殿，玄天之宝沉眠', dungeonId: 'void_hall' },
-  { id: 'changsheng_gate',  realm: 'spirit', name: '长生界入口',     x: 50, y: 18, type: 'gate',   iconKey: 'cloud',     unlockLevelIndex: 41, desc: '灵界至高之地，渡过大乘劫者方可一窥仙路' },
+  { id: 'fengyuan_human',   realm: 'spirit', name: '风元大陆·人族区', x: 38, y: 70, type: 'region', iconKey: 'mountain',  unlockLevelIndex: 27, desc: '人族飞升者聚居之地', regionStoreId: '灵界' },
+  { id: 'fengyuan_lingzu',  realm: 'spirit', name: '风元大陆·灵族城', x: 52, y: 65, type: 'city',   iconKey: 'castle',    unlockLevelIndex: 28, desc: '灵族都市，灵气如海' },
+  { id: 'leiming',          realm: 'spirit', name: '雷鸣大陆',       x: 25, y: 50, type: 'region', iconKey: 'sparkles',  unlockLevelIndex: 30, desc: '雷电交织之地，雷属性圣地（炼虚期方可探索）' },
+  { id: 'baxiongling',      realm: 'spirit', name: '霸熊岭',         x: 70, y: 55, type: 'region', iconKey: 'mountain',  unlockLevelIndex: 31, desc: '妖族圣地，霸熊一族盘踞' },
+  { id: 'lieyang_island',   realm: 'spirit', name: '烈阳岛',         x: 78, y: 40, type: 'region', iconKey: 'sparkles',  unlockLevelIndex: 32, desc: '海外火属性灵脉之地' },
+  { id: 'xuanfeng_sea',     realm: 'spirit', name: '玄风海',         x: 18, y: 38, type: 'region', iconKey: 'waves',     unlockLevelIndex: 33, desc: '灵界海域，狂风骤雨' },
+  { id: 'cuilin_island',    realm: 'spirit', name: '翠灵岛',         x: 60, y: 48, type: 'secret', iconKey: 'gem',       unlockLevelIndex: 34, desc: '韩立洞府所在，翠光环绕（合体期可寻）' },
+  { id: 'void_hall_spirit', realm: 'spirit', name: '灵界·虚天殿',   x: 45, y: 30, type: 'dungeon',iconKey: 'gem',       unlockLevelIndex: 36, desc: '高阶虚天殿，玄天之宝沉眠', dungeonId: 'void_hall' },
+  { id: 'changsheng_gate',  realm: 'spirit', name: '长生界入口',     x: 50, y: 18, type: 'gate',   iconKey: 'cloud',     unlockLevelIndex: 38, desc: '大乘期方可一窥仙路' },
   { id: 'feisheng_arc',     realm: 'spirit', name: '飞升古阵',       x: 50, y: 8,  type: 'gate',   iconKey: 'zap',       unlockLevelIndex: 42, desc: '飞升仙界的古阵' },
 ];
 

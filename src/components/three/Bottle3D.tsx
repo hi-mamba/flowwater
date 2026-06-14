@@ -10,53 +10,55 @@ import * as THREE from 'three';
  *  - 增加瓶身花纹环、绳结挂饰
  */
 
-// 葫芦剖面：经典"小头-束腰-大肚"宝葫芦造型
+// 宝瓶剖面：玉壶春式 —— 盘口 / 修颈 / 圆肩 / 鼓腹 / 束足
 function buildProfile(): { points: THREE.Vector2[]; topY: number; bottomY: number; innerOffset: number } {
   const segments = 80;
-  const topY = 1.8;
-  const bottomY = -1.4;
+  const topY = 1.9;
+  const bottomY = -1.5;
   const totalH = topY - bottomY;
   const points: THREE.Vector2[] = [];
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     const y = topY - t * totalH;
     let r: number;
-    // 比例：颈 6% / 上球 26% / 腰 8% / 下球 56% / 底 4%
-    if (t < 0.03) {
-      // 瓶口翻边
-      r = 0.20 + (0.03 - t) * 1.5;
-    } else if (t < 0.09) {
-      // 颈（细）
-      r = 0.16;
-    } else if (t < 0.13) {
-      // 颈→上球过渡
-      const u = (t - 0.09) / 0.04;
-      r = 0.16 + u * 0.18;
+    // 比例：盘口 4% / 颈 22% / 肩 8% / 腹 50% / 胫 12% / 足 4%
+    if (t < 0.02) {
+      // 盘口外翻沿
+      r = 0.32 - t * 4;
+    } else if (t < 0.06) {
+      // 翻沿收回
+      const u = (t - 0.02) / 0.04;
+      r = 0.24 - u * 0.05;
+    } else if (t < 0.28) {
+      // 修长玉颈（直筒微收）
+      const u = (t - 0.06) / 0.22;
+      r = 0.19 - u * 0.02; // 0.19 → 0.17
     } else if (t < 0.36) {
-      // 上球（小肚），半径峰值 0.55
-      const u = (t - 0.13) / 0.23;
-      r = 0.34 + Math.sin(u * Math.PI) * 0.30;
-    } else if (t < 0.46) {
-      // 腰（狠收，最细 0.22）
-      const u = (t - 0.36) / 0.10;
-      r = 0.34 - Math.sin(u * Math.PI) * 0.16;
-    } else if (t < 0.94) {
-      // 下球（大肚），半径峰值 1.00
-      const u = (t - 0.46) / 0.48;
-      // 用偏移正弦让球更圆
-      r = 0.34 + Math.sin(u * Math.PI) * 0.72;
-    } else if (t < 0.98) {
-      // 底过渡
-      const u = (t - 0.94) / 0.04;
-      r = 0.50 - u * 0.15;
+      // 颈→肩过渡（圆肩展开）
+      const u = (t - 0.28) / 0.08;
+      // 用 cos 让肩膀圆润
+      r = 0.17 + (1 - Math.cos(u * Math.PI / 2)) * 0.55;
+    } else if (t < 0.78) {
+      // 鼓腹（单球，最大半径 0.95）
+      const u = (t - 0.36) / 0.42;
+      // 抛物线腹部，u=0.45 处最大
+      r = 0.72 + Math.sin(u * Math.PI) * 0.28;
+    } else if (t < 0.92) {
+      // 胫（向下收束）
+      const u = (t - 0.78) / 0.14;
+      r = 0.78 - u * 0.42; // 0.78 → 0.36
+    } else if (t < 0.97) {
+      // 圈足外撇
+      const u = (t - 0.92) / 0.05;
+      r = 0.36 + u * 0.06;
     } else {
-      // 圈足
-      const u = (t - 0.98) / 0.02;
-      r = 0.35 * (1 - u * 0.4);
+      // 足底
+      const u = (t - 0.97) / 0.03;
+      r = 0.42 - u * 0.05;
     }
     points.push(new THREE.Vector2(r, y));
   }
-  return { points, topY, bottomY, innerOffset: 0.045 };
+  return { points, topY, bottomY, innerOffset: 0.05 };
 }
 
 // 从葫芦剖面截取液面之下的部分作为液体几何
@@ -158,71 +160,92 @@ function Bottle({ level, fillPercent }: { level: number; fillPercent: number }) 
         </mesh>
       )}
 
-      {/* 瓶塞（木色） */}
-      <mesh position={[0, topY + 0.10, 0]} castShadow>
-        <cylinderGeometry args={[0.18, 0.16, 0.18, 16]} />
+      {/* 盖钮（蘑菇状玉钮，比之前更扁） */}
+      <mesh position={[0, topY + 0.06, 0]} castShadow>
+        <cylinderGeometry args={[0.13, 0.20, 0.10, 16]} />
         <meshStandardMaterial color="#854d0e" roughness={0.85} />
       </mesh>
-      {/* 塞顶圆球 */}
-      <mesh position={[0, topY + 0.24, 0]}>
-        <sphereGeometry args={[0.09, 12, 10]} />
-        <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.25} emissive="#fbbf24" emissiveIntensity={0.15} />
+      {/* 钮顶玉珠 */}
+      <mesh position={[0, topY + 0.18, 0]}>
+        <sphereGeometry args={[0.08, 14, 12]} />
+        <meshPhysicalMaterial color="#a7f3d0" emissive="#10b981" emissiveIntensity={0.4} metalness={0.3} roughness={0.2} clearcoat={0.8} />
       </mesh>
-      {/* 瓶口金箍（翻边外） */}
-      <mesh position={[0, topY + 0.0, 0]}>
-        <torusGeometry args={[0.22, 0.022, 8, 32]} />
-        <meshStandardMaterial color="#fbbf24" metalness={0.95} roughness={0.2} emissive="#fbbf24" emissiveIntensity={0.15} />
-      </mesh>
-
-      {/* 红绳挂饰：从瓶口绕颈一圈 + 垂下两条 */}
-      <mesh position={[0, topY - 0.14, 0]}>
-        <torusGeometry args={[0.17, 0.018, 6, 24]} />
-        <meshStandardMaterial color="#dc2626" roughness={0.7} />
-      </mesh>
-      {/* 红绳垂落 */}
-      <mesh position={[-0.16, topY - 0.40, 0]} rotation={[0, 0, 0.05]}>
-        <cylinderGeometry args={[0.012, 0.012, 0.50, 5]} />
-        <meshStandardMaterial color="#dc2626" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.16, topY - 0.40, 0]} rotation={[0, 0, -0.05]}>
-        <cylinderGeometry args={[0.012, 0.012, 0.50, 5]} />
-        <meshStandardMaterial color="#dc2626" roughness={0.7} />
-      </mesh>
-      {/* 玉佩（吊在红绳末端） */}
-      <mesh position={[-0.16, topY - 0.72, 0]}>
-        <torusGeometry args={[0.06, 0.015, 6, 16]} />
-        <meshStandardMaterial color="#a7f3d0" emissive="#10b981" emissiveIntensity={0.3} metalness={0.4} roughness={0.3} />
-      </mesh>
-      {/* 红穗 */}
-      <mesh position={[0.16, topY - 0.78, 0]}>
-        <coneGeometry args={[0.04, 0.14, 6]} />
-        <meshStandardMaterial color="#991b1b" emissive="#dc2626" emissiveIntensity={0.2} roughness={0.7} />
+      {/* 盘口金沿（外翻） */}
+      <mesh position={[0, topY - 0.04, 0]}>
+        <torusGeometry args={[0.30, 0.020, 8, 32]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.95} roughness={0.2} emissive="#fbbf24" emissiveIntensity={0.2} />
       </mesh>
 
-      {/* 束腰处缠绳（金线） */}
-      <mesh position={[0, -0.05, 0]}>
-        <torusGeometry args={[0.20, 0.020, 8, 32]} />
-        <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.3} emissive="#fbbf24" emissiveIntensity={0.1} />
+      {/* === 颈部装饰 === */}
+      {/* 颈中两道金弦纹 */}
+      <mesh position={[0, 1.55, 0]}>
+        <torusGeometry args={[0.185, 0.012, 6, 32]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.3} />
       </mesh>
-      <mesh position={[0, -0.13, 0]}>
-        <torusGeometry args={[0.22, 0.018, 8, 32]} />
-        <meshStandardMaterial color="#7c2d12" roughness={0.85} />
+      <mesh position={[0, 1.30, 0]}>
+        <torusGeometry args={[0.185, 0.012, 6, 32]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.3} />
       </mesh>
 
-      {/* 下球腹部符纹（一圈细线） */}
-      <mesh position={[0, -0.55, 0]}>
-        <torusGeometry args={[0.85, 0.010, 6, 48]} />
-        <meshStandardMaterial color="#fde047" metalness={0.8} roughness={0.4} emissive="#fbbf24" emissiveIntensity={0.4} />
+      {/* === 肩部铺首兽环（左右对称的兽首衔环） === */}
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * 0.72, 0.78, 0]} rotation={[0, side > 0 ? 0 : Math.PI, 0]}>
+          {/* 兽首底盘（圆面朝外） */}
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.10, 0.10, 0.05, 12]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.35} emissive="#92400e" emissiveIntensity={0.2} />
+          </mesh>
+          {/* 兽首鼻梁（小凸起） */}
+          <mesh position={[0.025, 0, 0]}>
+            <sphereGeometry args={[0.045, 10, 8]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.9} roughness={0.35} />
+          </mesh>
+          {/* 兽眼一对 */}
+          <mesh position={[0.045, 0.025, 0.035]}>
+            <sphereGeometry args={[0.013, 6, 6]} />
+            <meshStandardMaterial color="#1c1917" />
+          </mesh>
+          <mesh position={[0.045, 0.025, -0.035]}>
+            <sphereGeometry args={[0.013, 6, 6]} />
+            <meshStandardMaterial color="#1c1917" />
+          </mesh>
+          {/* 衔环（横悬） */}
+          <mesh position={[0.06, -0.10, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.08, 0.013, 6, 20]} />
+            <meshStandardMaterial color="#fbbf24" metalness={0.95} roughness={0.25} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* === 腹部云雷纹（上下两道） === */}
+      <mesh position={[0, 0.42, 0]}>
+        <torusGeometry args={[0.86, 0.014, 6, 64]} />
+        <meshStandardMaterial color="#fde047" metalness={0.85} roughness={0.35} emissive="#fbbf24" emissiveIntensity={0.4} />
       </mesh>
-      <mesh position={[0, -0.75, 0]}>
-        <torusGeometry args={[0.92, 0.008, 6, 48]} />
+      <mesh position={[0, 0.32, 0]}>
+        <torusGeometry args={[0.92, 0.010, 6, 64]} />
         <meshStandardMaterial color="#a7f3d0" emissive="#34d399" emissiveIntensity={0.5} />
       </mesh>
+      {/* 腹部中央"卐"字符（4 个金色小圆点环绕示意法器铭文） */}
+      {[0, 1, 2, 3].map((i) => {
+        const angle = (i / 4) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[Math.cos(angle) * 0.96, 0.05, Math.sin(angle) * 0.96]}>
+            <sphereGeometry args={[0.025, 8, 8]} />
+            <meshStandardMaterial color="#fde047" emissive="#fde047" emissiveIntensity={0.8} metalness={0.8} roughness={0.3} />
+          </mesh>
+        );
+      })}
+      {/* 下腹弦纹 */}
+      <mesh position={[0, -0.40, 0]}>
+        <torusGeometry args={[0.74, 0.010, 6, 64]} />
+        <meshStandardMaterial color="#fbbf24" metalness={0.85} roughness={0.4} />
+      </mesh>
 
-      {/* 底部圈足（坐稳） */}
-      <mesh position={[0, -1.42, 0]}>
-        <torusGeometry args={[0.36, 0.025, 8, 32]} />
-        <meshStandardMaterial color="#065f46" metalness={0.6} roughness={0.5} />
+      {/* === 圈足装饰 === */}
+      <mesh position={[0, -1.08, 0]}>
+        <torusGeometry args={[0.40, 0.018, 8, 32]} />
+        <meshStandardMaterial color="#065f46" metalness={0.7} roughness={0.4} emissive="#10b981" emissiveIntensity={0.2} />
       </mesh>
 
       {/* 高阶旋转符文环 */}
@@ -298,7 +321,7 @@ function QiParticles({ topY }: { topY: number }) {
 export default function Bottle3D({ level, fillPercent, height = 220 }: { level: number; fillPercent: number; height?: number }) {
   return (
     <div style={{ width: '100%', height, position: 'relative' }}>
-      <Canvas camera={{ position: [0, 0.2, 4.5], fov: 38 }} shadows dpr={[1, 1.5]}>
+      <Canvas camera={{ position: [0, 0.1, 4.8], fov: 36 }} shadows dpr={[1, 1.5]}>
         <color attach="background" args={['#022c22']} />
         <fog attach="fog" args={['#022c22', 5, 11]} />
         <ambientLight intensity={0.5} />
@@ -306,13 +329,13 @@ export default function Bottle3D({ level, fillPercent, height = 220 }: { level: 
         <pointLight position={[-3, 2, -2]} intensity={0.7} color="#10b981" />
         <pointLight position={[0, 3, 3]} intensity={0.9} color="#6ee7b7" />
         <Bottle level={level} fillPercent={fillPercent} />
-        <QiParticles topY={1.8} />
+        <QiParticles topY={1.9} />
         {/* 地面 */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.55, 0]} receiveShadow>
           <circleGeometry args={[2.8, 32]} />
           <meshStandardMaterial color="#022c22" roughness={0.9} />
         </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.49, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.54, 0]}>
           <ringGeometry args={[1.0, 1.8, 64]} />
           <meshBasicMaterial color="#10b981" transparent opacity={0.18} side={THREE.DoubleSide} />
         </mesh>

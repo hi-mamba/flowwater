@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useStore } from '../store';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, Hammer, Swords, Shield, Zap, Sparkles, Wrench } from 'lucide-react';
+import { Bot, Hammer, Swords, Shield, Zap, Sparkles, Wrench, X } from 'lucide-react';
 import { ALL_HERBS } from '../data/craftingData';
+import type { Puppet } from '../store/puppetSlice';
 
 const MAT_NAME = (id: string) =>
   id === 'spiritStones' ? '灵石' : (ALL_HERBS.find(h => h.id === id)?.name || id);
@@ -15,27 +16,22 @@ const PUPPET_TYPES = [
   { id: 'divine', name: '神傀', tier: 5, desc: '大衍诀第七层方可炼制，威力接近元婴修士', cost: { jiuzhuan_grass: 1, spiritStones: 10000 }, power: 300, icon: Zap },
 ];
 
-export interface Puppet {
-  id: string;
-  type: string;
-  name: string;
-  tier: number;
-  level: number;
-  power: number;
-  durability: number;
-  maxDurability: number;
-  deployed: boolean;
-}
+export type { Puppet };
 
 export default function PuppetMaster() {
-  const { divineSense, materials, spiritStones, addSpiritStones, addMaterial } = useStore();
-  const [puppets, setPuppets] = useState<Puppet[]>([]);
+  const {
+    divineSense, materials, spiritStones, addSpiritStones, addMaterial,
+    puppets, addPuppet, removePuppet, togglePuppetDeployed, repairPuppet,
+    getPuppetActionsPerHour, getDeployedPuppetPower,
+  } = useStore();
   const [toast, setToast] = useState<string | null>(null);
   const [crafting, setCrafting] = useState<string | null>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
   const canCraft = divineSense.level >= 2;
   const maxPuppets = divineSense.maxSplit;
+  const deployedPower = getDeployedPuppetPower();
+  const actionsPerHour = getPuppetActionsPerHour();
 
   const craft = (typeId: string) => {
     const def = PUPPET_TYPES.find(p => p.id === typeId);
@@ -59,7 +55,7 @@ export default function PuppetMaster() {
       power: def.power,
       durability: 100,
       maxDurability: 100,
-      deployed: false,
+      deployed: true, // 默认出战 — 这样新炼的傀儡立即开始干活
     };
 
     for (const [mat, amt] of Object.entries(def.cost)) {
@@ -69,28 +65,16 @@ export default function PuppetMaster() {
     addSpiritStones(-def.cost.spiritStones);
 
     setTimeout(() => {
-      setPuppets(prev => [...prev, newPuppet]);
+      addPuppet(newPuppet);
       setCrafting(null);
-      showToast(`炼制成功：${def.name}！`);
+      showToast(`炼制成功：${def.name}！已自动出战`);
     }, 1500);
   };
 
-  const deploy = (puppetId: string) => {
-    setPuppets(prev => prev.map(p =>
-      p.id === puppetId ? { ...p, deployed: !p.deployed } : p
-    ));
-  };
-
   const repair = (puppetId: string) => {
-    if (spiritStones < 50) { showToast('需要 50 灵石'); return; }
-    addSpiritStones(-50);
-    setPuppets(prev => prev.map(p =>
-      p.id === puppetId ? { ...p, durability: p.maxDurability } : p
-    ));
-    showToast('傀儡已修复');
+    if (!repairPuppet(puppetId)) showToast('需要 50 灵石');
+    else showToast('傀儡已修复');
   };
-
-  const deployedPower = puppets.filter(p => p.deployed).reduce((s, p) => s + p.power * p.level, 0);
 
   if (!canCraft) {
     return (
@@ -123,7 +107,9 @@ export default function PuppetMaster() {
           <h3 className="text-sm font-bold text-amber-300">傀儡术</h3>
           <span className="text-[10px] text-amber-400/40">{puppets.length}/{maxPuppets}</span>
         </div>
-        <span className="text-[10px] text-amber-400/50">出战战力：{deployedPower}</span>
+        <span className="text-[10px] text-amber-400/60">
+          出战 {deployedPower} 战力 · {actionsPerHour.toFixed(1)}/h
+        </span>
       </div>
 
       {/* Craft list */}
@@ -140,7 +126,7 @@ export default function PuppetMaster() {
               <p.icon size={14} className="text-amber-400 flex-shrink-0" />
               <div className="flex-1 text-left min-w-0">
                 <div className="text-xs text-white">{p.name}</div>
-                <div className="text-[10px] text-slate-500 truncate">T{p.tier} · {p.desc}</div>
+                <div className="text-[10px] text-slate-500 truncate">T{p.tier} · 战力 {p.power} · {p.desc}</div>
                 <div className="flex flex-wrap gap-x-2 mt-0.5">
                   {matCosts.map(([m, amt]) => {
                     const have = materials[m] || 0;
@@ -154,7 +140,6 @@ export default function PuppetMaster() {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <div className="text-[10px] text-amber-400/60">战力 {p.power}</div>
                 <div className={`text-[8px] ${spiritStones >= p.cost.spiritStones ? 'text-slate-600' : 'text-red-400'}`}>
                   {p.cost.spiritStones}💎
                 </div>
@@ -175,7 +160,7 @@ export default function PuppetMaster() {
             const Icon = def?.icon || Bot;
             return (
               <motion.div key={puppet.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                className={`flex items-center space-x-3 p-2.5 rounded-xl border transition-all ${
+                className={`flex items-center space-x-2 p-2.5 rounded-xl border transition-all ${
                   puppet.deployed ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-800/30 border-slate-700/20'
                 }`}>
                 <Icon size={14} className={puppet.deployed ? 'text-amber-400' : 'text-slate-500'} />
@@ -190,21 +175,31 @@ export default function PuppetMaster() {
                     <span>耐久 {puppet.durability}%</span>
                   </div>
                 </div>
-                <button onClick={() => deploy(puppet.id)}
+                <button onClick={() => togglePuppetDeployed(puppet.id)}
                   className={`text-[10px] px-2 py-1 rounded-lg border transition-all ${
                     puppet.deployed ? 'bg-amber-500/20 border-amber-500/30 text-amber-300' : 'bg-slate-700/50 border-slate-600 text-slate-400'
                   }`}>
                   {puppet.deployed ? '出战' : '待命'}
                 </button>
                 <button onClick={() => repair(puppet.id)}
+                  title="修复 (50 灵石)"
                   className="text-[10px] px-2 py-1 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-400">
                   <Wrench size={12} />
+                </button>
+                <button onClick={() => { removePuppet(puppet.id); showToast('已熔毁傀儡'); }}
+                  title="熔毁"
+                  className="text-[10px] px-1.5 py-1 rounded-lg bg-slate-800/50 border border-slate-700/50 text-slate-500 hover:text-red-400">
+                  <X size={11} />
                 </button>
               </motion.div>
             );
           })}
         </div>
       )}
+
+      <p className="text-[10px] text-amber-400/40 mt-2">
+        每 60 战力 / 小时 1 次自动任务（采气 / 炼丹 / 炼器） · 在「洞府总管」面板中配置
+      </p>
     </motion.div>
   );
 }

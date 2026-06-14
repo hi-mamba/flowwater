@@ -1,3 +1,5 @@
+import type { Puppet, PuppetAutomationConfig, GardenPlot } from './puppetSlice';
+
 export interface Plan {
   id: string;
   name: string;
@@ -576,4 +578,34 @@ export interface AppState {
   endAdventureCombat: () => void;
   closeAdventureEvent: () => void;
   setAdventureStoryFlag: (flag: string) => void;
+
+  // 傀儡自动化系统
+  puppets: Puppet[];
+  puppetAutomation: PuppetAutomationConfig;
+  puppetActions: number;
+  puppetLastTickAt: number;
+  puppetActivityLog: { ts: number; text: string }[];
+  addPuppet: (p: Puppet) => void;
+  removePuppet: (id: string) => void;
+  togglePuppetDeployed: (id: string) => void;
+  repairPuppet: (id: string) => boolean;
+  setPuppetAutomation: (cfg: Partial<PuppetAutomationConfig>) => void;
+  togglePuppetAutoSpring: () => void;
+  togglePuppetAutoHarvest: () => void;
+  togglePuppetAutoReplant: () => void;
+  gardenPlots: GardenPlot[];
+  plantGardenPlot: (plotId: string, herbId: string) => void;
+  plantAllEmptyPlots: (herbId: string, maxPlots: number) => void;
+  harvestGardenPlot: (plotId: string) => void;
+  clearGardenPlot: (plotId: string) => void;
+  addAlchemyQueueItem: (recipeId: string) => void;
+  removeAlchemyQueueItem: (recipeId: string) => void;
+  moveAlchemyQueueItem: (recipeId: string, dir: -1 | 1) => void;
+  addCraftingQueueItem: (recipeId: string) => void;
+  removeCraftingQueueItem: (recipeId: string) => void;
+  moveCraftingQueueItem: (recipeId: string, dir: -1 | 1) => void;
+  getPuppetActionsPerHour: () => number;
+  getDeployedPuppetPower: () => number;
+  tickPuppetAutomation: () => void;
+  getPuppetTypePower: (typeId: string) => number;
 }

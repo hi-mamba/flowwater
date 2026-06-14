@@ -15,7 +15,8 @@ export const createSpiritRealmSlice = (set: any, get: any, _store?: any) => ({
   unlockSpiritRealm: () => {
     const state = get();
     if (state.spiritRealm.unlocked) return { success: false, message: '灵界已解锁' };
-    if (state.levelIndex < 36) return { success: false, message: '需达到化神期方可感应灵界' };
+    // 化神中期（index 27）方可感应灵界召唤——原著设定：人界化神顶，飞升后方修炼炼虚
+    if (state.levelIndex < 27) return { success: false, message: '需达化神中期方可感应灵界' };
     set({
       spiritRealm: {
         ...state.spiritRealm,

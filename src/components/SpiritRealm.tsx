@@ -10,7 +10,7 @@ export default function SpiritRealm() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
-  const canUnlock = levelIndex >= 36 && !spiritRealm.unlocked;
+  const canUnlock = levelIndex >= 27 && !spiritRealm.unlocked;
 
   // Not unlocked yet
   if (!spiritRealm.unlocked) {
@@ -46,11 +46,11 @@ export default function SpiritRealm() {
             </motion.button>
           ) : (
             <span className="text-[10px] text-indigo-400/40">
-              {levelIndex < 36 ? `需 ${CULTIVATION_LEVELS[36]?.name || '化神期'}` : ''}
+              {levelIndex < 27 ? `需 ${CULTIVATION_LEVELS[27]?.name || '化神中期'}` : ''}
             </span>
           )}
         </div>
-        <p className="text-[10px] text-indigo-400/40">化神期修士可感应灵界召唤，飞升更高层次世界</p>
+        <p className="text-[10px] text-indigo-400/40">化神中期方可感应灵界召唤，飞升后修炼炼虚及以上境界</p>
       </motion.div>
     );
   }

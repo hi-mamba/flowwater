@@ -945,7 +945,7 @@ export default function HomePage() {
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
               )}
             </button>
-            {levelIndex >= 54 && (
+            {levelIndex >= 27 && (
               <button onClick={() => navigate('/adventure')} className="flex items-center space-x-1 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/30 hover:bg-yellow-500/30 transition-colors animate-bounce">
                 <Sparkles size={14} />
                 <span className="text-xs font-bold">飞升灵界</span>

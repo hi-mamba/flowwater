@@ -12,6 +12,7 @@ import { createDungeonSlice } from './dungeonSlice';
 import { createSpiritRealmSlice } from './spiritRealmSlice';
 import { createV6Slice } from './v6Slice';
 import { createDemonAbyssSlice } from './demonAbyssSlice';
+import { createPuppetSlice } from './puppetSlice';
 
 // Re-export types and constants
 export * from './constants';
@@ -34,6 +35,7 @@ const useStore = create<AppState>()(
       ...createSpiritRealmSlice(set, get, store),
       ...createV6Slice(set, get, store),
       ...createDemonAbyssSlice(set, get, store),
+      ...createPuppetSlice(set, get, store),
     }),
     {
       name: 'flowwater-storage',
