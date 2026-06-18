@@ -11,6 +11,11 @@ export function getSocket(): Socket | null {
   return socket;
 }
 
+/** Current server base URL (shared by the news HTTP client). */
+export function getServerUrl(): string {
+  return serverUrl;
+}
+
 /** Connect (or reconnect) to the socket server. Returns the socket instance. */
 export function connectSocket(url?: string): Socket {
   if (url) serverUrl = url;

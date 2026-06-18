@@ -21,6 +21,7 @@ const GamesPage = lazy(() => import('./pages/Games'));
 const AdventurePage = lazy(() => import('./pages/Adventure'));
 const SectPage = lazy(() => import('./pages/Sect'));
 const SettingsPage = lazy(() => import('./pages/Settings'));
+const NewsPage = lazy(() => import('./pages/News'));
 
 const navItems = [
   { to: '/', label: '首页', icon: Home },
@@ -102,6 +103,7 @@ export default function App() {
               <Route path="/sect" element={<SectPage />} />
               <Route path="/games" element={<GamesPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/news" element={<NewsPage />} />
             </Routes>
           </Suspense>
         </main>

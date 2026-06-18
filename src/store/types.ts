@@ -79,6 +79,8 @@ export interface Settings {
   voiceCommandEnabled: boolean;
   dailyGoal: number; // ml
   systemNotifications?: boolean;
+  /** 是否开启「新闻资讯」入口（可随时关闭）。 */
+  newsEnabled?: boolean;
   drinkMultipliers: {
     water: number;
     tea: number;

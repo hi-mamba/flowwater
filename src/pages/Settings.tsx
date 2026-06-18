@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import { Bell, Music, Mic, Target, Download, Smartphone, BarChart2, AlertTriangle, X } from 'lucide-react';
+import { Bell, Music, Mic, Target, Download, Smartphone, BarChart2, AlertTriangle, X, Newspaper } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { requestNotificationPermission } from '../notifications';
@@ -292,6 +292,45 @@ export default function SettingsPage() {
             <p className="text-xs text-slate-500 leading-relaxed">
               开启后，当提醒响起时，直接说“喝了”或“搞定”，App 将自动记录并关闭提醒。语音识别完全在本地进行，保护隐私。
             </p>
+          </div>
+        </section>
+
+        {/* News */}
+        <section>
+          <div className="flex items-center space-x-3 mb-4 text-emerald-400">
+            <Newspaper size={20} />
+            <h2 className="text-lg font-medium text-white">新闻资讯</h2>
+          </div>
+          <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 divide-y divide-slate-700/50">
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex-1 pr-3">
+                <span className="text-slate-300">开启新闻资讯</span>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                  开启后可查看近 1 小时的新闻汇总，并实时同步同一局域网内其他设备。可随时关闭。
+                </p>
+              </div>
+              <button
+                onClick={() => updateSettings({ newsEnabled: !settings.newsEnabled })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-none ${
+                  settings.newsEnabled ? 'bg-emerald-500' : 'bg-slate-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    settings.newsEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            {settings.newsEnabled && (
+              <button
+                onClick={() => navigate('/news')}
+                className="w-full p-4 flex items-center justify-between hover:bg-slate-700/30 transition-colors"
+              >
+                <span className="text-slate-300">查看新闻资讯</span>
+                <span className="text-emerald-400">&rarr;</span>
+              </button>
+            )}
           </div>
         </section>
 

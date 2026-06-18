@@ -17,10 +17,111 @@ async function startServer() {
     }
   });
 
+  // 解析 JSON 请求体（新闻写入接口需要）
+  app.use(express.json({ limit: "1mb" }));
+
   // API routes FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
+
+  // ====== 新闻资讯（内置数据库 / 只保留近 1 小时） ======
+  // 存储在 ./data/news.json，写入节流落盘；超过 1 小时的条目自动清理。
+  // 数据写入接口（供其他人实现）：POST /api/news
+  // 读取接口：GET /api/news
+  // 写入成功后通过 socket 事件 news_added 推送到同局域网其他设备。
+  const NEWS_FILE = process.env.NEWS_FILE || path.join(process.cwd(), "data", "news.json");
+  const NEWS_RETENTION_MS = 60 * 60 * 1000; // 1 小时
+  const NEWS_MAX = 500;
+
+  interface NewsItem {
+    id: string;
+    title: string;
+    content: string;
+    aiAnalysis: string;
+    sourceUrl: string;
+    createdAt: number;
+    extra?: Record<string, unknown>;
+  }
+
+  let newsItems: NewsItem[] = [];
+  try {
+    if (fs.existsSync(NEWS_FILE)) {
+      newsItems = JSON.parse(fs.readFileSync(NEWS_FILE, "utf-8")) || [];
+    }
+  } catch (e) {
+    console.warn("[News] Failed to load file, starting fresh:", (e as Error).message);
+    newsItems = [];
+  }
+
+  // 移除过期（超过 1 小时）的条目，返回是否有变化
+  const pruneNews = (): boolean => {
+    const cutoff = Date.now() - NEWS_RETENTION_MS;
+    const before = newsItems.length;
+    newsItems = newsItems.filter((n) => n.createdAt >= cutoff);
+    return newsItems.length !== before;
+  };
+  pruneNews();
+
+  let newsSaveTimer: NodeJS.Timeout | null = null;
+  const scheduleNewsSave = () => {
+    if (newsSaveTimer) return;
+    newsSaveTimer = setTimeout(() => {
+      newsSaveTimer = null;
+      try {
+        const newsDir = path.dirname(NEWS_FILE);
+        if (!fs.existsSync(newsDir)) fs.mkdirSync(newsDir, { recursive: true });
+        const tmp = NEWS_FILE + ".tmp";
+        fs.writeFileSync(tmp, JSON.stringify(newsItems), "utf-8");
+        fs.renameSync(tmp, NEWS_FILE);
+      } catch (e) {
+        console.warn("[News] Save failed:", (e as Error).message);
+      }
+    }, 2000);
+  };
+
+  // 读取：仅返回近 1 小时、按时间倒序
+  app.get("/api/news", (req, res) => {
+    pruneNews();
+    const items = [...newsItems].sort((a, b) => b.createdAt - a.createdAt);
+    res.json({ ok: true, items });
+  });
+
+  // 写入接口（供其他人实现数据写入）
+  app.post("/api/news", (req, res) => {
+    const body = req.body || {};
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    const content = typeof body.content === "string" ? body.content : "";
+    const aiAnalysis = typeof body.aiAnalysis === "string" ? body.aiAnalysis : "";
+    const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl : "";
+    if (!title) {
+      return res.status(400).json({ ok: false, error: "title 必填" });
+    }
+    const item: NewsItem = {
+      id: typeof body.id === "string" && body.id ? body.id : `news_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      title: title.slice(0, 200),
+      content: content.slice(0, 20000),
+      aiAnalysis: aiAnalysis.slice(0, 20000),
+      sourceUrl: sourceUrl.slice(0, 1000),
+      createdAt: typeof body.createdAt === "number" ? body.createdAt : Date.now(),
+      extra: body.extra && typeof body.extra === "object" ? body.extra : undefined,
+    };
+    newsItems.push(item);
+    pruneNews();
+    if (newsItems.length > NEWS_MAX) {
+      newsItems.sort((a, b) => b.createdAt - a.createdAt);
+      newsItems = newsItems.slice(0, NEWS_MAX);
+    }
+    scheduleNewsSave();
+    // 推送到同局域网内所有已连接设备
+    io.emit("news_added", { item });
+    res.json({ ok: true, item });
+  });
+
+  // 每 5 分钟清理一次过期数据
+  setInterval(() => {
+    if (pruneNews()) scheduleNewsSave();
+  }, 5 * 60 * 1000);
 
   // ====== 排行榜（JSON 文件持久化版） ======
   // 启动时从 ./data/leaderboards.json 读取；每次提交后节流写盘（默认 2s）
@@ -205,6 +306,13 @@ async function startServer() {
       leaderboards[gameId] = existing.slice(0, MAX_PER_BOARD);
       scheduleSave();
       socket.emit("leaderboard_updated", { gameId, top: leaderboards[gameId].slice(0, 20) });
+    });
+
+    // ====== 新闻事件 ======
+    socket.on("get_news", () => {
+      pruneNews();
+      const items = [...newsItems].sort((a, b) => b.createdAt - a.createdAt);
+      socket.emit("news_list", { items });
     });
 
     socket.on("get_leaderboard", (gameId: string) => {

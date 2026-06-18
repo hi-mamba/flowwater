@@ -46,6 +46,7 @@ export const createCoreSlice = (set: any, get: any, _store?: any) => ({
     voiceCommandEnabled: true,
     dailyGoal: 2000,
     systemNotifications: false,
+    newsEnabled: false,
     drinkMultipliers: {
       water: 1,
       tea: 1.2,
