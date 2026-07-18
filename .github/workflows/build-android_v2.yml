@@ -100,22 +100,12 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
-      # ── 重命名 APK，加入构建编号和短 SHA ────────────────────────
-      - name: Rename APK with version info
+      # ── 使用固定文件名，让用户始终通过 releases/latest 直接下载 ──
+      - name: Prepare APK for release
         run: |
-          SHORT_SHA="${{ github.sha }}"
-          SHORT_SHA="${SHORT_SHA:0:7}"
-          NEW_NAME="yueqian-build${{ github.run_number }}-${SHORT_SHA}.apk"
+          NEW_NAME="FlowWater-Android.apk"
           cp android/app/build/outputs/apk/debug/app-debug.apk "$NEW_NAME"
           echo "APK_NAME=$NEW_NAME" >> $GITHUB_ENV
-
-      # ── 保留 Actions Artifact（7天临时备份）────────────────────
-      - name: Upload artifact (7-day backup)
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: ${{ env.APK_NAME }}
-          retention-days: 7
 
       # ── 上传到 GitHub Release（永久保存）────────────────────────
       # 只有 push 到主分支时才创建，PR 时跳过
@@ -141,4 +131,4 @@ jobs:
             3. 打开下载的 APK 安装即可
           files: ${{ env.APK_NAME }}
           draft: false
-          prerelease: true
+          prerelease: false

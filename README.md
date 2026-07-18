@@ -19,6 +19,12 @@
   <img alt="Capacitor" src="https://img.shields.io/badge/Capacitor-8-119EFF">
 </p>
 
+<p align="center">
+  <a href="https://github.com/hi-mamba/flowwater/releases/latest/download/FlowWater-Android.apk">
+    <img alt="Download Android APK" src="https://img.shields.io/badge/Download-Android_APK-3DDC84?logo=android&logoColor=white">
+  </a>
+</p>
+
 ---
 
 **FlowWater (悦泉修仙)** is a lightweight PWA / Android app that turns drinking water into a Xianxia (cultivation) journey set in the world of *"A Record of a Mortal's Journey to Immortality"* (凡人修仙传).
